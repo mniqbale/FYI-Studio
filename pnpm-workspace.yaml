@@ -1,0 +1,12 @@
+packages:
+  - "packages/*"
+  - "services/*"
+  - "workers/*"
+  - "tests"
+
+onlyBuiltDependencies:
+  - "@prisma/client"
+  - "@prisma/engines"
+  - "prisma"
+  - "esbuild"
+  - "msgpackr-extract"

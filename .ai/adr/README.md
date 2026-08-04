@@ -30,6 +30,7 @@ related_documents:
 | [ADR-0003](./ADR-0003-reference-based-data-plane.md) | Reference-Based Data Plane (S3 Pointers Only) | Accepted | 2026-08-04 | — |
 | [ADR-0004](./ADR-0004-thin-orchestrator.md) | Thin Orchestrator with BullMQ + PostgreSQL | Accepted | 2026-08-04 | — |
 | [ADR-0005](./ADR-0005-engineering-standards.md) | Adopt Engineering Standards v1.0 | Accepted | 2026-08-04 | — |
+| [ADR-0006](./ADR-0006-user-configurable-provider-connection.md) | User-Configurable Provider Connections & Capability-Filtered Model Selection | **Proposed** | 2026-08-04 | — |
 
 ---
 

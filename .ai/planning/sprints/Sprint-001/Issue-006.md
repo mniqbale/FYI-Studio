@@ -3,7 +3,7 @@ title: "Issue S1.6: End-to-End Test Suite"
 issue_id: "S1.6"
 sprint: "Sprint-001"
 source: "Concept-11.md"
-status: "ready"
+status: "done"
 priority: "P1"
 estimated_complexity: "S"
 estimated_hours: 4

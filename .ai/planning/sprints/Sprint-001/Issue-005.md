@@ -3,7 +3,7 @@ title: "Issue S1.5: Skeleton Run CLI"
 issue_id: "S1.5"
 sprint: "Sprint-001"
 source: "Concept-11.md"
-status: "ready"
+status: "done"
 priority: "P1"
 estimated_complexity: "XS"
 estimated_hours: 2

@@ -3,7 +3,7 @@ title: "Issue S1.4: Supervisor Kernel (The Core)"
 issue_id: "S1.4"
 sprint: "Sprint-001"
 source: "Concept-11.md"
-status: "ready"
+status: "done"
 priority: "P0"
 estimated_complexity: "L"
 estimated_hours: 16

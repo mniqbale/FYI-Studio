@@ -3,7 +3,7 @@ title: "Issue S1.2: Database Layer Implementation (The Ledger)"
 issue_id: "S1.2"
 sprint: "Sprint-001"
 source: "Concept-11.md"
-status: "ready"
+status: "done"
 priority: "P0"
 estimated_complexity: "S"
 estimated_hours: 4

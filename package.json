@@ -1,0 +1,28 @@
+{
+  "name": "fyi-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FYI Studio — AI Operating System for Distributed Media Production (Sprint 1: Skeleton Run)",
+  "type": "module",
+  "packageManager": "pnpm@11.18.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter \"./packages/**\" --filter \"./workers/**\" --filter \"./services/**\" run build",
+    "clean": "pnpm -r --filter \"./packages/**\" --filter \"./workers/**\" --filter \"./services/**\" run clean",
+    "typecheck": "pnpm -r --filter \"./packages/**\" --filter \"./workers/**\" --filter \"./services/**\" --filter \"./tests\" run typecheck",
+    "infra:up": "docker compose up -d",
+    "infra:down": "docker compose down",
+    "infra:ps": "docker compose ps",
+    "infra:logs": "docker compose logs -f",
+    "start-skeleton": "tsx packages/cli/src/trigger-run.ts",
+    "test:e2e": "vitest run tests/e2e/skeleton-run.test.ts",
+    "test:e2e:watch": "vitest tests/e2e/skeleton-run.test.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.5",
+    "typescript": "^5.4.0",
+    "vitest": "^4.1.10"
+  }
+}

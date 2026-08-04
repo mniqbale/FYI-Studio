@@ -1,0 +1,63 @@
+// FYI Studio Database Schema — Job Ledger & Telemetry
+// Mirrors the authoritative Contracts v1.1 SQL in `.ai/architecture/contracts.md` (§1.4, §1.6).
+// snake_case column mapping enforced via @map.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  WAITING_APPROVAL
+  COMPLETED
+  FAILED
+}
+
+model Job {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenant_id         String   @db.VarChar(255)
+  recipe_id         String   @db.VarChar(255)
+  status            JobStatus @default(PENDING)
+  current_step_index Int     @default(0)
+  recipe_snapshot   Json
+  artifacts         Json?    @default("{}")
+  created_at        DateTime @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime @updatedAt @db.Timestamptz(6)
+
+  telemetry Telemetry[]
+
+  @@index([tenant_id, status], name: "idx_jobs_tenant_status")
+  @@index([created_at], name: "idx_jobs_created_at")
+  @@map("jobs")
+}
+
+model Telemetry {
+  id             Int      @id @default(autoincrement())
+  job_id         String   @db.Uuid
+  execution_id   String   @db.VarChar(255)
+  worker_id      String   @db.VarChar(255)
+  worker_version String   @db.VarChar(50)
+  provider       String?  @db.VarChar(50)
+  model          String?  @db.VarChar(50)
+  tokens_in      Int?
+  tokens_out     Int?
+  seconds        Int?
+  cost           Decimal? @db.Decimal(10, 6)
+  duration_ms    Int?
+  started_at     DateTime @db.Timestamptz(6)
+  finished_at    DateTime @db.Timestamptz(6)
+  created_at     DateTime @default(now()) @db.Timestamptz(6)
+
+  job Job @relation(fields: [job_id], references: [id], onDelete: Cascade)
+
+  @@index([job_id], name: "idx_telemetry_job")
+  @@index([worker_id, created_at], name: "idx_telemetry_worker")
+  @@index([provider, model, created_at], name: "idx_telemetry_provider")
+  @@map("telemetry")
+}

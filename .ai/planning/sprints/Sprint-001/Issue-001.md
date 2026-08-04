@@ -3,7 +3,7 @@ title: "Issue S1.1: Workspace & Infrastructure Initialization"
 issue_id: "S1.1"
 sprint: "Sprint-001"
 source: "Concept-11.md"
-status: "ready"
+status: "done"
 priority: "P0"
 estimated_complexity: "S"
 estimated_hours: 4

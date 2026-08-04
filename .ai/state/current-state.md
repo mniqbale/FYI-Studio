@@ -36,14 +36,16 @@ related_documents:
 
 | Issue | Title | Status | Started | Completed |
 |-------|-------|--------|---------|-----------|
-| S1.1 | Workspace & Infra Initialization | **Ready** | — | — |
-| S1.2 | Database Layer (Prisma) | Pending | — | — |
-| S1.3 | Mock Worker Suite (3 workers) | Pending | — | — |
-| S1.4 | Supervisor Kernel | Pending | — | — |
-| S1.5 | Skeleton Run CLI | Pending | — | — |
-| S1.6 | E2E Test Suite | Pending | — | — |
+| S1.1 | Workspace & Infra Initialization | **Done** | 2026-08-04 | 2026-08-04 |
+| S1.2 | Database Layer (Prisma) | **Done** | 2026-08-04 | 2026-08-04 |
+| S1.3 | Mock Worker Suite (3 workers) | **Done** | 2026-08-04 | 2026-08-04 |
+| S1.4 | Supervisor Kernel | **Done** | 2026-08-04 | 2026-08-04 |
+| S1.5 | Skeleton Run CLI | **Done** | 2026-08-04 | 2026-08-04 |
+| S1.6 | E2E Test Suite | **Done** | 2026-08-04 | 2026-08-04 |
 
-**Next Task:** S1.1 — Workspace & Infrastructure Initialization
+**🏁 Milestone 1 (Skeleton Run) — COMPLETE.** All 6 Sprint 1 issues done.
+
+**Next Milestone:** Milestone 2 — The Cognitive Core (real AI provider integration: Research + Script workers)
 
 ---
 
