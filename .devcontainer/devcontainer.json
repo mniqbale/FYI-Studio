@@ -1,0 +1,41 @@
+{
+  "name": "FYI Studio — Hermes Dev Environment",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20",
+      "pnpmVersion": "latest"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "containerEnv": {
+    "HERMES_HOME": "/home/codespace/.hermes",
+    "TERMINAL_ENV": "local"
+  },
+  "postCreateCommand": "bash .devcontainer/setup-hermes.sh",
+  "customizations": {
+    "codespaces": {
+      "openFiles": [
+        "README.md",
+        ".ai/context/start-here.md"
+      ]
+    },
+    "vscode": {
+      "extensions": [
+        "biomejs.biome",
+        "Prisma.prisma",
+        "ms-vscode.vscode-typescript-next",
+        "vitest.explorer"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "biomejs.biome",
+        "typescript.preferences.importModuleSpecifier": "relative",
+        "typescript.preferences.quoteStyle": "single"
+      }
+    }
+  }
+}
