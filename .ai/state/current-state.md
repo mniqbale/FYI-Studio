@@ -23,12 +23,12 @@ related_documents:
 
 | Metric | Value |
 |--------|-------|
-| **Current Milestone** | Milestone 1: Skeleton Run (Sprint 1) |
-| **Current Sprint** | Sprint 1: The Skeleton Run |
+| **Current Milestone** | Milestone 1: Skeleton Run (Sprint 1) — **COMPLETE** |
+| **Current Sprint** | Sprint 1: The Skeleton Run — **COMPLETE** |
 | **Architecture Version** | MVP v1.0 (ADR-0001) |
 | **Contracts Version** | v1.1 Frozen (ADR-0002) |
 | **Engineering Standards** | v1.0 (ADR-0005) |
-| **Project Health** | 🟢 On Track — Architecture approved, docs complete, ready for implementation |
+| **Project Health** | 🟢 On Track — Milestone 1 complete, ready for Milestone 2 (AI Platform Foundation) |
 
 ---
 
@@ -45,7 +45,7 @@ related_documents:
 
 **🏁 Milestone 1 (Skeleton Run) — COMPLETE.** All 6 Sprint 1 issues done.
 
-**Next Milestone:** Milestone 2 — The Cognitive Core (real AI provider integration: Research + Script workers)
+**Next Milestone:** Milestone 2 — AI Platform Foundation (Provider Registry, Connection Manager, Model Registry, Capability Registry, ModelGate v2)
 
 ---
 
@@ -69,11 +69,11 @@ related_documents:
 | Planning: Implementation Strategy | ✅ Complete | 2026-08-04 |
 | Planning: Sprint 1 README | ✅ Complete | 2026-08-04 |
 | Planning: Issues S1.1–S1.6 | ✅ Complete | 2026-08-04 |
-| ADR: ADR-0001 through ADR-0005 | ✅ Complete | 2026-08-04 |
+| ADR: ADR-0001 through ADR-0006 | ✅ Complete | 2026-08-04 |
 | Memory: Project Memory | ✅ Complete | 2026-08-04 |
 
 ---
 
 ## Ready for Next Session?
 
-**YES** — All architectural decisions documented, contracts frozen, standards set, sprint planned, issues created. Next AI agent can begin implementation with Issue S1.1 by reading `.ai/context/start-here.md`.
+**YES** — All architectural decisions documented, contracts frozen, standards set, sprint planned, issues created. Next AI agent can begin implementation with Milestone 2 (AI Platform Foundation) by reading `.ai/context/start-here.md` and the updated roadmap.

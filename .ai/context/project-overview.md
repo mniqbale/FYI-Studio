@@ -86,11 +86,13 @@ Build an **AI Operating System for Distributed Media Production** that enables d
 
 | Milestone | Focus | Timeline | Status |
 |-----------|-------|----------|--------|
-| **1: Skeleton Run** | Infra, Contracts, Mock Workers, Supervisor, CLI, E2E Test | Sprint 1 | **In Progress** |
-| **2: Cognitive Core** | Research Worker (Perplexity), Script Worker (OpenAI/Claude), Real AI | Sprint 2 | Planned |
-| **3: Media Plane** | Voice (ElevenLabs), Video Composer (FFmpeg), Subtitles, S3 | Sprint 3 | Planned |
-| **4: Human Loop** | Dashboard, Approval Gates, Resume Capability | Sprint 4 | Planned |
-| **5: Scale & Optimize** | Multi-tenant, Vector Knowledge, Analytics, Auto-optimization | Post-MVP | Planned |
+| **1: Skeleton Run** | Infra, Contracts, Mock Workers, Supervisor, CLI, E2E Test | Sprint 1 | **Complete** |
+| **2: AI Platform Foundation** | Provider Registry, Connection Manager, Model Registry, Capability Registry, ModelGate v2 (BYOAI) | Sprints 2–3 | Planned |
+| **3: Cognitive Core** | Research Worker (Real AI), Script Worker (Real AI) via ModelGate | Sprints 4–5 | Planned |
+| **4: Knowledge Layer + Memory** | Brand Profiles, Vector Store, Context Assembly Engine | Sprints 6–7 | Planned |
+| **5: Media Workers** | Voice (ElevenLabs), Video Composer (FFmpeg), Subtitles, Asset Library | Sprints 8–10 | Planned |
+| **6: Multi-Tenant Brand Management** | Tenant Registry, Policy Engine, Worker Registry v2, A/B Testing, Dashboard | Sprints 11–13 | Planned |
+| **7: Analytics & Learning Loop** | Analytics Workers, Memory Enrichment, Auto-Optimization, Cost Intelligence | Sprints 14–16 | Planned |
 
 ---
 
@@ -140,15 +142,16 @@ fyi-studio/
 │   ├── contracts/                # @fyi/contracts (v1.1 frozen)
 │   ├── database/                 # @fyi/database (Prisma client)
 │   ├── utils/                    # @fyi/utils (shared: redis, logging)
-│   └── cli/                      # @fyi/cli (trigger-run, etc.)
+│   └── cli/                      # @fyi/cli (trigger-run, provider management)
 ├── services/
 │   └── supervisor/               # Supervisor Kernel
 ├── workers/
 │   ├── research/                 # Research Worker
 │   ├── script/                   # Script Worker
 │   ├── voice/                    # Voice Worker
-│   ├── video/                    # Video Composer (future)
-│   └── subtitle/                 # Subtitle Worker (future)
+│   ├── video/                    # Video Composer
+│   ├── subtitle/                 # Subtitle Worker
+│   └── asset/                    # Asset Library Worker
 ├── tests/
 │   └── e2e/                      # E2E test suite
 ├── docker-compose.yml            # Local Postgres + Redis

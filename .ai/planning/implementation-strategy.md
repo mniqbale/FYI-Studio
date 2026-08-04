@@ -66,7 +66,7 @@ We will use a simple directory-based monorepo. No complex build tools like Turbo
 - **No UI:** All interaction is via CLI and Database queries.
 - **No Cloud:** Everything runs in Docker on `localhost`. No S3; we will use local `/tmp` folders for "references."
 - **No Actual AI:** `Math.random()` and `setTimeout` will simulate AI latency and results.
-- **No Error Recovery:** If a worker crashes, the job stays "running" forever. (Retries come in Milestone 2).
+- **No Error Recovery:** If a worker crashes, the job stays "running" forever. (Retries come in Milestone 3).
 - **No Auth:** Zero security. Open access to the internal network.
 
 ---
@@ -103,10 +103,25 @@ We will use a simple directory-based monorepo. No complex build tools like Turbo
 
 ---
 
-## 9. Cross-References
+## 9. Projected Milestone Sequence (Updated per Architecture Review Meeting #05)
+
+| Milestone | Focus | Projected Sprints |
+|-----------|-------|-------------------|
+| **M1: Skeleton Run** | Infra, Contracts, Mock Workers, Supervisor, CLI, E2E | Sprint 1 (Complete) |
+| **M2: AI Platform Foundation** | Provider Registry, Connection Manager, Model Registry, Capability Registry, ModelGate v2 | Sprints 2–3 |
+| **M3: Cognitive Core** | Research Worker (Real AI), Script Worker (Real AI) | Sprints 4–5 |
+| **M4: Knowledge Layer + Memory** | Brand Profiles, Vector Store, Context Assembly | Sprints 6–7 |
+| **M5: Media Workers** | Voice, Video, Subtitles, Asset Library | Sprints 8–10 |
+| **M6: Multi-Tenant** | Tenant Registry, Policy Engine, Worker Registry v2, Dashboard | Sprints 11–13 |
+| **M7: Analytics & Auto-Optimization** | Analytics Workers, Learning Loop, Cost Intelligence | Sprints 14–16 |
+
+---
+
+## 10. Cross-References
 
 - **Architecture:** [Architecture Decision Records](../architecture/)
-- **Contracts:** [Contracts v1.1](../contracts/contracts-v1.1.md)
-- **Engineering Standards:** [Engineering Standards v1.0](../standards/engineering-standards-v1.0.md)
+- **Contracts:** [Contracts v1.1](../contracts.md)
+- **Engineering Standards:** [Engineering Standards v1.0](../engineering-standards.md)
 - **Sprint 1 Plan:** [Sprint-001/README.md](./sprints/Sprint-001/README.md)
 - **GitHub Issues:** [GitHub Issues Export](./github-issues.md)
+- **ADR:** [ADR-0007 AI Platform Foundation](../adr/ADR-0007-ai-platform-foundation.md)

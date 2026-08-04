@@ -221,24 +221,37 @@ CREATE INDEX idx_telemetry_provider ON telemetry(provider, model, created_at DES
 
 We will not build the 100-channel manager yet. We will build the **Minimum Viable Pipeline.**
 
-### Milestone 1: The Hello-World Pipeline (Week 1)
+### Milestone 1: The Hello-World Pipeline (Sprint 1)
 - **Goal:** Move a single string through three "Dummy" workers.
 - **Infrastructure:** Setup PostgreSQL, Redis, and a single "Supervisor" service (Orchestrator).
 - **Test:** Create a Job in the Ledger, have a "Mock Worker" receive it, "process" it (uppercase the text), and return it.
 
-### Milestone 2: The Cognitive Core (Week 2)
-- **Goal:** Integration with actual AI providers.
-- **Workers:** Build the **Research Worker** (Perplexity/Gemini) and the **Script Worker** (OpenAI/Claude).
-- **Logic:** The Orchestrator must successfully pass the Research output into the Script input using the `input_mapping`.
+### Milestone 2: AI Platform Foundation (Sprints 2–3)
+- **Goal:** Establish the AI infrastructure foundation used by every future worker — Provider Registry, Connection Manager, Model Registry, Capability Registry, and ModelGate v2. This is the "Bring Your Own AI (BYOAI)" layer.
+- **Work:** Build Provider Registry with encrypted API key storage, Connection Manager for health/quota, Model Registry with capability metadata, Capability Registry, ModelGate v2 for capability-filtered model selection.
+- **Logic:** Workers request capabilities; ModelGate resolves connected providers → available models → policy → capability match → selected model.
 
-### Milestone 3: The Media Plane (Week 3)
-- **Goal:** S3 Integration and binary handling.
-- **Workers:** Build the **Voice Worker** (ElevenLabs) and a **Basic Composer Worker** (FFmpeg).
-- **Logic:** The Voice worker saves an MP3 to S3; the Composer worker downloads that MP3 and an image to create a 5-second video.
+### Milestone 3: The Cognitive Core (Sprints 4–5)
+- **Goal:** Integration with actual AI providers via the AI Platform Foundation.
+- **Workers:** Build the **Research Worker** (Perplexity/Gemini/OpenAI) and the **Script Worker** (OpenAI/Claude/Gemini) using ModelGate v2.
+- **Logic:** The Orchestrator must successfully pass the Research output into the Script input using the `input_mapping`. Real AI calls replace mock workers.
 
-### Milestone 4: The Human Loop (Week 4)
-- **Goal:** UI-based intervention.
-- **Feature:** The "Script Approved" gate. The system stops, waits for a DB flag to change via a simple Dashboard, and resumes.
+### Milestone 4: Knowledge Layer + Memory Management (Sprints 6–7)
+- **Goal:** Implement the three-tier context assembly (Global Knowledge, Tenant Brand Memory, Project Memory) with Just-In-Time context injection and vector-based semantic retrieval.
+- **Work:** Knowledge Layer with Brand Profiles, Style Guides, Verified Facts, Asset Libraries. Memory Layer for historical performance. Vector store integration for semantic search.
+
+### Milestone 5: The Media Plane (Sprints 8–10)
+- **Goal:** S3 Integration and binary handling with media generation capabilities.
+- **Workers:** Build the **Voice Worker** (ElevenLabs/Azure/OpenAI TTS), **Video Composer Worker** (FFmpeg), **Subtitle Worker** (Whisper), **Asset Library Worker**.
+- **Logic:** Workers use ModelGate v2 for model selection. Voice worker saves MP3 to S3; Composer worker downloads and renders video.
+
+### Milestone 6: Multi-Tenant Brand Management (Sprints 11–13)
+- **Goal:** Enable horizontal scaling to hundreds of heterogeneous channels with strict isolation.
+- **Features:** Tenant Registry, Policy Engine, Worker Registry v2, A/B testing framework, Dashboard.
+
+### Milestone 7: Analytics & Learning Loop (Auto-optimization) (Sprints 14–16)
+- **Goal:** Close the feedback loop — autonomous hypothesis generation, recipe mutation, and A/B execution at scale.
+- **Work:** Analytics Workers (YouTube, TikTok, Instagram APIs), Memory Layer enrichment, Autonomous Optimization Engine, A/B test orchestration, Cost Intelligence.
 
 ---
 

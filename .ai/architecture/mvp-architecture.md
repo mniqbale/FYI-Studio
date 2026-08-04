@@ -107,14 +107,17 @@ Every Worker must return `usage` (tokens/seconds) in its response.
 
 Centralized logs via Loki/Datadog. Every log line must include `Job_ID`.
 
-# Revised Roadmap (The "Ship-Fast" Plan)
+# Revised Roadmap (The "Ship-Fast" Plan, Updated per Architecture Review Meeting #05)
 
-| Week | Focus | Deliverables |
-|------|-------|--------------|
-| 1 | The Kernel | Setup PostgreSQL, BullMQ, and the "Supervisor" core. Define the `Job Ledger` schema. |
-| 2 | The Creative Stack | Build the Research, Script, and Voice Workers. Hardcode the YouTube API for one channel. |
-| 3 | The Media Stack | Build the Video Composer (FFmpeg-based) and Subtitle Worker. |
-| 4 | The Loop | Connect the UI Dashboard for "Human Approval" and trigger the first "End-to-End" production run. |
+| Phase | Focus | Deliverables |
+|-------|-------|--------------|
+| **Sprint 1** | **The Kernel (Milestone 1)** | Setup PostgreSQL, BullMQ, and the "Supervisor" core. Define the `Job Ledger` schema. `TaskEnvelope`/`WorkerResponse` contracts. ModelGate + `model_policy.yaml`. Mock workers. E2E test. |
+| **Sprints 2–3** | **AI Platform Foundation (Milestone 2)** | Provider Registry, Connection Manager, Model Registry, Capability Registry, ModelGate v2, CLI for provider management. |
+| **Sprints 4–5** | **The Cognitive Core (Milestone 3)** | Research Worker (Perplexity/Gemini), Script Worker (OpenAI/Claude). `input_mapping` working end-to-end. Tenant context injection. Real AI integration. |
+| **Sprints 6–7** | **Knowledge Layer + Memory (Milestone 4)** | Brand Profiles, Style Guides, Vector Store integration, Context Assembly Engine, Memory Layer. |
+| **Sprints 8–10** | **The Media Stack (Milestone 5)** | Voice Worker (ElevenLabs → S3). Video Composer (FFmpeg, downloads from S3). Subtitle Worker. Asset Library Worker. Pointer system validated. |
+| **Sprints 11–13** | **Multi-Tenant Scale (Milestone 6)** | Tenant Registry, Policy Engine, Worker Registry v2, A/B Testing, Dashboard UI. |
+| **Sprints 14–16** | **Analytics & Learning Loop (Milestone 7)** | Analytics Workers, Auto-Optimization Engine, Cost Intelligence, A/B Orchestration. |
 
 # Final Decision Request
 

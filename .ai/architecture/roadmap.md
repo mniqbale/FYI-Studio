@@ -15,10 +15,10 @@ cross_references:
 
 # FYI Studio Roadmap
 
-## Milestones (from Concept-1)
+## Milestones (from Concept-1, updated per Architecture Review Meeting #05)
 
-### Milestone 1: Core Orchestrator + Job Queue + Simple Script Worker (Proof of Concept)
-**Status:** In Progress (Sprint 1)  
+### Milestone 1: Skeleton Run
+**Status:** Complete (Sprint 1)  
 **Goal:** Establish the foundational "Skeleton Run" — monorepo infrastructure, job ledger, mock workers, and supervisor kernel that can execute a minimal end-to-end pipeline.
 
 **Key Deliverables:**
@@ -34,7 +34,38 @@ cross_references:
 
 ---
 
-### Milestone 2: Knowledge Layer + Memory Management
+### Milestone 2: AI Platform Foundation
+**Status:** Planned  
+**Goal:** Establish the AI infrastructure foundation used by every future worker — Provider Registry, Connection Manager, Model Registry, Capability Registry, and ModelGate v2. This is the "Bring Your Own AI (BYOAI)" layer.
+
+**Key Deliverables:**
+- **Provider Registry:** OpenAI, Anthropic, Google/Gemini, OpenRouter, Groq, Ollama, Azure, Vertex, Together, etc.
+- **Connection Manager:** API Keys, Health Status, Quota, Secret Storage, Connection Validation
+- **Model Registry:** Provider, Model, Version, Pricing, Capabilities, Context Window, Status
+- **Capability Registry:** Reasoning, Vision, Image, Speech, Embedding, Video, Tool Calling, Search, Structured Output
+- **ModelGate v2:** Capability → Connected Providers → Available Models → Policy → Capability Match → Selected Model
+- **Default Provider Policies:** Per-worker recommended defaults with user override freedom (capability-gated)
+- **CLI Commands:** `fyi provider connect|list|disconnect|select`
+
+**Architecture Impact:** This milestone was introduced per Architecture Review Meeting #05 (ADR-0007) to decouple provider management from worker implementation and prevent vendor lock-in at the infrastructure level.
+
+---
+
+### Milestone 3: The Cognitive Core (Real AI Workers)
+**Status:** Planned  
+**Goal:** Replace mock workers with production-grade AI workers using the AI Platform Foundation from Milestone 2.
+
+**Key Deliverables:**
+- Research Worker: Perplexity / Gemini / OpenAI adapters via ModelGate v2
+- Script Worker: OpenAI / Claude / Gemini adapters via ModelGate v2
+- Workers call ModelGate for capability-based model resolution
+- Real AI integration validated end-to-end
+
+**Dependencies:** Milestone 2 (AI Platform Foundation)
+
+---
+
+### Milestone 4: Knowledge Layer + Memory Management
 **Status:** Planned  
 **Goal:** Implement the three-tier context assembly (Global Knowledge, Tenant Brand Memory, Project Memory) with Just-In-Time context injection and vector-based semantic retrieval.
 
@@ -45,14 +76,16 @@ cross_references:
 - Vector store integration (Pinecone/Milvus) for semantic search
 - Policy-driven context filtering by tenant scope
 
+**Dependencies:** Milestone 3 (Cognitive Core provides real AI for knowledge extraction)
+
 ---
 
-### Milestone 3: Media Workers (Voice / Video / Subtitles)
+### Milestone 5: Media Workers (Voice / Video / Subtitles)
 **Status:** Planned  
-**Goal:** Replace mock workers with production-grade media generation capabilities.
+**Goal:** Add production-grade media generation capabilities using the AI Platform Foundation.
 
 **Key Deliverables:**
-- Voice Worker: ElevenLabs / Azure TTS / OpenAI TTS adapters via Model Router
+- Voice Worker: ElevenLabs / Azure TTS / OpenAI TTS adapters via ModelGate v2
 - Video Composer Worker: FFmpeg-based rendering, scene composition, overlay system
 - Subtitle Worker: Whisper transcription, SRT/VTT generation, timing alignment
 - Asset Library Worker: B-roll search, stock footage integration, thumbnail generation
@@ -60,7 +93,7 @@ cross_references:
 
 ---
 
-### Milestone 4: Multi-Tenant Brand Management (100+ Channels)
+### Milestone 6: Multi-Tenant Brand Management (100+ Channels)
 **Status:** Planned  
 **Goal:** Enable horizontal scaling to hundreds of heterogeneous channels with strict isolation.
 
@@ -73,7 +106,7 @@ cross_references:
 
 ---
 
-### Milestone 5: Analytics & Learning Loop (Auto-optimization)
+### Milestone 7: Analytics & Learning Loop (Auto-optimization)
 **Status:** Planned  
 **Goal:** Close the feedback loop — autonomous hypothesis generation, recipe mutation, and A/B execution at scale.
 
@@ -107,10 +140,10 @@ Trigger → Orchestrator → Research → Script → Voice → Video → Publish
 │  │   Worker     │  │   Cost       │  │   Knowledge      │  │
 │  │   Registry   │  │   Intelligence│  │   Layer          │  │
 │  └──────────────┘  └──────────────┘  └──────────────────┘  │
-│  ┌──────────────┐  ┌──────────────┐                          │
-│  │   HITL       │  │   Job        │                          │
-│  │   Interrupt  │  │   Ledger     │                          │
-│  └──────────────┘  └──────────────┘                          │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐  │
+│  │   Provider   │  │   Capability │  │   HITL           │  │
+│  │   Registry   │  │   Registry   │  │   Interrupt      │  │
+│  └──────────────┘  └──────────────┘  └──────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
                               │
               ┌───────────────┼───────────────┐
@@ -125,6 +158,7 @@ Trigger → Orchestrator → Research → Script → Voice → Video → Publish
 **Key V2 Capabilities:**
 | Component | V1 | V2 |
 |-----------|-----|-----|
+| **Provider Discovery** | Hardcoded | Provider Registry (connected providers) |
 | **Worker Discovery** | Hardcoded URLs | Capability-based Registry (`manifest.json`) |
 | **Model Selection** | Direct API calls | Policy-driven Model Router (Intent Profiles) |
 | **Workflow Definition** | Imperative code | Declarative DAG (YAML/JSON) as `ProductionRecipes` |
@@ -143,7 +177,7 @@ Trigger → Orchestrator → Research → Script → Voice → Video → Publish
 
 ---
 
-## Sprint Complexity Estimates (from Concept-11)
+## Sprint Complexity Estimates (from Concept-11, updated for new milestone structure)
 
 ### Complexity Scale
 | Label | Hours | Description |
@@ -155,7 +189,7 @@ Trigger → Orchestrator → Research → Script → Voice → Video → Publish
 
 ---
 
-### Sprint 1: The Skeleton Run
+### Sprint 1: The Skeleton Run (Milestone 1)
 
 | Issue | Title | Complexity | Hours | Dependencies |
 |-------|-------|------------|-------|--------------|
@@ -166,21 +200,23 @@ Trigger → Orchestrator → Research → Script → Voice → Video → Publish
 | **S1.5** | Skeleton Run CLI | **XS** | 2h | S1.1, S1.2, S1.4 |
 | **S1.6** | End-to-End Test Suite | **S** | 4h | S1.1–S1.5 |
 
-**Sprint 1 Total:** ~38 hours (5 issues: 2×S, 1×M, 1×L, 1×XS, 1×S)
+**Sprint 1 Total:** ~38 hours (6 issues: 2×S, 1×M, 1×L, 1×XS, 1×S)
 
 ---
 
-## Milestone-to-Sprint Mapping (Projected)
+### Projected Sprint Mapping (Updated per Architecture Review Meeting #05)
 
 | Milestone | Projected Sprints | Est. Complexity |
 |-----------|-------------------|-----------------|
-| **M1: Core Orchestrator (PoC)** | Sprint 1 | 38h (completed as S1.1–S1.6) |
-| **M2: Knowledge Layer + Memory** | Sprints 2–3 | ~60–80h |
-| **M3: Media Workers** | Sprints 4–6 | ~100–140h |
-| **M4: Multi-Tenant (100+ Channels)** | Sprints 7–9 | ~120–160h |
-| **M5: Analytics & Auto-Optimization** | Sprints 10–12 | ~140–180h |
+| **M1: Skeleton Run** | Sprint 1 | 38h (completed as S1.1–S1.6) |
+| **M2: AI Platform Foundation** | Sprints 2–3 | ~60–80h |
+| **M3: Cognitive Core (Real AI Workers)** | Sprints 4–5 | ~80–100h |
+| **M4: Knowledge Layer + Memory** | Sprints 6–7 | ~80–100h |
+| **M5: Media Workers** | Sprints 8–10 | ~100–140h |
+| **M6: Multi-Tenant (100+ Channels)** | Sprints 11–13 | ~120–160h |
+| **M7: Analytics & Auto-Optimization** | Sprints 14–16 | ~140–180h |
 
-**Total Projected (M1–M5):** ~450–590 hours across ~12 sprints
+**Total Projected (M1–M7):** ~618–798 hours across ~16 sprints
 
 ---
 
@@ -189,3 +225,4 @@ Trigger → Orchestrator → Research → Script → Voice → Video → Publish
 - **Architecture:** `.ai/architecture/architecture.md` — Microkernel design, Worker Registry, Model Router, Workflow Engine
 - **Planning:** `.ai/architecture/planning.md` — Sprint breakdown, issue sequencing, dependency graph
 - **Vision:** `.ai/context/vision.md` — 5-10 year strategic vision (Multi-Modal Plant, Autonomous Loop, Enterprise OS Standard)
+- **ADR:** `.ai/adr/ADR-0007-ai-platform-foundation.md` — Milestone 2 restructuring decision
