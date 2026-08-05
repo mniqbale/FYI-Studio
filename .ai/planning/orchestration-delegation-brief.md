@@ -30,6 +30,32 @@ related_documents:
 
 ---
 
+## 1a. ROLES & ORCHESTRATION PROTOCOL (IMPORTANT — read first)
+
+> **This brief defines a role split. It does NOT mean the external agent should do everything alone.**
+
+**Two roles exist in this project's workflow:**
+
+| Role | Who | Responsibility |
+|------|-----|----------------|
+| **Orchestrator** | The Founder (human) — optionally advised by the **Lead Engineer (AI partner)** | Owns decisions, approves scope/ADRs, sequences workstreams, integrates + commits accepted output |
+| **Executor (external AI agent)** | The agent that receives THIS brief | Produces a scoped deliverable per the output contract (Section 5); **returns work to the Orchestrator/Lead Engineer for review & integration** — it does NOT merge/commit/push on its own unless explicitly authorized |
+
+**Orchestration protocol for the external agent:**
+1. **Read, don't rewrite** — follow the mandated reading order in Section 2. Presume the constitution (`.ai/`) is the source of truth; do NOT invent new architecture, contracts, or schemas without proposing an ADR.
+2. **Scope is fixed** — work only the delegated deliverable (currently the Dashboard per [dashboard-proposal.md](./dashboard-proposal.md)). Do NOT expand into other workstreams.
+3. **Return, don't absorb** — when the deliverable is done, hand it back per the output contract. Do NOT merge into `main`, do NOT push, do NOT claim "done" without verification evidence.
+4. **If the agent has deeper expertise** (e.g. a better charting/media-serving/UI approach) it should **propose** that as a knowledge doc (Section 4) for the Orchestrator/Lead Engineer to review — not silently implement a different stack than the approved proposal.
+
+**What "delegating back to the Lead Engineer (this session)" means:**
+- The external agent is a **producer of a candidate deliverable + knowledge**.
+- The **Lead Engineer (this session) reviews, verifies, integrates, updates the constitution, and commits**. That is the natural hand-off point — the external agent does not bypass it.
+- If the external agent is itself an orchestrator with sub-agents, it should delegate leaf tasks down and **consolidate results back to this brief's output contract** — never push to the repo.
+
+> **Net effect:** an external agent reading this brief will know (a) what task it owns, (b) that it must return work to the Orchestrator/Lead Engineer rather than self-integrate, and (c) where to record any new knowledge it brings.
+
+---
+
 ## 2. Context to Give the Agent (paste this block)
 
 > You are working in the **FYI Studio** pnpm monorepo at `/workspaces/FYI-Studio` — an "AI Orchestration Platform for Creative Production" (BYOAI). The MVP (Milestones 1–7) is **COMPLETE**. You are being asked to work on a specific post-MVP workstream.
@@ -40,8 +66,11 @@ related_documents:
 > 3. `.ai/architecture/mvp-architecture.md` — data plane, thin orchestrator invariants
 > 4. `.ai/architecture/engineering-standards.md` — naming, logging, errors, anti-monster
 > 5. `.ai/state/current-state.md` — what's done
-> 6. `.ai/planning/dashboard-proposal.md` (if your task is the Dashboard) — the technical blueprint
-> 7. The `fyi-studio-monorepo` skill (`skill_view name='fyi-studio-monorepo'`) for proven repo workflows
+> 6. `.ai/planning/post-mvp-options.md` + `.ai/planning/dashboard-proposal.md` (if your task is the Dashboard) — decision + technical blueprint
+> 7. **THIS brief (Section 1a ROLES & ORCHESTRATION PROTOCOL)** — your role as Executor and the requirement to **return work to the Orchestrator/Lead Engineer** (do NOT merge/commit/push unless explicitly authorized)
+> 8. The `fyi-studio-monorepo` skill (`skill_view name='fyi-studio-monorepo'`) for proven repo workflows
+>
+> **Your role:** You are the **Executor** of a scoped deliverable. You produce a candidate deliverable + any knowledge docs, return them per the output contract, and do NOT self-integrate into `main` unless authorized.
 >
 > **Environment facts:**
 > - Working AI provider = Ollama Cloud (`OLLAMA_BASE_URL=https://ollama.com/v1`, model `deepseek-v4-flash`). Media = offline `espeak-ng` + `ffmpeg`. Cloud free tiers (OpenAI/Gemini/Anthropic) are credit-blocked.

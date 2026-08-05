@@ -40,21 +40,23 @@ Into a **unified, deterministic runtime**.
 
 ---
 
-## 2. Current State: Milestones 1–3 Complete — Milestone 4 Next
+## 2. Current State: MVP COMPLETE — Dashboard UI (post-MVP)
 
-**Milestones 1–3 are COMPLETE.** The Skeleton Run (M1), AI Platform Foundation / BYOAI (M2), and Cognitive Core (M3) are all shipped and verified end-to-end.
+**MVP (Milestones 1–7) is COMPLETE.** All seven milestones are shipped, verified, and committed:
 
-**Milestone 1 (Skeleton Run):** Monorepo infra, Postgres+Redis docker-compose, `@fyi/contracts` v1.1, `@fyi/database`, 3 mock workers, supervisor kernel, CLI trigger, E2E tests. *(Sprint-001, issues S1.1–S1.6)*
+- **M1 Skeleton Run** — monorepo infra, Postgres+Redis, `@fyi/contracts` v1.1, mock workers, supervisor kernel, CLI, E2E.
+- **M2 AI Platform Foundation (BYOAI)** — Provider Registry, Connection Manager, Model Registry, Capability Registry, ModelGate v2, `fyi provider` CLI.
+- **M3 Cognitive Core** — real Research + Script workers via **Ollama Cloud** (`deepseek-v4-flash`).
+- **M4 Knowledge Layer + Memory** — `tenant_context` + `memory_entries`, Context Assembly Engine.
+- **M5 Media Workers** — voice (espeak-ng), subtitle, video (FFmpeg); full video pipeline verified.
+- **M6 Multi-Tenant** — Tenant Policy + Policy Engine (per-tenant model pref + cost quota).
+- **M7 Analytics** — `@fyi/analytics`, cost intelligence, memory enrichment, `fyi analytics report`.
 
-**Milestone 2 (AI Platform Foundation / BYOAI):** `@fyi/platform` with provider_connections + model_registry + capability_registry tables, Provider Registry (9 providers), Connection Manager (API keys via env, key_ref only in DB), Model Registry + Capability Registry seeded from `model_policy.yaml`, ModelGate v2, CLI `npm run fyi provider connect|list|disconnect|select`. *(Sprint-002, issues S2.1–S2.5)*
+**Current workstream (post-MVP):** **Dashboard UI** — see [post-mvp-options.md](../planning/post-mvp-options.md) (decision), [dashboard-proposal.md](../planning/dashboard-proposal.md) (stack + flow), and [orchestration-delegation-brief.md](../planning/orchestration-delegation-brief.md) (brief for delegating to an external AI agent).
 
-**Milestone 3 (Cognitive Core / real AI):** `@fyi/ai` provider adapters via fetch (openai/anthropic/gemini/ollama), real Research worker (`research:real`), real Script worker (`text-synthesis:script:real`), supervisor wiring. Real pipeline verified end-to-end via **Ollama Cloud** (`OLLAMA_BASE_URL=https://ollama.com/v1`, model `deepseek-v4-flash`): `research:real → script:real → COMPLETED` with real research sources + video script. *(Sprint-002 work, completed ahead of schedule)*
+**Next Implementation:** Start the Dashboard per [dashboard-proposal.md](../planning/dashboard-proposal.md), or delegate via [orchestration-delegation-brief.md](../planning/orchestration-delegation-brief.md).
 
-> **Provider note:** Cloud free tiers (OpenAI/Gemini/Anthropic) are credit-blocked; **Ollama Cloud is the working free provider**. `model_policy.yaml` defaults for `research:real` and `text-synthesis:script:real` point at `provider: ollama`, `model: deepseek-v4-flash`.
-
-**Current Sprint:** Sprint-003 — **Milestone 4: Knowledge Layer + Memory Management.**
-
-**Next Implementation:** Issue M4.1 — `tenant_context` schema + Prisma migration. See [Sprint-003/README.md](../planning/sprints/Sprint-003/README.md).
+> **Provider note:** Cloud free tiers (OpenAI/Gemini/Anthropic) are credit-blocked; **Ollama Cloud is the working free provider**. Media uses offline `espeak-ng` + `ffmpeg`.
 
 ---
 

@@ -45,12 +45,14 @@ fyi-studio/
 
 | Metric | Value |
 |--------|-------|
-| **Current Milestone** | Milestone 1: Skeleton Run |
-| **Current Sprint** | Sprint 1: The Skeleton Run |
+| **Project Phase** | **MVP COMPLETE** — Milestones 1–7 done (Skeleton Run → AI Platform Foundation → Cognitive Core → Knowledge Layer → Media Workers → Multi-Tenant → Analytics) |
+| **Current Workstream** | Post-MVP — **Dashboard UI (Option A)** |
 | **Architecture** | MVP v1.0 (ADR-0001) |
 | **Contracts** | v1.1 Frozen (ADR-0002) |
 | **Standards** | v1.0 (ADR-0005) |
-| **Next Task** | Issue S1.1: Workspace & Infra Initialization |
+| **Next Task** | See [post-mvp-options.md](.ai/planning/post-mvp-options.md) + [dashboard-proposal.md](.ai/planning/dashboard-proposal.md) |
+
+> **For orchestrating with other AI agents:** see [orchestration-delegation-brief.md](.ai/planning/orchestration-delegation-brief.md) — the self-contained brief for delegating work (including the Dashboard) to an external AI agent and routing its knowledge back into this repo.
 
 ---
 
