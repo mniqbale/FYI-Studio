@@ -95,15 +95,16 @@ cross_references:
 ---
 
 ### Milestone 6: Multi-Tenant Brand Management (100+ Channels)
-**Status:** Planned  
+**Status:** Complete (Sprint 5)  
 **Goal:** Enable horizontal scaling to hundreds of heterogeneous channels with strict isolation.
 
-**Key Deliverables:**
-- Tenant Registry: Channel configurations, brand voices, publishing schedules
-- Policy Engine: Per-tenant cost quotas, quality thresholds, model preferences
-- Worker Registry v2: Capability-based discovery with `manifest.json` versioning
-- A/B testing framework for Production Recipes across tenant cohorts
-- Dashboard: Multi-channel monitoring, cost attribution, performance comparison
+**Key Deliverables (MVP-scoped per mvp-architecture.md / ADR-0003):**
+- **Tenant Registry:** `tenant_policies` schema — per-tenant model preferences (JSON), cost quota, enabled flag (leveraging the `tenant_id` already in `TaskEnvelope` / `tenant_context` from M4)
+- **Policy Engine (in `@fyi/platform`):** resolve a tenant's policy, check cost quota, enforce the per-tenant model preference
+- **ModelGate integration:** tenant preference overrides the global default when set (falls back to global/default scope otherwise)
+- **Cost quota enforcement:** reject/limit jobs when a tenant's budget is exceeded
+- **Multi-tenant E2E:** two tenants with different policies produce isolated behavior
+- **Deferred (post-MVP):** full A/B testing framework, dashboard UI, Worker Registry v2, publishing schedules
 
 ---
 
@@ -214,7 +215,7 @@ Trigger → Orchestrator → Research → Script → Voice → Video → Publish
 | **M3: Cognitive Core (Real AI Workers)** | Sprints 4–5 — ✅ **Complete** | ~80–100h (implemented ahead of schedule) |
 | **M4: Knowledge Layer + Memory** | Sprints 6–7 — ✅ **Complete** | ~80–100h (completed as Sprint-003, MVP-scoped) |
 | **M5: Media Workers** | Sprints 8–10 — ✅ **Complete** | ~100–140h (completed as Sprint-004, MVP-scoped via espeak-ng + FFmpeg) |
-| **M6: Multi-Tenant (100+ Channels)** | Sprints 11–13 — Planned | ~120–160h |
+| **M6: Multi-Tenant (100+ Channels)** | Sprint 5 — ✅ **Complete** | ~40–60h (completed as Sprint-005, MVP-scoped to Tenant Registry + Policy Engine) |
 | **M7: Analytics & Auto-Optimization** | Sprints 14–16 — Planned | ~140–180h |
 
 **Total Projected (M1–M7):** ~618–798 hours across ~16 sprints

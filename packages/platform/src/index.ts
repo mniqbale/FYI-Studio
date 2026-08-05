@@ -15,5 +15,16 @@ export { loadModelPolicy, type ModelPolicy, type ModelDef, type DefaultDef } fro
 export { seedModels, listModels, listModelsForCapability, listModelsForCapabilities, getModel, modelSupportsCapability, modelSupportsCapabilities } from './model-registry.js';
 export { seedCapabilities, listCapabilities, hasCapability } from './capability-registry.js';
 export { ModelGate, type ResolvedModel, type ResolveResult } from './modelgate.js';
+export {
+  upsertTenantPolicy,
+  getTenantPolicy,
+  deleteTenantPolicy,
+  tenantEnabled,
+  tenantModelPreference,
+  tenantSpend,
+  checkTenantQuota,
+  type ModelPreference,
+  type TenantPolicyInput,
+} from './tenant-policy.js';
 export { seedRegistries, disconnectDb } from './seed.js';
 export { hasSecret, resolveSecret, secretRef, loadEnvIfPresent } from './secrets.js';

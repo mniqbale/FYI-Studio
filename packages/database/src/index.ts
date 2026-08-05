@@ -23,6 +23,7 @@ export type {
   CapabilityRegistry,
   TenantContext,
   MemoryEntry,
+  TenantPolicy,
 } from '@prisma/client';
 
 export default prisma;

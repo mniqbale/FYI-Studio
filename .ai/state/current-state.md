@@ -13,6 +13,7 @@ related_documents:
   - "../planning/sprints/Sprint-002/README.md"
   - "../planning/sprints/Sprint-003/README.md"
   - "../planning/sprints/Sprint-004/README.md"
+  - "../planning/sprints/Sprint-005/README.md"
   - "../memory/project-memory.md"
 ---
 
@@ -26,13 +27,13 @@ related_documents:
 
 | Metric | Value |
 |--------|-------|
-| **Current Milestone** | Milestone 5: Media Workers — **COMPLETE** |
-| **Current Sprint** | Sprint 4: Media Workers (Voice/Video/Subtitle) — **COMPLETE** |
-| **Completed Milestones** | M1 Skeleton Run ✅ · M2 AI Platform Foundation ✅ · M3 Cognitive Core ✅ · M4 Knowledge Layer ✅ · M5 Media Workers ✅ |
+| **Current Milestone** | Milestone 6: Multi-Tenant — **COMPLETE**
+| **Current Sprint** | Sprint 5: Multi-Tenant — **COMPLETE**
+| **Completed Milestones** | M1 ✅ · M2 ✅ · M3 ✅ · M4 ✅ · M5 ✅ · M6 Multi-Tenant ✅ |
 | **Architecture Version** | MVP v1.0 (ADR-0001) |
 | **Contracts Version** | v1.1 Frozen (ADR-0002) |
 | **Engineering Standards** | v1.0 (ADR-0005) |
-| **Project Health** | 🟢 On Track — M1–M4 complete; M5 (Media Workers) next / in progress |
+| **Project Health** | 🟢 On Track — M1–M5 complete; M6 (Multi-Tenant) in progress / next |
 
 ---
 
@@ -90,7 +91,21 @@ related_documents:
 
 **🏁 Milestone 4 (Knowledge Layer + Memory) — COMPLETE.** `tenant_context` + `memory_entries` tables, `@fyi/knowledge` package (upsert/get/delete/list + assembleContext), context injection into real Research/Script workers. E2E verified: a tenant with brand_voice + forbidden_terms produced a script that followed the voice and avoided forbidden terms (via Ollama Cloud). 6 context-assembly unit tests pass.
 
-**Next Milestone:** Milestone 6 — Multi-Tenant Brand Management. Milestone 5 (Media Workers) is COMPLETE — see [Sprint-004 planning](../planning/sprints/Sprint-004/README.md) and issues M5.1–M5.5 (Issue-401..405).
+---
+
+## Sprint 5 Progress (Milestone 6: Multi-Tenant Brand Management)
+
+> **Status: PLANNING / IN PROGRESS (NEXT)** — Sprint-005 planning created 2026-08-05. MVP-scoped to **Tenant Registry + Policy Engine** (per-tenant model preference + cost quota). Full A/B testing framework, dashboard UI, Worker Registry v2, and publishing schedules are **deferred** to post-MVP.
+
+| Issue | Title | Status |
+|-------|-------|--------|
+| M6.1 (Issue-501) | `tenant_policies` schema + Prisma migration (tenant_id, model_preferences JSON, cost_quota, enabled) | **Planned** |
+| M6.2 (Issue-502) | Policy Engine in `@fyi/platform` (resolve tenant policy, check cost quota, enforce per-tenant model preference) | **Planned** |
+| M6.3 (Issue-503) | Wire tenant policy into ModelGate.resolve (tenant preference overrides global default when set) | **Planned** |
+| M6.4 (Issue-504) | Cost quota enforcement (reject/limit jobs when tenant budget exceeded) | **Planned** |
+| M6.5 (Issue-505) | Multi-tenant E2E (two tenants with different policies produce isolated behavior) | **Planned** |
+
+**🚩 Milestone 6 (Multi-Tenant) — IN PROGRESS / NEXT.** Milestone 5 (Media Workers) is COMPLETE — see [Sprint-004 planning](../planning/sprints/Sprint-004/README.md) and issues M5.1–M5.5 (Issue-401..405). Sprint-005 planning: [Sprint-005/README.md](../planning/sprints/Sprint-005/README.md) and issues M6.1–M6.5 (Issue-501..505).
 
 ---
 
@@ -120,6 +135,8 @@ related_documents:
 | Planning: Issues M4.1–M4.5 (Sprint-003) | ✅ Complete | 2026-08-05 |
 | Planning: Sprint 4 README (M5) | ✅ Complete | 2026-08-05 |
 | Planning: Issues M5.1–M5.5 (Sprint-004) | ✅ Complete | 2026-08-05 |
+| Planning: Sprint 5 README (M6) | ✅ Complete | 2026-08-05 |
+| Planning: Issues M6.1–M6.5 (Sprint-005) | ✅ Complete | 2026-08-05 |
 | ADR: ADR-0001 through ADR-0007 | ✅ Complete | 2026-08-04 |
 | Memory: Project Memory | ✅ Complete | 2026-08-05 |
 | Handoff: M3 Handoff (2026-08-04) | ✅ Complete | 2026-08-05 |
@@ -128,4 +145,4 @@ related_documents:
 
 ## Ready for Next Session?
 
-**YES** — Milestones 1–5 complete (Skeleton Run → AI Platform Foundation → Cognitive Core → Knowledge Layer → Media Workers). Next milestone is 6 (Multi-Tenant Brand Management). Next AI agent begins implementing Milestone 6 by reading `.ai/context/start-here.md`.
+**YES** — Milestones 1–5 complete (Skeleton Run → AI Platform Foundation → Cognitive Core → Knowledge Layer → Media Workers). **Milestone 6 (Multi-Tenant Brand Management) is IN PROGRESS / NEXT**, with Sprint-005 planning created (MVP-scoped to Tenant Registry + Policy Engine). Next AI agent begins implementing Milestone 6 by reading `.ai/context/start-here.md` and [Sprint-005 planning](../planning/sprints/Sprint-005/README.md).

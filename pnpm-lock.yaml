@@ -164,6 +164,9 @@ importers:
       '@fyi/database':
         specifier: workspace:1.0.0
         version: link:../../packages/database
+      '@fyi/platform':
+        specifier: workspace:1.0.0
+        version: link:../../packages/platform
       '@fyi/utils':
         specifier: workspace:1.0.0
         version: link:../../packages/utils

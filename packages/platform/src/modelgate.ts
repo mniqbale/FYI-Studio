@@ -12,6 +12,7 @@
 import { type ModelPolicy } from './model-policy.js';
 import { connectedProviderIds } from './connection-manager.js';
 import { listModelsForCapabilities, modelSupportsCapabilities } from './model-registry.js';
+import { tenantModelPreference } from './tenant-policy.js';
 
 export interface ResolvedModel {
   provider: string;
@@ -91,7 +92,38 @@ export class ModelGate {
       return { ok: true, model: { provider, model } };
     }
 
-    // 2. Default model for the capability from policy.
+    // 2. Per-tenant preference (Multi-Tenant / Milestone 6): overrides global
+    //    default when set. Must be connected + capable, else fail explicitly.
+    if (opts.scope) {
+      const tenantPref = await tenantModelPreference(opts.scope, capability);
+      if (tenantPref) {
+        const { provider, model } = tenantPref;
+        if (!connected.includes(provider)) {
+          return {
+            ok: false,
+            error: {
+              code: 'NO_CONNECTED_PROVIDER',
+              message: `Tenant preference "${provider}" is not connected. Connect it for tenant "${opts.scope}".`,
+              retryable: false,
+            },
+          };
+        }
+        const capable = await modelSupportsCapabilities(provider, model, required);
+        if (!capable) {
+          return {
+            ok: false,
+            error: {
+              code: 'INCOMPATIBLE_MODEL',
+              message: `Tenant-preferred model "${provider}/${model}" does not support "${capability}" (requires: ${required.join(', ')}).`,
+              retryable: false,
+            },
+          };
+        }
+        return { ok: true, model: { provider, model } };
+      }
+    }
+
+    // 3. Default model for the capability from policy.
     const def = this.policy.defaults[capability];
     if (def && connected.includes(def.provider)) {
       const capable = await modelSupportsCapabilities(def.provider, def.model, required);
@@ -100,14 +132,14 @@ export class ModelGate {
       }
     }
 
-    // 3. Fallback: first connected + capable model.
+    // 4. Fallback: first connected + capable model.
     const candidates = await listModelsForCapabilities(connected, required);
     if (candidates.length > 0) {
       const first = candidates[0]!;
       return { ok: true, model: { provider: first.provider, model: first.model } };
     }
 
-    // 4. No connected provider supports the capability.
+    // 5. No connected provider supports the capability.
     return {
       ok: false,
       error: {

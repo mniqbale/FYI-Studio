@@ -16,6 +16,7 @@ import {
   type RecipeStep,
 } from '@fyi/contracts';
 import { createTaskLogger } from '@fyi/utils';
+import { checkTenantQuota, tenantEnabled } from '@fyi/platform';
 import { type Queue } from 'bullmq';
 import { createWorkerQueue } from './queue-handler.js';
 import {
@@ -119,6 +120,26 @@ export class SupervisorKernel {
     const executionId = `${jobId}-${step.id}-${Date.now()}`;
     const payload = resolveInputMapping(step.input_mapping, artifacts);
     const policy = CAPABILITY_POLICY[step.capability] ?? { provider: 'mock', model: 'mock-model' };
+
+    // Multi-Tenant (Milestone 6): enforce tenant enabled + cost quota before dispatch.
+    const enabled = await tenantEnabled(tenantId);
+    if (!enabled) {
+      createTaskLogger({ job_id: jobId, execution_id: executionId }).warn(
+        { tenant_id: tenantId },
+        'Tenant disabled; rejecting job',
+      );
+      await prisma.job.update({ where: { id: jobId }, data: { status: JobStatus.FAILED } });
+      return;
+    }
+    const quota = await checkTenantQuota(tenantId);
+    if (!quota.allowed) {
+      createTaskLogger({ job_id: jobId, execution_id: executionId }).warn(
+        { tenant_id: tenantId, spend: quota.spend, quota: quota.quota },
+        'Tenant cost quota exceeded; rejecting job',
+      );
+      await prisma.job.update({ where: { id: jobId }, data: { status: JobStatus.FAILED } });
+      return;
+    }
 
     const envelope: TaskEnvelope = {
       contract_version: '1.1',
