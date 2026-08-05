@@ -1,7 +1,7 @@
 ---
 id: ADR-0006-user-configurable-provider-connection
 title: "User-Configurable Provider Connections & Capability-Filtered Model Selection"
-status: "Proposed"
+status: "Accepted"
 date: "2026-08-04"
 deciders: ["Founder", "Lead Engineer", "Principal Architect"]
 tags: [providers, api-keys, model-gate, model-policy, model-selection, multi-provider, security]
