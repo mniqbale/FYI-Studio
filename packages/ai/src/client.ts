@@ -50,6 +50,11 @@ function envVarName(provider: string): string {
   return `${provider.toUpperCase().replace(/[^A-Z0-9]/g, '_')}_API_KEY`;
 }
 
+/** Alternate env var names accepted for a provider (e.g. CLAUDE_API_KEY for anthropic). */
+const SECRET_ALIASES: Record<string, string[]> = {
+  anthropic: ['CLAUDE_API_KEY'],
+};
+
 function loadEnvIfPresent(cwd = process.cwd()): void {
   const envPath = resolve(cwd, '.env');
   if (!existsSync(envPath)) return;
@@ -64,7 +69,13 @@ function loadEnvIfPresent(cwd = process.cwd()): void {
 }
 
 function resolveSecret(provider: string): string | undefined {
-  return process.env[envVarName(provider)];
+  const primary = process.env[envVarName(provider)];
+  if (primary) return primary;
+  for (const alias of SECRET_ALIASES[provider] ?? []) {
+    const v = process.env[alias];
+    if (v) return v;
+  }
+  return undefined;
 }
 
 loadEnvIfPresent();

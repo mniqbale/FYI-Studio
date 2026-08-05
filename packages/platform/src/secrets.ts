@@ -13,6 +13,11 @@ function envVarName(provider: string): string {
   return `${provider.toUpperCase().replace(/[^A-Z0-9]/g, '_')}_API_KEY`;
 }
 
+/** Alternate env var names accepted for a provider (e.g. CLAUDE_API_KEY for anthropic). */
+const SECRET_ALIASES: Record<string, string[]> = {
+  anthropic: ['CLAUDE_API_KEY'],
+};
+
 /** Load `.env` into the process env if present (idempotent, never overrides). */
 export function loadEnvIfPresent(cwd = process.cwd()): void {
   const envPath = resolve(cwd, '.env');
@@ -32,7 +37,13 @@ export function loadEnvIfPresent(cwd = process.cwd()): void {
  * Callers must never log or persist the returned key.
  */
 export function resolveSecret(provider: string): string | undefined {
-  return process.env[envVarName(provider)];
+  const primary = process.env[envVarName(provider)];
+  if (primary) return primary;
+  for (const alias of SECRET_ALIASES[provider] ?? []) {
+    const v = process.env[alias];
+    if (v) return v;
+  }
+  return undefined;
 }
 
 /** Whether a key is configured for the provider (without exposing it). */
