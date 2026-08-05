@@ -7,11 +7,13 @@ import { type ModelPolicy } from '@fyi/contracts';
 export const COMPLETION_QUEUE = 'completion-queue';
 
 // Map: capability -> worker queue name.
-// Keys align with the worker capabilities implemented in S1.3.
+// Keys align with the worker capabilities implemented in S1.3 (mock) and M3 (real).
 export const CAPABILITY_QUEUE: Record<string, string> = {
   'research:mock': 'research-queue',
   'text-synthesis:script': 'script-queue',
   'speech-synthesis:voice': 'voice-queue',
+  'research:real': 'research-real-queue',
+  'text-synthesis:script:real': 'script-real-queue',
 };
 
 // Map: capability -> model policy (MVP static; replaces ModelGate for skeleton run).

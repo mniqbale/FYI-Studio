@@ -89,12 +89,12 @@ models:
 
 # Default recommended model per worker capability (user may override, capability-gated).
 defaults:
-  research:real:        # Research Worker
+  research:real:        # Research Worker (real AI)
     provider: gemini
     model: gemini-2.5-pro
-  text-synthesis:script:  # Script Worker
+  text-synthesis:script:real: # Script Worker (real AI)
     provider: openai
     model: gpt-4o
-  speech-synthesis:voice: # Voice Worker (M5)
-    provider: openai
-    model: gpt-4o-mini
+  text-synthesis:script:  # Script Worker (mock)
+    provider: mock
+    model: mock-script-model

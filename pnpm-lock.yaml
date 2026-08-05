@@ -18,6 +18,22 @@ importers:
         specifier: ^4.1.10
         version: 4.1.10(@types/node@20.19.43)(vite@8.2.0(@types/node@20.19.43)(esbuild@0.28.1)(tsx@4.23.5)(yaml@2.9.0))
 
+  packages/ai:
+    dependencies:
+      '@fyi/utils':
+        specifier: workspace:1.0.0
+        version: link:../utils
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.0
+        version: 4.1.10(@types/node@20.19.43)(vite@8.2.0(@types/node@20.19.43)(esbuild@0.28.1)(tsx@4.23.5)(yaml@2.9.0))
+
   packages/cli:
     dependencies:
       '@fyi/contracts':
@@ -184,11 +200,73 @@ importers:
         specifier: ^5.4.0
         version: 5.9.3
 
+  workers/research-real:
+    dependencies:
+      '@fyi/ai':
+        specifier: workspace:1.0.0
+        version: link:../../packages/ai
+      '@fyi/contracts':
+        specifier: workspace:1.1.0
+        version: link:../../packages/contracts
+      '@fyi/platform':
+        specifier: workspace:1.0.0
+        version: link:../../packages/platform
+      '@fyi/utils':
+        specifier: workspace:1.0.0
+        version: link:../../packages/utils
+      bullmq:
+        specifier: ^5.34.0
+        version: 5.81.3
+      pino:
+        specifier: ^9.5.0
+        version: 9.14.0
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.19.0
+        version: 4.23.5
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+
   workers/script:
     dependencies:
       '@fyi/contracts':
         specifier: workspace:1.1.0
         version: link:../../packages/contracts
+      '@fyi/utils':
+        specifier: workspace:1.0.0
+        version: link:../../packages/utils
+      bullmq:
+        specifier: ^5.34.0
+        version: 5.81.3
+      pino:
+        specifier: ^9.5.0
+        version: 9.14.0
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.19.0
+        version: 4.23.5
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+
+  workers/script-real:
+    dependencies:
+      '@fyi/ai':
+        specifier: workspace:1.0.0
+        version: link:../../packages/ai
+      '@fyi/contracts':
+        specifier: workspace:1.1.0
+        version: link:../../packages/contracts
+      '@fyi/platform':
+        specifier: workspace:1.0.0
+        version: link:../../packages/platform
       '@fyi/utils':
         specifier: workspace:1.0.0
         version: link:../../packages/utils
