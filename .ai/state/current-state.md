@@ -112,7 +112,7 @@ related_documents:
 
 ## Sprint 6 Progress (Milestone 7: Analytics & Learning Loop)
 
-> **Status: PLANNING / IN PROGRESS (NEXT)** — Sprint-006 planning created 2026-08-05. MVP-scoped to **Cost Intelligence + Memory enrichment + analytics CLI** (telemetry aggregation, unit economics per video/channel/capability, budget enforcement, performance memory writes, `fyi analytics report`). External platform analytics ingestion (YouTube/TikTok/IG), the autonomous auto-optimization engine, and A/B orchestration are **deferred** to post-MVP. **M7 is the final milestone for MVP.**
+> **Status: COMPLETE** — implemented 2026-08-05. Cost Intelligence (unit economics, budget reporting), Memory enrichment (performance memory on job COMPLETED), and `fyi analytics report` CLI shipped and verified (10 unit tests + M7 E2E 13/13 PASSED). External platform analytics ingestion (YouTube/TikTok/IG), the autonomous auto-optimization engine, and A/B orchestration are **deferred** to post-MVP.
 
 | Issue | Title | Status |
 |-------|-------|--------|
@@ -122,7 +122,7 @@ related_documents:
 | M7.4 (Issue-604) | CLI `fyi analytics report` (per tenant/capability/job summary) | **Planned** |
 | M7.5 (Issue-605) | Analytics E2E — run a job, verify telemetry aggregates + memory written + report output | **Planned** |
 
-**🚩 Milestone 7 (Analytics & Learning Loop) — IN PROGRESS / NEXT (final for MVP).** Milestone 6 (Multi-Tenant) is COMPLETE — see [Sprint-005 planning](../planning/sprints/Sprint-005/README.md) and issues M6.1–M6.5 (Issue-501..505). Sprint-006 planning: [Sprint-006/README.md](../planning/sprints/Sprint-006/README.md) and issues M7.1–M7.5 (Issue-601..605). **MVP completion is pending M7.**
+**🏁 Milestone 7 (Analytics & Learning Loop) — COMPLETE. MVP DONE.** Milestones 1–7 all complete. See [Sprint-006 planning](../planning/sprints/Sprint-006/README.md) and issues M7.1–M7.5 (Issue-601..605). Post-MVP decision recorded in [post-mvp-options.md](../planning/post-mvp-options.md).
 
 ---
 
@@ -164,4 +164,4 @@ related_documents:
 
 ## Ready for Next Session?
 
-**YES** — Milestones 1–6 complete (Skeleton Run → AI Platform Foundation → Cognitive Core → Knowledge Layer → Media Workers → Multi-Tenant). **Milestone 7 (Analytics & Learning Loop) is IN PROGRESS / NEXT — the final milestone for MVP**, with Sprint-006 planning created (MVP-scoped to Cost Intelligence + Memory enrichment + analytics CLI). Next AI agent begins implementing Milestone 7 by reading `.ai/context/start-here.md` and [Sprint-006 planning](../planning/sprints/Sprint-006/README.md).
+**YES — MVP COMPLETE.** Milestones 1–7 all done (Skeleton Run → AI Platform Foundation → Cognitive Core → Knowledge Layer → Media Workers → Multi-Tenant → Analytics). **Next: Dashboard UI (Post-MVP Option A)** — see [dashboard-proposal.md](../planning/dashboard-proposal.md) (stack + flow) and [orchestration-delegation-brief.md](../planning/orchestration-delegation-brief.md) (brief for delegating to an external AI agent).
