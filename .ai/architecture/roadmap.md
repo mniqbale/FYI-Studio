@@ -1,8 +1,8 @@
 ---
 title: "FYI Studio Roadmap"
-version: "1.0"
+version: "1.1"
 status: "active"
-last_updated: "2026-08-04"
+last_updated: "2026-08-05"
 source_documents:
   - "Concept-1.md (Section 14: Roadmap)"
   - "Concept-2.md (System Evolution: V1 vs V2)"
@@ -35,7 +35,7 @@ cross_references:
 ---
 
 ### Milestone 2: AI Platform Foundation
-**Status:** Planned  
+**Status:** Complete (Sprints 2–3)  
 **Goal:** Establish the AI infrastructure foundation used by every future worker — Provider Registry, Connection Manager, Model Registry, Capability Registry, and ModelGate v2. This is the "Bring Your Own AI (BYOAI)" layer.
 
 **Key Deliverables:**
@@ -52,7 +52,7 @@ cross_references:
 ---
 
 ### Milestone 3: The Cognitive Core (Real AI Workers)
-**Status:** Planned  
+**Status:** Complete (Sprints 4–5, implemented ahead of schedule)  
 **Goal:** Replace mock workers with production-grade AI workers using the AI Platform Foundation from Milestone 2.
 
 **Key Deliverables:**
@@ -66,15 +66,15 @@ cross_references:
 ---
 
 ### Milestone 4: Knowledge Layer + Memory Management
-**Status:** Planned  
+**Status:** Complete (Sprint 3)  
 **Goal:** Implement the three-tier context assembly (Global Knowledge, Tenant Brand Memory, Project Memory) with Just-In-Time context injection and vector-based semantic retrieval.
 
 **Key Deliverables:**
 - Knowledge Layer with Brand Profiles, Style Guides, Verified Facts, Asset Libraries
 - Memory Layer for historical performance, edits, and audience analytics
 - Context Assembly Engine: extraction → retrieval → pruning → injection → purge
-- Vector store integration (Pinecone/Milvus) for semantic search
 - Policy-driven context filtering by tenant scope
+- **MVP scope (per mvp-architecture.md):** the "flattened brain" is a PostgreSQL `tenant_context` table — **NO vector DB** (Pinecone/Milvus deferred to post-MVP unless long-term memory is specifically required)
 
 **Dependencies:** Milestone 3 (Cognitive Core provides real AI for knowledge extraction)
 
@@ -208,13 +208,13 @@ Trigger → Orchestrator → Research → Script → Voice → Video → Publish
 
 | Milestone | Projected Sprints | Est. Complexity |
 |-----------|-------------------|-----------------|
-| **M1: Skeleton Run** | Sprint 1 | 38h (completed as S1.1–S1.6) |
-| **M2: AI Platform Foundation** | Sprints 2–3 | ~60–80h |
-| **M3: Cognitive Core (Real AI Workers)** | Sprints 4–5 | ~80–100h |
-| **M4: Knowledge Layer + Memory** | Sprints 6–7 | ~80–100h |
-| **M5: Media Workers** | Sprints 8–10 | ~100–140h |
-| **M6: Multi-Tenant (100+ Channels)** | Sprints 11–13 | ~120–160h |
-| **M7: Analytics & Auto-Optimization** | Sprints 14–16 | ~140–180h |
+| **M1: Skeleton Run** | Sprint 1 — ✅ **Complete** | 38h (completed as S1.1–S1.6) |
+| **M2: AI Platform Foundation** | Sprints 2–3 — ✅ **Complete** | ~60–80h (completed as S2.1–S2.5) |
+| **M3: Cognitive Core (Real AI Workers)** | Sprints 4–5 — ✅ **Complete** | ~80–100h (implemented ahead of schedule) |
+| **M4: Knowledge Layer + Memory** | Sprints 6–7 — ✅ **Complete** | ~80–100h (completed as Sprint-003, MVP-scoped) |
+| **M5: Media Workers** | Sprints 8–10 — Planned | ~100–140h |
+| **M6: Multi-Tenant (100+ Channels)** | Sprints 11–13 — Planned | ~120–160h |
+| **M7: Analytics & Auto-Optimization** | Sprints 14–16 — Planned | ~140–180h |
 
 **Total Projected (M1–M7):** ~618–798 hours across ~16 sprints
 

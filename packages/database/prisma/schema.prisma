@@ -122,3 +122,41 @@ model CapabilityRegistry {
   @@map("capability_registry")
 }
 
+// ---- Knowledge Layer + Memory (Milestone 4) ----
+// Per MVP architecture: the "flattened brain" is a PostgreSQL `tenant_context`
+// table (no vector DB for MVP). Brand voice + constraints are injected into
+// worker prompts via the Context Assembly Engine.
+
+/// Tenant Knowledge Base — brand voice, style guides, verified facts,
+/// asset library pointers, and per-channel constraints.
+model TenantContext {
+  id                 String   @id @default(uuid()) @db.Uuid
+  tenant_id          String   @unique @db.VarChar(255) // Channel/Brand ID
+  brand_voice        String?  @db.Text
+  language           String?  @default("en") @db.VarChar(50)
+  style_guide        String?  @db.Text
+  verified_facts     Json?    @default("[]")
+  asset_library      Json?    @default("[]") // S3 pointers only (Reference-Based Data Plane)
+  forbidden_terms    Json?    @default("[]")
+  constraints        Json?    @default("{}") // per-channel constraints (duration, tone, etc.)
+  created_at         DateTime @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("tenant_context")
+}
+
+/// Memory Layer (MVP) — historical performance + edits per tenant, used to
+/// inform future context assembly. JSONB content is schema-flexible for MVP.
+model MemoryEntry {
+  id          String   @id @default(uuid()) @db.Uuid
+  tenant_id   String   @db.VarChar(255)
+  job_id      String?  @db.Uuid
+  kind        String   @db.VarChar(50) // "performance" | "edit" | "analytics"
+  content     Json     @default("{}")
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([tenant_id, kind], name: "idx_memory_tenant_kind")
+  @@index([tenant_id, created_at], name: "idx_memory_tenant_created")
+  @@map("memory_entries")
+}
+

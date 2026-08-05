@@ -21,6 +21,8 @@ export type {
   ProviderConnection,
   ModelRegistry,
   CapabilityRegistry,
+  TenantContext,
+  MemoryEntry,
 } from '@prisma/client';
 
 export default prisma;

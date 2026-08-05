@@ -4,7 +4,7 @@ title: "Project Memory Index"
 owner: "Documentation Architect"
 status: "active"
 version: "1.0.0"
-last_updated: "2026-08-04"
+last_updated: "2026-08-05"
 review_cycle: "per-sprint"
 tags: [memory, project-history, decisions, lessons-learned]
 ---
@@ -71,6 +71,11 @@ tags: [memory, project-history, decisions, lessons-learned]
 | 2026-08-05 | Implementation | **M3 COMPLETE via Ollama Cloud:** real Research→Script pipeline works end-to-end. `.env`: `OLLAMA_BASE_URL=https://ollama.com/v1` (Ollama Cloud OpenAI-compatible endpoint) + `OLLAMA_API_KEY`. Model: `deepseek-v4-flash` (default in model_policy). Real job produced research brief with 5 sources + 8-scene script, COMPLETED. |
 | 2026-08-05 | Implementation | **Key fixes during M3:** (1) `@fyi/ai` OpenAI-compatible parser falls back to `reasoning` field when `content` empty (DeepSeek/reasoning models). (2) `@fyi/ai` + supervisor load `.env` internally so they run standalone. (3) ModelGate falls back from tenant scope to `default` scope for connections. |
 | 2026-08-05 | Environment | **Codespace is small (7.8Gi RAM, 32Gi disk).** Local Ollama (docker) OOM-killed on 2GB model and filled disk. **Use Ollama Cloud** (`OLLAMA_BASE_URL`) instead of local. `pnpm store prune` + `npm cache clean --force` + `docker system prune -af` reclaimed ~9GB. |
+| 2026-08-05 | Implementation | **M4 COMPLETE (Knowledge Layer + Memory):** new `@fyi/knowledge` package. Prisma migration added `tenant_context` (brand_voice, language, style_guide, verified_facts, asset_library, forbidden_terms, constraints) + `memory_entries` (kind: performance/edit/analytics). Context Assembly Engine `assembleContext(tenant_id)` injects brand voice/style/forbidden terms/constraints/facts/memory into real Research+Script worker prompts. 6 context-assembly unit tests. E2E verified via Ollama Cloud: tenant with forbidden_terms ["synergy","disrupt","revolutionary"] produced a script with 0 forbidden-term hits + following brand voice. **Double-encoding fix:** Prisma Json fields must be passed as raw arrays/objects (NOT JSON.stringify'd) or they come back double-encoded. |
+| 2026-08-05 | Process | **Parallel sub-agent workflow validated for M4:** (1) Documentation Architect updated constitution docs + created Sprint-003 planning; (2) Wiring agent added @fyi/knowledge dep + context injection to workers + unit tests. Both ran concurrently with me building the schema + knowledge package. Milestones 1–4 all complete. |
+| 2026-08-05 | Implementation | **M3 COMPLETE via Ollama Cloud (confirmed):** Milestone 3 (Cognitive Core) is done. Real `research:real` → `text-synthesis:script:real` pipeline verified end-to-end through Ollama Cloud (`OLLAMA_BASE_URL=https://ollama.com/v1`, model `deepseek-v4-flash`) — produced a real research brief with 5 sources + an 8-scene script and reached COMPLETED. 7 AI adapter tests + 7 ModelGate tests pass. Cloud free tiers (OpenAI/Gemini/Anthropic) remain credit-blocked; Ollama Cloud is the working free provider. |
+| 2026-08-05 | Providers | **Working provider default set:** `model_policy.yaml` defaults for `research:real` and `text-synthesis:script:real` point at `provider: ollama`, `model: deepseek-v4-flash`. New real jobs resolve through Ollama Cloud with no quota. |
+| 2026-08-05 | Planning | **Sprint-003 / Milestone 4 planning created:** Knowledge Layer + Memory Management. `.ai/planning/sprints/Sprint-003/README.md` + issues M4.1–M4.5 (Issue-301..305). MVP-scoped per mvp-architecture.md: the "flattened brain" is a PostgreSQL `tenant_context` table — **NO vector DB**. Roadmap, MVP architecture, implementation strategy, start-here, and current-state updated to mark M1–M3 complete and M4 next. |
 
 ---
 

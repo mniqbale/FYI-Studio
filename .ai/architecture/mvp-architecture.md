@@ -4,7 +4,7 @@ title: FYI Studio MVP Architecture v1.0
 owner: Founder, CTO, Principal Engineer, SRE
 status: Approved
 version: 1.0.0
-last_updated: "2026-08-04"
+last_updated: "2026-08-05"
 review_cycle: per-sprint
 tags: [architecture, mvm, orchestrator, worker-interface, data-plane, model-config, knowledge-base, hitl, observability, roadmap]
 related_documents:
@@ -13,7 +13,10 @@ related_documents:
   - architecture-manifesto.md
   - contracts.md
 related_adr: []
-related_sprint: []
+related_sprint:
+  - "../planning/sprints/Sprint-001"
+  - "../planning/sprints/Sprint-002"
+  - "../planning/sprints/Sprint-003"
 ---
 
 # Purpose
@@ -109,15 +112,15 @@ Centralized logs via Loki/Datadog. Every log line must include `Job_ID`.
 
 # Revised Roadmap (The "Ship-Fast" Plan, Updated per Architecture Review Meeting #05)
 
-| Phase | Focus | Deliverables |
-|-------|-------|--------------|
-| **Sprint 1** | **The Kernel (Milestone 1)** | Setup PostgreSQL, BullMQ, and the "Supervisor" core. Define the `Job Ledger` schema. `TaskEnvelope`/`WorkerResponse` contracts. ModelGate + `model_policy.yaml`. Mock workers. E2E test. |
-| **Sprints 2–3** | **AI Platform Foundation (Milestone 2)** | Provider Registry, Connection Manager, Model Registry, Capability Registry, ModelGate v2, CLI for provider management. |
-| **Sprints 4–5** | **The Cognitive Core (Milestone 3)** | Research Worker (Perplexity/Gemini), Script Worker (OpenAI/Claude). `input_mapping` working end-to-end. Tenant context injection. Real AI integration. |
-| **Sprints 6–7** | **Knowledge Layer + Memory (Milestone 4)** | Brand Profiles, Style Guides, Vector Store integration, Context Assembly Engine, Memory Layer. |
-| **Sprints 8–10** | **The Media Stack (Milestone 5)** | Voice Worker (ElevenLabs → S3). Video Composer (FFmpeg, downloads from S3). Subtitle Worker. Asset Library Worker. Pointer system validated. |
-| **Sprints 11–13** | **Multi-Tenant Scale (Milestone 6)** | Tenant Registry, Policy Engine, Worker Registry v2, A/B Testing, Dashboard UI. |
-| **Sprints 14–16** | **Analytics & Learning Loop (Milestone 7)** | Analytics Workers, Auto-Optimization Engine, Cost Intelligence, A/B Orchestration. |
+| Phase | Focus | Deliverables | Status |
+|-------|-------|--------------|--------|
+| **Sprint 1** | **The Kernel (Milestone 1)** | Setup PostgreSQL, BullMQ, and the "Supervisor" core. Define the `Job Ledger` schema. `TaskEnvelope`/`WorkerResponse` contracts. ModelGate + `model_policy.yaml`. Mock workers. E2E test. | ✅ **Complete** |
+| **Sprints 2–3** | **AI Platform Foundation (Milestone 2)** | Provider Registry, Connection Manager, Model Registry, Capability Registry, ModelGate v2, CLI for provider management. | ✅ **Complete** |
+| **Sprints 4–5** | **The Cognitive Core (Milestone 3)** | Research Worker (real AI), Script Worker (real AI). Real AI integration end-to-end via Ollama Cloud. | ✅ **Complete** |
+| **Sprints 6–7** | **Knowledge Layer + Memory (Milestone 4)** | Brand Profiles, Style Guides, `tenant_context` table, Context Assembly Engine, Memory Layer. **NO vector DB in MVP.** | 🔄 **In Progress / Next** |
+| **Sprints 8–10** | **The Media Stack (Milestone 5)** | Voice Worker (ElevenLabs → S3). Video Composer (FFmpeg, downloads from S3). Subtitle Worker. Asset Library Worker. Pointer system validated. | Planned |
+| **Sprints 11–13** | **Multi-Tenant Scale (Milestone 6)** | Tenant Registry, Policy Engine, Worker Registry v2, A/B Testing, Dashboard UI. | Planned |
+| **Sprints 14–16** | **Analytics & Learning Loop (Milestone 7)** | Analytics Workers, Auto-Optimization Engine, Cost Intelligence, A/B Orchestration. | Planned |
 
 # Final Decision Request
 

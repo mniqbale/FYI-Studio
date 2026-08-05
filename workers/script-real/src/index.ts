@@ -3,6 +3,7 @@ import { type TaskEnvelope, type WorkerResponse, WorkerStatus } from '@fyi/contr
 import { createRedisConnection, createTaskLogger } from '@fyi/utils';
 import { seedRegistries, ModelGate, loadModelPolicy } from '@fyi/platform';
 import { AiClient } from '@fyi/ai';
+import { assembleContext, type AssembledContext } from '@fyi/knowledge';
 
 const QUEUE_NAME = 'script-real-queue';
 const COMPLETION_QUEUE = 'completion-queue';
@@ -12,9 +13,36 @@ const CAPABILITY = 'text-synthesis:script:real';
 
 const aiClient = new AiClient();
 
+/**
+ * Build a compact script system prompt injecting tenant context
+ * (brand voice, style guide, constraints, forbidden terms, verified facts, memory).
+ */
+function buildScriptSystemPrompt(ctx: AssembledContext): string {
+  const lines: string[] = [
+    'You are the FYI Studio Script Worker. Write a video script based on the research brief.',
+  ];
+  if (ctx.brand_voice) lines.push(`Follow the brand voice: ${ctx.brand_voice}`);
+  if (ctx.language) lines.push(`Write in this language: ${ctx.language}`);
+  if (ctx.style_guide) lines.push(`Follow the style guide: ${ctx.style_guide}`);
+  if (ctx.forbidden_terms.length) lines.push(`AVOID these terms: ${ctx.forbidden_terms.join(', ')}`);
+  if (Object.keys(ctx.constraints).length) {
+    lines.push(`Respect these constraints: ${JSON.stringify(ctx.constraints)}`);
+  }
+  if (ctx.verified_facts.length) {
+    lines.push(`Keep the script consistent with these verified facts: ${ctx.verified_facts.join(' | ')}`);
+  }
+  if (ctx.memory.length) {
+    const mem = ctx.memory.map((m: Record<string, unknown>) => `${String(m.kind)}: ${String(m.content)}`).join(' | ');
+    lines.push(`Context from past output: ${mem}`);
+  }
+  return lines.join('\n');
+}
+
 async function buildOutput(envelope: TaskEnvelope): Promise<Record<string, unknown>> {
   const researchBrief = (envelope.payload?.research_brief as string) ?? 'no research brief provided';
-  const context = envelope.context;
+
+  // Assemble tenant context (knowledge + memory) for prompt injection.
+  const ctx = await assembleContext(envelope.tenant_id);
 
   const gate = new ModelGate(loadModelPolicy());
   const resolved = await gate.resolve(CAPABILITY, { scope: envelope.tenant_id });
@@ -23,11 +51,7 @@ async function buildOutput(envelope: TaskEnvelope): Promise<Record<string, unkno
   }
   const { provider, model } = resolved.model!;
 
-  const system = [
-    `You are the FYI Studio Script Worker. Write a video script based on the research brief.`,
-    `Brand voice: ${context.brand_voice ?? 'professional'}`,
-    context.forbidden_terms?.length ? `Forbidden terms to avoid: ${context.forbidden_terms.join(', ')}` : '',
-  ].filter(Boolean).join('\n');
+  const system = buildScriptSystemPrompt(ctx);
 
   const result = await aiClient.complete({
     provider,

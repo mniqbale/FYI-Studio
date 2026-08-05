@@ -1,8 +1,9 @@
 ---
 title: "Implementation Strategy: Milestone 1 - The Skeleton Run"
-version: "1.0"
+version: "1.1"
 source: "Concept-7.md"
 created: "2026-08-04"
+updated: "2026-08-05"
 status: "active"
 tags: [implementation-strategy, milestone-1, skeleton-run, planning]
 ---
@@ -105,15 +106,15 @@ We will use a simple directory-based monorepo. No complex build tools like Turbo
 
 ## 9. Projected Milestone Sequence (Updated per Architecture Review Meeting #05)
 
-| Milestone | Focus | Projected Sprints |
-|-----------|-------|-------------------|
-| **M1: Skeleton Run** | Infra, Contracts, Mock Workers, Supervisor, CLI, E2E | Sprint 1 (Complete) |
-| **M2: AI Platform Foundation** | Provider Registry, Connection Manager, Model Registry, Capability Registry, ModelGate v2 | Sprints 2–3 |
-| **M3: Cognitive Core** | Research Worker (Real AI), Script Worker (Real AI) | Sprints 4–5 |
-| **M4: Knowledge Layer + Memory** | Brand Profiles, Vector Store, Context Assembly | Sprints 6–7 |
-| **M5: Media Workers** | Voice, Video, Subtitles, Asset Library | Sprints 8–10 |
-| **M6: Multi-Tenant** | Tenant Registry, Policy Engine, Worker Registry v2, Dashboard | Sprints 11–13 |
-| **M7: Analytics & Auto-Optimization** | Analytics Workers, Learning Loop, Cost Intelligence | Sprints 14–16 |
+| Milestone | Focus | Projected Sprints | Status |
+|-----------|-------|-------------------|--------|
+| **M1: Skeleton Run** | Infra, Contracts, Mock Workers, Supervisor, CLI, E2E | Sprint 1 | ✅ **Complete** |
+| **M2: AI Platform Foundation** | Provider Registry, Connection Manager, Model Registry, Capability Registry, ModelGate v2 | Sprints 2–3 | ✅ **Complete** |
+| **M3: Cognitive Core** | Research Worker (Real AI), Script Worker (Real AI) | Sprints 4–5 | ✅ **Complete** |
+| **M4: Knowledge Layer + Memory** | Brand Profiles, `tenant_context` table, Context Assembly, Memory Layer | Sprints 6–7 | 🔄 **In Progress / Next** |
+| **M5: Media Workers** | Voice, Video, Subtitles, Asset Library | Sprints 8–10 | Planned |
+| **M6: Multi-Tenant** | Tenant Registry, Policy Engine, Worker Registry v2, Dashboard | Sprints 11–13 | Planned |
+| **M7: Analytics & Auto-Optimization** | Analytics Workers, Learning Loop, Cost Intelligence | Sprints 14–16 | Planned |
 
 ---
 
