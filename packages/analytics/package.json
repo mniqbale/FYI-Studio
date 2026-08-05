@@ -1,0 +1,30 @@
+{
+  "name": "@fyi/analytics",
+  "version": "1.0.0",
+  "description": "FYI Studio Analytics & Cost Intelligence — telemetry aggregation, unit economics, budget reporting (Milestone 7)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fyi/database": "workspace:1.0.0",
+    "@fyi/knowledge": "workspace:1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.1.0"
+  }
+}

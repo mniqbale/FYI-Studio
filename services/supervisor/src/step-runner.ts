@@ -8,6 +8,7 @@
 import { Prisma, prisma, JobStatus } from '@fyi/database';
 import { type WorkerResponse, type ProductionRecipe, WorkerStatus } from '@fyi/contracts';
 import { createTaskLogger } from '@fyi/utils';
+import { recordJobPerformance } from '@fyi/analytics';
 
 export interface StepRunnerDeps {
   /** Called when a step succeeds and more steps remain. */
@@ -96,7 +97,20 @@ export class StepRunner {
       'Job ledger updated after step',
     );
 
-    // 5. Trigger the next step if we're still running (and not awaiting approval / completed).
+    // 5. Memory enrichment (M7): on final completion, record performance memory.
+    if (newStatus === JobStatus.COMPLETED) {
+      try {
+        await recordJobPerformance(jobId);
+        log.info({ job_id: jobId }, 'Performance memory recorded for completed job');
+      } catch (err) {
+        log.error(
+          { job_id: jobId, error_message: err instanceof Error ? err.message : String(err) },
+          'Failed to record performance memory (non-fatal)',
+        );
+      }
+    }
+
+    // 6. Trigger the next step if we're still running (and not awaiting approval / completed).
     if (newStatus === JobStatus.RUNNING) {
       await this.deps.onStepSucceeded(jobId);
     }

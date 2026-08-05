@@ -20,6 +20,7 @@
     "dev": "tsx watch src/index.ts"
   },
   "dependencies": {
+    "@fyi/analytics": "workspace:1.0.0",
     "@fyi/contracts": "workspace:1.1.0",
     "@fyi/database": "workspace:1.0.0",
     "@fyi/platform": "workspace:1.0.0",

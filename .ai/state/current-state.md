@@ -14,6 +14,7 @@ related_documents:
   - "../planning/sprints/Sprint-003/README.md"
   - "../planning/sprints/Sprint-004/README.md"
   - "../planning/sprints/Sprint-005/README.md"
+  - "../planning/sprints/Sprint-006/README.md"
   - "../memory/project-memory.md"
 ---
 
@@ -27,13 +28,13 @@ related_documents:
 
 | Metric | Value |
 |--------|-------|
-| **Current Milestone** | Milestone 6: Multi-Tenant — **COMPLETE**
-| **Current Sprint** | Sprint 5: Multi-Tenant — **COMPLETE**
-| **Completed Milestones** | M1 ✅ · M2 ✅ · M3 ✅ · M4 ✅ · M5 ✅ · M6 Multi-Tenant ✅ |
+| **Current Milestone** | Milestone 7: Analytics & Learning Loop — **COMPLETE** (MVP DONE) 🎉
+| **Current Sprint** | Sprint 6: Analytics & Learning Loop — **COMPLETE**
+| **Completed Milestones** | M1 ✅ · M2 ✅ · M3 ✅ · M4 ✅ · M5 ✅ · M6 ✅ · M7 Analytics ✅ |
 | **Architecture Version** | MVP v1.0 (ADR-0001) |
 | **Contracts Version** | v1.1 Frozen (ADR-0002) |
 | **Engineering Standards** | v1.0 (ADR-0005) |
-| **Project Health** | 🟢 On Track — M1–M5 complete; M6 (Multi-Tenant) in progress / next |
+| **Project Health** | 🟢 On Track — M1–M6 complete; M7 (Analytics & Learning Loop) in progress / next — **last milestone for MVP** |
 
 ---
 
@@ -95,17 +96,33 @@ related_documents:
 
 ## Sprint 5 Progress (Milestone 6: Multi-Tenant Brand Management)
 
-> **Status: PLANNING / IN PROGRESS (NEXT)** — Sprint-005 planning created 2026-08-05. MVP-scoped to **Tenant Registry + Policy Engine** (per-tenant model preference + cost quota). Full A/B testing framework, dashboard UI, Worker Registry v2, and publishing schedules are **deferred** to post-MVP.
+> **Status: COMPLETE** — implemented 2026-08-05. Tenant Registry + Policy Engine shipped and verified end-to-end. MVP-scoped to **Tenant Registry + Policy Engine** (per-tenant model preference + cost quota). Full A/B testing framework, dashboard UI, Worker Registry v2, and publishing schedules are **deferred** to post-MVP.
 
 | Issue | Title | Status |
 |-------|-------|--------|
-| M6.1 (Issue-501) | `tenant_policies` schema + Prisma migration (tenant_id, model_preferences JSON, cost_quota, enabled) | **Planned** |
-| M6.2 (Issue-502) | Policy Engine in `@fyi/platform` (resolve tenant policy, check cost quota, enforce per-tenant model preference) | **Planned** |
-| M6.3 (Issue-503) | Wire tenant policy into ModelGate.resolve (tenant preference overrides global default when set) | **Planned** |
-| M6.4 (Issue-504) | Cost quota enforcement (reject/limit jobs when tenant budget exceeded) | **Planned** |
-| M6.5 (Issue-505) | Multi-tenant E2E (two tenants with different policies produce isolated behavior) | **Planned** |
+| M6.1 (Issue-501) | `tenant_policies` schema + Prisma migration (tenant_id, model_preferences JSON, cost_quota, enabled) | **Done** |
+| M6.2 (Issue-502) | Policy Engine in `@fyi/platform` (resolve tenant policy, check cost quota, enforce per-tenant model preference) | **Done** |
+| M6.3 (Issue-503) | Wire tenant policy into ModelGate.resolve (tenant preference overrides global default when set) | **Done** |
+| M6.4 (Issue-504) | Cost quota enforcement (reject/limit jobs when tenant budget exceeded) | **Done** |
+| M6.5 (Issue-505) | Multi-tenant E2E (two tenants with different policies produce isolated behavior) | **Done** |
 
-**🚩 Milestone 6 (Multi-Tenant) — IN PROGRESS / NEXT.** Milestone 5 (Media Workers) is COMPLETE — see [Sprint-004 planning](../planning/sprints/Sprint-004/README.md) and issues M5.1–M5.5 (Issue-401..405). Sprint-005 planning: [Sprint-005/README.md](../planning/sprints/Sprint-005/README.md) and issues M6.1–M6.5 (Issue-501..505).
+**🏁 Milestone 6 (Multi-Tenant) — COMPLETE.** `tenant_policies` table + Policy Engine in `@fyi/platform` + ModelGate per-tenant model preference + supervisor quota enforcement + 13 tenant-policy unit tests + multi-tenant E2E proving isolation (Tenant A resolves its own model, over-quota Tenant B rejected, no-policy falls back to global default). See [Sprint-005 planning](../planning/sprints/Sprint-005/README.md) and issues M6.1–M6.5 (Issue-501..505).
+
+---
+
+## Sprint 6 Progress (Milestone 7: Analytics & Learning Loop)
+
+> **Status: PLANNING / IN PROGRESS (NEXT)** — Sprint-006 planning created 2026-08-05. MVP-scoped to **Cost Intelligence + Memory enrichment + analytics CLI** (telemetry aggregation, unit economics per video/channel/capability, budget enforcement, performance memory writes, `fyi analytics report`). External platform analytics ingestion (YouTube/TikTok/IG), the autonomous auto-optimization engine, and A/B orchestration are **deferred** to post-MVP. **M7 is the final milestone for MVP.**
+
+| Issue | Title | Status |
+|-------|-------|--------|
+| M7.1 (Issue-601) | `@fyi/analytics` aggregation module (aggregate telemetry per tenant/capability/job: cost, tokens, duration, count) | **Planned** |
+| M7.2 (Issue-602) | Cost Intelligence — unit economics per video/channel/capability + budget reporting | **Planned** |
+| M7.3 (Issue-603) | Memory enrichment — write `memory_entries` row (kind: performance) on job completion (cost/duration/status) | **Planned** |
+| M7.4 (Issue-604) | CLI `fyi analytics report` (per tenant/capability/job summary) | **Planned** |
+| M7.5 (Issue-605) | Analytics E2E — run a job, verify telemetry aggregates + memory written + report output | **Planned** |
+
+**🚩 Milestone 7 (Analytics & Learning Loop) — IN PROGRESS / NEXT (final for MVP).** Milestone 6 (Multi-Tenant) is COMPLETE — see [Sprint-005 planning](../planning/sprints/Sprint-005/README.md) and issues M6.1–M6.5 (Issue-501..505). Sprint-006 planning: [Sprint-006/README.md](../planning/sprints/Sprint-006/README.md) and issues M7.1–M7.5 (Issue-601..605). **MVP completion is pending M7.**
 
 ---
 
@@ -137,6 +154,8 @@ related_documents:
 | Planning: Issues M5.1–M5.5 (Sprint-004) | ✅ Complete | 2026-08-05 |
 | Planning: Sprint 5 README (M6) | ✅ Complete | 2026-08-05 |
 | Planning: Issues M6.1–M6.5 (Sprint-005) | ✅ Complete | 2026-08-05 |
+| Planning: Sprint 6 README (M7) | ✅ Complete | 2026-08-05 |
+| Planning: Issues M7.1–M7.5 (Sprint-006) | ✅ Complete | 2026-08-05 |
 | ADR: ADR-0001 through ADR-0007 | ✅ Complete | 2026-08-04 |
 | Memory: Project Memory | ✅ Complete | 2026-08-05 |
 | Handoff: M3 Handoff (2026-08-04) | ✅ Complete | 2026-08-05 |
@@ -145,4 +164,4 @@ related_documents:
 
 ## Ready for Next Session?
 
-**YES** — Milestones 1–5 complete (Skeleton Run → AI Platform Foundation → Cognitive Core → Knowledge Layer → Media Workers). **Milestone 6 (Multi-Tenant Brand Management) is IN PROGRESS / NEXT**, with Sprint-005 planning created (MVP-scoped to Tenant Registry + Policy Engine). Next AI agent begins implementing Milestone 6 by reading `.ai/context/start-here.md` and [Sprint-005 planning](../planning/sprints/Sprint-005/README.md).
+**YES** — Milestones 1–6 complete (Skeleton Run → AI Platform Foundation → Cognitive Core → Knowledge Layer → Media Workers → Multi-Tenant). **Milestone 7 (Analytics & Learning Loop) is IN PROGRESS / NEXT — the final milestone for MVP**, with Sprint-006 planning created (MVP-scoped to Cost Intelligence + Memory enrichment + analytics CLI). Next AI agent begins implementing Milestone 7 by reading `.ai/context/start-here.md` and [Sprint-006 planning](../planning/sprints/Sprint-006/README.md).

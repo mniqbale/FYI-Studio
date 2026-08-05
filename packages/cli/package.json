@@ -11,9 +11,11 @@
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
     "trigger-run": "tsx src/trigger-run.ts",
-    "provider": "tsx src/provider.ts"
+    "provider": "tsx src/provider.ts",
+    "analytics": "tsx src/analytics.ts"
   },
   "dependencies": {
+    "@fyi/analytics": "workspace:1.0.0",
     "@fyi/contracts": "workspace:1.1.0",
     "@fyi/database": "workspace:1.0.0",
     "@fyi/knowledge": "workspace:1.0.0",

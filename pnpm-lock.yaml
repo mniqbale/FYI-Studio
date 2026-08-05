@@ -34,8 +34,30 @@ importers:
         specifier: ^4.1.0
         version: 4.1.10(@types/node@20.19.43)(vite@8.2.0(@types/node@20.19.43)(esbuild@0.28.1)(tsx@4.23.5)(yaml@2.9.0))
 
+  packages/analytics:
+    dependencies:
+      '@fyi/database':
+        specifier: workspace:1.0.0
+        version: link:../database
+      '@fyi/knowledge':
+        specifier: workspace:1.0.0
+        version: link:../knowledge
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.0
+        version: 4.1.10(@types/node@20.19.43)(vite@8.2.0(@types/node@20.19.43)(esbuild@0.28.1)(tsx@4.23.5)(yaml@2.9.0))
+
   packages/cli:
     dependencies:
+      '@fyi/analytics':
+        specifier: workspace:1.0.0
+        version: link:../analytics
       '@fyi/contracts':
         specifier: workspace:1.1.0
         version: link:../contracts
@@ -158,6 +180,9 @@ importers:
 
   services/supervisor:
     dependencies:
+      '@fyi/analytics':
+        specifier: workspace:1.0.0
+        version: link:../../packages/analytics
       '@fyi/contracts':
         specifier: workspace:1.1.0
         version: link:../../packages/contracts

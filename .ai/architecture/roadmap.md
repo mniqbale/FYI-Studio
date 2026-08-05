@@ -109,15 +109,16 @@ cross_references:
 ---
 
 ### Milestone 7: Analytics & Learning Loop (Auto-optimization)
-**Status:** Planned  
-**Goal:** Close the feedback loop — autonomous hypothesis generation, recipe mutation, and A/B execution at scale.
+**Status:** Complete (Sprint 6) — **MVP COMPLETE**  
+**Goal:** Close the feedback loop — capture, aggregate, and enrich cost/performance analytics and drive MVP-level cost intelligence and learning-loop foundations. **MVP completion is pending this milestone.**
 
-**Key Deliverables:**
-- Analytics Workers: Platform API ingestion (YouTube, TikTok, Instagram), retention curves, engagement metrics
-- Memory Layer enrichment: Performance data → Knowledge Layer feedback
-- Autonomous Optimization Engine: Recipe mutation (script pacing, thumbnail contrast, voice pitch) based on retention graphs
-- A/B test orchestration: Statistical significance gating, gradual rollout, automatic promotion
-- Cost Intelligence: Unit economics per video, per channel, per capability — real-time budget enforcement
+**Key Deliverables (MVP-scoped per mvp-architecture.md):**
+- **Analytics aggregation module (`@fyi/analytics`):** aggregate telemetry per tenant/capability/job (cost, tokens, duration, count) from the Job Ledger `telemetry` table (v1.1: worker_id, provider, model, tokens_in/out, seconds, cost, duration_ms, started_at, finished_at)
+- **Cost Intelligence:** unit economics per video, per channel, per capability — real-time budget enforcement (builds on the M6 `tenant_policies.cost_quota` spend tracking)
+- **Memory enrichment:** on job completion, write a `memory_entries` row (kind: `performance`) capturing cost/duration/status — connecting job results to the M4 Memory Layer
+- **Analytics CLI:** `fyi analytics report` — per tenant/capability/job summary
+- **Analytics E2E:** run a job, verify telemetry aggregates + memory written + report output
+- **Deferred (post-MVP):** external platform analytics ingestion (YouTube, TikTok, Instagram) with retention curves/engagement metrics, autonomous auto-optimization engine (recipe mutation — script pacing, thumbnail contrast, voice pitch — based on retention), A/B test orchestration (statistical significance gating, gradual rollout, automatic promotion)
 
 ---
 
@@ -216,9 +217,9 @@ Trigger → Orchestrator → Research → Script → Voice → Video → Publish
 | **M4: Knowledge Layer + Memory** | Sprints 6–7 — ✅ **Complete** | ~80–100h (completed as Sprint-003, MVP-scoped) |
 | **M5: Media Workers** | Sprints 8–10 — ✅ **Complete** | ~100–140h (completed as Sprint-004, MVP-scoped via espeak-ng + FFmpeg) |
 | **M6: Multi-Tenant (100+ Channels)** | Sprint 5 — ✅ **Complete** | ~40–60h (completed as Sprint-005, MVP-scoped to Tenant Registry + Policy Engine) |
-| **M7: Analytics & Auto-Optimization** | Sprints 14–16 — Planned | ~140–180h |
+| **M7: Analytics & Learning Loop** | Sprint 6 — ✅ **Complete** | ~40–60h (completed as Sprint-006, MVP-scoped to Cost Intelligence + Memory enrichment + analytics CLI) |
 
-**Total Projected (M1–M7):** ~618–798 hours across ~16 sprints
+**Total Projected (M1–M7, MVP):** ~478–598 hours across ~11 sprints (M7 now MVP-scoped to Sprint 6, ~40–60h; the original ~140–180h across Sprints 14–16 estimate for the full auto-optimization scope is deferred to post-MVP)
 
 ---
 
