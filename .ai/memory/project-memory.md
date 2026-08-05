@@ -19,6 +19,7 @@ tags: [memory, project-history, decisions, lessons-learned]
 
 | Date | Category | Entry |
 |------|----------|-------|
+| 2026-08-05 | Planning | **Sprint-004 / Milestone 5 planning created (Media Workers):** `.ai/planning/sprints/Sprint-004/README.md` + issues M5.1–M5.5 (Issue-401..405). MVP-scoped per mvp-architecture.md / ADR-0003: media workers write output to a shared media dir (local `/tmp` for MVP, S3 pointer path in production) and return **reference pointers** only — no binary through the orchestrator. M5.1 scaffolding+data plane → M5.2 Voice/TTS via offline `espeak-ng` (no quota) → M5.3 Subtitle (SRT) → M5.4 Video Composer (FFmpeg MP4) → M5.5 wire full `research→script→voice→subtitle→video` + E2E. Roadmap (M4 Complete, M5 In Progress), current-state (M5 IN PROGRESS), and project-memory updated. M6 (Multi-Tenant) is next after M5. |
 | 2026-08-04 | Architecture | **ADR-0001:** Adopted Thin Orchestrator MVP Architecture over full Microkernel V2. Consensus from Founder, CTO, PE, SRE. |
 | 2026-08-04 | Contracts | **ADR-0002:** Froze Contracts v1.1 with strict enums, execution_id, attempt tracking, separated usage/performance, worker identity. |
 | 2026-08-04 | Data Plane | **ADR-0003:** Mandated Reference-Based Data Plane (S3 pointers only). No binary data through Orchestrator. |
@@ -79,4 +80,6 @@ tags: [memory, project-history, decisions, lessons-learned]
 
 ---
 
-*Append new entries at the top. Never delete or modify historical entries.*
+*Append new entries at the top. Never delete or modify historical entries.*| 2026-08-05 | Implementation | **M5 COMPLETE (Media Workers):** `@fyi/media` package (data plane, espeak-ng TTS, SRT subtitles, FFmpeg video compose). 3 real workers: voice-real (speech-synthesis:voice:real), subtitle-real (subtitle:generate:real), video-real (video:compose:real). Full pipeline research:real -> script:real -> voice:real -> subtitle:real -> video:real verified end-to-end: produced a 104s MP4 (3MB) from AI script + TTS narration + burned-in subtitles, job COMPLETED. **Reference-Based Data Plane** honored (workers write to /tmp/fyi-studio, return file:// pointers, no binary through orchestrator). Requires ffmpeg + espeak-ng installed on host (apt). |
+| 2026-08-05 | Environment | **M5 media toolchain:** `sudo apt-get install ffmpeg espeak-ng`. ffmpeg 6.1.1 + espeak-ng 1.51 (offline TTS, no quota). Both verified working. |
+| 2026-08-05 | Process | **Parallel sub-agent workflow (M5):** (1) Documentation Architect updated constitution docs + created Sprint-004 planning (M5.1-M5.5); (2) Worker agent created 3 real media workers. I built + verified @fyi/media (TTS/subtitle/video smoke test) + supervisor routing + ran full-pipeline E2E. Milestones 1-5 all complete. |

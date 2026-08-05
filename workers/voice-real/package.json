@@ -1,7 +1,7 @@
 {
-  "name": "@fyi/cli",
+  "name": "@fyi/worker-voice-real",
   "version": "1.0.0",
-  "description": "FYI Studio CLI — trigger and monitor a Skeleton Run job (Milestone 1)",
+  "description": "FYI Studio real Voice worker (espeak-ng TTS via @fyi/media, Contracts v1.1)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,15 +10,15 @@
     "build": "tsc",
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
-    "trigger-run": "tsx src/trigger-run.ts",
-    "provider": "tsx src/provider.ts"
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts"
   },
   "dependencies": {
     "@fyi/contracts": "workspace:1.1.0",
-    "@fyi/database": "workspace:1.0.0",
-    "@fyi/knowledge": "workspace:1.0.0",
-    "@fyi/platform": "workspace:1.0.0",
-    "@fyi/utils": "workspace:1.0.0"
+    "@fyi/utils": "workspace:1.0.0",
+    "@fyi/media": "workspace:1.0.0",
+    "bullmq": "^5.34.0",
+    "pino": "^9.5.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

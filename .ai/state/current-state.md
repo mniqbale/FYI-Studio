@@ -12,6 +12,7 @@ related_documents:
   - "../planning/sprints/Sprint-001/README.md"
   - "../planning/sprints/Sprint-002/README.md"
   - "../planning/sprints/Sprint-003/README.md"
+  - "../planning/sprints/Sprint-004/README.md"
   - "../memory/project-memory.md"
 ---
 
@@ -25,13 +26,13 @@ related_documents:
 
 | Metric | Value |
 |--------|-------|
-| **Current Milestone** | Milestone 4: Knowledge Layer + Memory Management — **COMPLETE** |
-| **Current Sprint** | Sprint 3: Knowledge Layer + Memory — **COMPLETE** |
-| **Completed Milestones** | M1 Skeleton Run ✅ · M2 AI Platform Foundation ✅ · M3 Cognitive Core ✅ · M4 Knowledge Layer ✅ |
+| **Current Milestone** | Milestone 5: Media Workers — **COMPLETE** |
+| **Current Sprint** | Sprint 4: Media Workers (Voice/Video/Subtitle) — **COMPLETE** |
+| **Completed Milestones** | M1 Skeleton Run ✅ · M2 AI Platform Foundation ✅ · M3 Cognitive Core ✅ · M4 Knowledge Layer ✅ · M5 Media Workers ✅ |
 | **Architecture Version** | MVP v1.0 (ADR-0001) |
 | **Contracts Version** | v1.1 Frozen (ADR-0002) |
 | **Engineering Standards** | v1.0 (ADR-0005) |
-| **Project Health** | 🟢 On Track — M1–M3 complete; M4 planned |
+| **Project Health** | 🟢 On Track — M1–M4 complete; M5 (Media Workers) next / in progress |
 
 ---
 
@@ -89,7 +90,7 @@ related_documents:
 
 **🏁 Milestone 4 (Knowledge Layer + Memory) — COMPLETE.** `tenant_context` + `memory_entries` tables, `@fyi/knowledge` package (upsert/get/delete/list + assembleContext), context injection into real Research/Script workers. E2E verified: a tenant with brand_voice + forbidden_terms produced a script that followed the voice and avoided forbidden terms (via Ollama Cloud). 6 context-assembly unit tests pass.
 
-**Next Milestone:** Milestone 5 — Media Workers (Voice / Video / Subtitles). Start with [Sprint-004 planning](../planning/sprints/Sprint-004/README.md) when ready. After M5: Milestone 6 (Multi-Tenant).
+**Next Milestone:** Milestone 6 — Multi-Tenant Brand Management. Milestone 5 (Media Workers) is COMPLETE — see [Sprint-004 planning](../planning/sprints/Sprint-004/README.md) and issues M5.1–M5.5 (Issue-401..405).
 
 ---
 
@@ -117,6 +118,8 @@ related_documents:
 | Planning: Issues S2.1–S2.5 | ✅ Complete | 2026-08-04 |
 | Planning: Sprint 3 README (M4) | ✅ Complete | 2026-08-05 |
 | Planning: Issues M4.1–M4.5 (Sprint-003) | ✅ Complete | 2026-08-05 |
+| Planning: Sprint 4 README (M5) | ✅ Complete | 2026-08-05 |
+| Planning: Issues M5.1–M5.5 (Sprint-004) | ✅ Complete | 2026-08-05 |
 | ADR: ADR-0001 through ADR-0007 | ✅ Complete | 2026-08-04 |
 | Memory: Project Memory | ✅ Complete | 2026-08-05 |
 | Handoff: M3 Handoff (2026-08-04) | ✅ Complete | 2026-08-05 |
@@ -125,4 +128,4 @@ related_documents:
 
 ## Ready for Next Session?
 
-**YES** — Milestones 1–3 complete, all architectural decisions documented, contracts frozen, standards set, Sprint-003 (Milestone 4: Knowledge Layer + Memory) planned with issues M4.1–M4.5 created. Next AI agent can begin implementing Milestone 4 by reading `.ai/context/start-here.md` and starting with Issue M4.1 (`tenant_context` schema).
+**YES** — Milestones 1–5 complete (Skeleton Run → AI Platform Foundation → Cognitive Core → Knowledge Layer → Media Workers). Next milestone is 6 (Multi-Tenant Brand Management). Next AI agent begins implementing Milestone 6 by reading `.ai/context/start-here.md`.

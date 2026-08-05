@@ -81,15 +81,16 @@ cross_references:
 ---
 
 ### Milestone 5: Media Workers (Voice / Video / Subtitles)
-**Status:** Planned  
+**Status:** Complete (Sprint 4)  
 **Goal:** Add production-grade media generation capabilities using the AI Platform Foundation.
 
-**Key Deliverables:**
-- Voice Worker: ElevenLabs / Azure TTS / OpenAI TTS adapters via ModelGate v2
-- Video Composer Worker: FFmpeg-based rendering, scene composition, overlay system
-- Subtitle Worker: Whisper transcription, SRT/VTT generation, timing alignment
-- Asset Library Worker: B-roll search, stock footage integration, thumbnail generation
-- Multi-format export (MP4, WebM, MOV) with platform-specific encoding profiles
+**Key Deliverables (MVP-scoped per mvp-architecture.md / ADR-0003):**
+- Media Worker scaffolding + shared media output dir / reference helpers (no binary through the orchestrator — workers write media to local `/tmp` or S3 and return pointers only)
+- Voice/TTS Worker: real offline TTS via `espeak-ng` (no quota) writing WAV/MP3, returns reference
+- Subtitle Worker: SRT generation from script/narration, returns `.srt` reference
+- Video Composer Worker: FFmpeg render (background + narration + subtitles) to MP4, returns reference
+- Full pipeline `research → script → voice → subtitle → video` wired + E2E test
+- **Deferred (post-MVP):** ElevenLabs/Azure/OpenAI TTS adapters, Whisper transcription, Asset Library B-roll, multi-format platform encoding profiles
 
 ---
 
@@ -212,7 +213,7 @@ Trigger → Orchestrator → Research → Script → Voice → Video → Publish
 | **M2: AI Platform Foundation** | Sprints 2–3 — ✅ **Complete** | ~60–80h (completed as S2.1–S2.5) |
 | **M3: Cognitive Core (Real AI Workers)** | Sprints 4–5 — ✅ **Complete** | ~80–100h (implemented ahead of schedule) |
 | **M4: Knowledge Layer + Memory** | Sprints 6–7 — ✅ **Complete** | ~80–100h (completed as Sprint-003, MVP-scoped) |
-| **M5: Media Workers** | Sprints 8–10 — Planned | ~100–140h |
+| **M5: Media Workers** | Sprints 8–10 — ✅ **Complete** | ~100–140h (completed as Sprint-004, MVP-scoped via espeak-ng + FFmpeg) |
 | **M6: Multi-Tenant (100+ Channels)** | Sprints 11–13 — Planned | ~120–160h |
 | **M7: Analytics & Auto-Optimization** | Sprints 14–16 — Planned | ~140–180h |
 

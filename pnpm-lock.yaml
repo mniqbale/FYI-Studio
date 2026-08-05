@@ -42,6 +42,9 @@ importers:
       '@fyi/database':
         specifier: workspace:1.0.0
         version: link:../database
+      '@fyi/knowledge':
+        specifier: workspace:1.0.0
+        version: link:../knowledge
       '@fyi/platform':
         specifier: workspace:1.0.0
         version: link:../platform
@@ -89,6 +92,18 @@ importers:
       '@fyi/database':
         specifier: workspace:1.0.0
         version: link:../database
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.0
+        version: 4.1.10(@types/node@20.19.43)(vite@8.2.0(@types/node@20.19.43)(esbuild@0.28.1)(tsx@4.23.5)(yaml@2.9.0))
+
+  packages/media:
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -309,11 +324,95 @@ importers:
         specifier: ^5.4.0
         version: 5.9.3
 
+  workers/subtitle-real:
+    dependencies:
+      '@fyi/contracts':
+        specifier: workspace:1.1.0
+        version: link:../../packages/contracts
+      '@fyi/media':
+        specifier: workspace:1.0.0
+        version: link:../../packages/media
+      '@fyi/utils':
+        specifier: workspace:1.0.0
+        version: link:../../packages/utils
+      bullmq:
+        specifier: ^5.34.0
+        version: 5.81.3
+      pino:
+        specifier: ^9.5.0
+        version: 9.14.0
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.19.0
+        version: 4.23.5
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+
+  workers/video-real:
+    dependencies:
+      '@fyi/contracts':
+        specifier: workspace:1.1.0
+        version: link:../../packages/contracts
+      '@fyi/media':
+        specifier: workspace:1.0.0
+        version: link:../../packages/media
+      '@fyi/utils':
+        specifier: workspace:1.0.0
+        version: link:../../packages/utils
+      bullmq:
+        specifier: ^5.34.0
+        version: 5.81.3
+      pino:
+        specifier: ^9.5.0
+        version: 9.14.0
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.19.0
+        version: 4.23.5
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+
   workers/voice:
     dependencies:
       '@fyi/contracts':
         specifier: workspace:1.1.0
         version: link:../../packages/contracts
+      '@fyi/utils':
+        specifier: workspace:1.0.0
+        version: link:../../packages/utils
+      bullmq:
+        specifier: ^5.34.0
+        version: 5.81.3
+      pino:
+        specifier: ^9.5.0
+        version: 9.14.0
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.19.0
+        version: 4.23.5
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+
+  workers/voice-real:
+    dependencies:
+      '@fyi/contracts':
+        specifier: workspace:1.1.0
+        version: link:../../packages/contracts
+      '@fyi/media':
+        specifier: workspace:1.0.0
+        version: link:../../packages/media
       '@fyi/utils':
         specifier: workspace:1.0.0
         version: link:../../packages/utils

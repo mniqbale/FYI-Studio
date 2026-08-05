@@ -14,6 +14,10 @@ export const CAPABILITY_QUEUE: Record<string, string> = {
   'speech-synthesis:voice': 'voice-queue',
   'research:real': 'research-real-queue',
   'text-synthesis:script:real': 'script-real-queue',
+  // Milestone 5 — media workers
+  'speech-synthesis:voice:real': 'voice-real-queue',
+  'subtitle:generate:real': 'subtitle-real-queue',
+  'video:compose:real': 'video-real-queue',
 };
 
 // Map: capability -> model policy (MVP static; replaces ModelGate for skeleton run).
@@ -21,6 +25,10 @@ export const CAPABILITY_POLICY: Record<string, ModelPolicy> = {
   'research:mock': { provider: 'mock', model: 'mock-research-model', temperature: 0.7, max_tokens: 2048 },
   'text-synthesis:script': { provider: 'mock', model: 'mock-script-model', temperature: 0.7, max_tokens: 4096 },
   'speech-synthesis:voice': { provider: 'mock', model: 'mock-voice-model' },
+  // Media workers use offline tools (espeak-ng / ffmpeg) — no model gate needed.
+  'speech-synthesis:voice:real': { provider: 'local', model: 'espeak-ng' },
+  'subtitle:generate:real': { provider: 'local', model: 'ffmpeg' },
+  'video:compose:real': { provider: 'local', model: 'ffmpeg' },
 };
 
 // MVP: single static tenant context fragment.
