@@ -23,12 +23,12 @@ related_documents:
 
 | Metric | Value |
 |--------|-------|
-| **Current Milestone** | Milestone 1: Skeleton Run (Sprint 1) — **COMPLETE** |
-| **Current Sprint** | Sprint 1: The Skeleton Run — **COMPLETE** |
+| **Current Milestone** | Milestone 2: AI Platform Foundation (Sprint 2) — **COMPLETE** |
+| **Current Sprint** | Sprint 2: AI Platform Foundation — **COMPLETE** |
 | **Architecture Version** | MVP v1.0 (ADR-0001) |
 | **Contracts Version** | v1.1 Frozen (ADR-0002) |
 | **Engineering Standards** | v1.0 (ADR-0005) |
-| **Project Health** | 🟢 On Track — Milestone 1 complete, ready for Milestone 2 (AI Platform Foundation) |
+| **Project Health** | 🟢 On Track — Milestone 2 complete, ready for Milestone 3 (Cognitive Core) |
 
 ---
 
@@ -43,9 +43,22 @@ related_documents:
 | S1.5 | Skeleton Run CLI | **Done** | 2026-08-04 | 2026-08-04 |
 | S1.6 | E2E Test Suite | **Done** | 2026-08-04 | 2026-08-04 |
 
+
 **🏁 Milestone 1 (Skeleton Run) — COMPLETE.** All 6 Sprint 1 issues done.
 
-**Next Milestone:** Milestone 2 — AI Platform Foundation (Provider Registry, Connection Manager, Model Registry, Capability Registry, ModelGate v2)
+## Sprint 2 Progress (Milestone 2: AI Platform Foundation)
+
+| Issue | Title | Status | Started | Completed |
+|-------|-------|--------|---------|-----------|
+| S2.1 | Database Layer (provider/model/capability registries) | **Done** | 2026-08-04 | 2026-08-04 |
+| S2.2 | Provider Registry + Connection Manager | **Done** | 2026-08-04 | 2026-08-04 |
+| S2.3 | Model Registry + Capability Registry | **Done** | 2026-08-04 | 2026-08-04 |
+| S2.4 | ModelGate v2 (capability resolver) | **Done** | 2026-08-04 | 2026-08-04 |
+| S2.5 | CLI `fyi provider connect|list|disconnect|select` | **Done** | 2026-08-04 | 2026-08-04 |
+
+**🏁 Milestone 2 (AI Platform Foundation / BYOAI) — COMPLETE.** All 5 Sprint 2 issues done.
+
+**Next Milestone:** Milestone 3 — The Cognitive Core (real AI workers using ModelGate v2)
 
 ---
 

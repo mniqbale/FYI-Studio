@@ -1,0 +1,32 @@
+{
+  "name": "@fyi/platform",
+  "version": "1.0.0",
+  "description": "FYI Studio AI Platform Foundation — Provider Registry, Connection Manager, Model Registry, Capability Registry, ModelGate v2 (BYOAI, ADR-0007)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fyi/contracts": "workspace:1.1.0",
+    "@fyi/database": "workspace:1.0.0",
+    "@fyi/utils": "workspace:1.0.0",
+    "yaml": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.1.0"
+  }
+}

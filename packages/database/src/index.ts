@@ -13,8 +13,14 @@ if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
 }
 
-// Re-export runtime values (enum + Prisma namespace) and the model types.
-export { JobStatus, Prisma } from '@prisma/client';
-export type { Job, Telemetry } from '@prisma/client';
+// Re-export runtime values (enums + Prisma namespace) and the model types.
+export { JobStatus, Prisma, ConnectionStatus, ModelStatus } from '@prisma/client';
+export type {
+  Job,
+  Telemetry,
+  ProviderConnection,
+  ModelRegistry,
+  CapabilityRegistry,
+} from '@prisma/client';
 
 export default prisma;

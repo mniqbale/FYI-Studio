@@ -10,11 +10,13 @@
     "build": "tsc",
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
-    "trigger-run": "tsx src/trigger-run.ts"
+    "trigger-run": "tsx src/trigger-run.ts",
+    "provider": "tsx src/provider.ts"
   },
   "dependencies": {
     "@fyi/contracts": "workspace:1.1.0",
     "@fyi/database": "workspace:1.0.0",
+    "@fyi/platform": "workspace:1.0.0",
     "@fyi/utils": "workspace:1.0.0"
   },
   "devDependencies": {

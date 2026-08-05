@@ -1,0 +1,100 @@
+# FYI Studio Model Policy (ADR-0007) — single source of truth for model + capability metadata.
+#
+# This file is loaded into the Model Registry / Capability Registry.
+# - capabilities: the Capability Registry (what ModelGate v2 can route by)
+# - models: the Model Registry (provider, version, pricing, context window, supported capabilities)
+# - defaults: recommended default model per worker capability (user may override, capability-gated)
+
+capabilities:
+  reasoning:
+    description: "Complex multi-step reasoning and analysis"
+  vision:
+    description: "Image understanding and multimodal input"
+  image:
+    description: "Image generation"
+  speech:
+    description: "Speech synthesis / transcription"
+  embedding:
+    description: "Text embedding generation"
+  video:
+    description: "Video generation / understanding"
+  tool_calling:
+    description: "Function/tool calling support"
+  search:
+    description: "Web search / grounded retrieval"
+  structured_output:
+    description: "Structured/JSON output"
+
+models:
+  - provider: openai
+    model: gpt-4o
+    version: "2024-11-20"
+    pricing_per_1k_tokens: 0.005
+    context_window: 128000
+    capabilities: [reasoning, vision, tool_calling, structured_output]
+  - provider: openai
+    model: gpt-4o-mini
+    version: "2024-07-18"
+    pricing_per_1k_tokens: 0.0015
+    context_window: 128000
+    capabilities: [reasoning, tool_calling, structured_output]
+  - provider: anthropic
+    model: claude-3-5-sonnet
+    version: "20241022"
+    pricing_per_1k_tokens: 0.003
+    context_window: 200000
+    capabilities: [reasoning, vision, tool_calling, structured_output]
+  - provider: anthropic
+    model: claude-3-haiku
+    version: "20240307"
+    pricing_per_1k_tokens: 0.00025
+    context_window: 200000
+    capabilities: [reasoning, tool_calling, structured_output]
+  - provider: gemini
+    model: gemini-2.5-pro
+    version: "2025-01"
+    pricing_per_1k_tokens: 0.00125
+    context_window: 1000000
+    capabilities: [reasoning, vision, tool_calling, structured_output, search]
+  - provider: gemini
+    model: gemini-2.5-flash
+    version: "2025-01"
+    pricing_per_1k_tokens: 0.0003
+    context_window: 1000000
+    capabilities: [reasoning, vision, tool_calling, structured_output, search]
+  - provider: openrouter
+    model: openrouter/auto
+    version: "latest"
+    pricing_per_1k_tokens: 0.0
+    context_window: 128000
+    capabilities: [reasoning, vision, tool_calling, structured_output]
+  - provider: groq
+    model: llama-3.3-70b-versatile
+    version: "latest"
+    pricing_per_1k_tokens: 0.00059
+    context_window: 128000
+    capabilities: [reasoning, tool_calling, structured_output]
+  - provider: ollama
+    model: llama3.1
+    version: "latest"
+    pricing_per_1k_tokens: 0.0
+    context_window: 128000
+    capabilities: [reasoning, tool_calling, structured_output]
+  - provider: ollama
+    model: qwen2.5
+    version: "latest"
+    pricing_per_1k_tokens: 0.0
+    context_window: 32768
+    capabilities: [reasoning, structured_output]
+
+# Default recommended model per worker capability (user may override, capability-gated).
+defaults:
+  research:real:        # Research Worker
+    provider: gemini
+    model: gemini-2.5-pro
+  text-synthesis:script:  # Script Worker
+    provider: openai
+    model: gpt-4o
+  speech-synthesis:voice: # Voice Worker (M5)
+    provider: openai
+    model: gpt-4o-mini

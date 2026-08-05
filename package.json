@@ -18,7 +18,8 @@
     "infra:logs": "docker compose logs -f",
     "start-skeleton": "tsx packages/cli/src/trigger-run.ts",
     "test:e2e": "vitest run tests/e2e/skeleton-run.test.ts",
-    "test:e2e:watch": "vitest tests/e2e/skeleton-run.test.ts"
+    "test:e2e:watch": "vitest tests/e2e/skeleton-run.test.ts",
+    "fyi": "tsx packages/cli/src/provider.ts"
   },
   "devDependencies": {
     "tsx": "^4.23.5",
