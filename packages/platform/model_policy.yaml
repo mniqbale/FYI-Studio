@@ -98,3 +98,10 @@ defaults:
   text-synthesis:script:  # Script Worker (mock)
     provider: mock
     model: mock-script-model
+
+# Maps a worker capability (e.g. research:real) to the model capabilities it requires.
+# ModelGate v2 uses this to find connected + capable models when the default provider
+# is not connected or the user overrides.
+worker_capabilities:
+  research:real: [reasoning, structured_output]
+  text-synthesis:script:real: [reasoning, structured_output]

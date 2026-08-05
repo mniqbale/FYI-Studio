@@ -52,6 +52,19 @@ describe('AiClient adapters', () => {
     });
   });
 
+  it('throws QUOTA_EXHAUSTED (non-retryable) on 429 with insufficient_quota', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: false,
+      status: 429,
+      text: async () => JSON.stringify({ error: { message: 'insufficient_quota', code: 'insufficient_quota' } }),
+    } as Response);
+    const client = new AiClient();
+    await expect(client.complete({ provider: 'openai', model: 'gpt-4o', messages: [] })).rejects.toMatchObject({
+      code: 'QUOTA_EXHAUSTED',
+      retryable: false,
+    });
+  });
+
   it('calls Anthropic /messages endpoint', async () => {
     const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,

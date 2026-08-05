@@ -72,4 +72,27 @@ export async function modelSupportsCapability(provider: string, model: string, c
   return (found.capabilities as string[]).includes(capability);
 }
 
+/** Whether a specific model supports ALL of the given capabilities. */
+export async function modelSupportsCapabilities(provider: string, model: string, capabilities: string[]) {
+  const found = await getModel(provider, model);
+  if (!found) return false;
+  const modelCaps = found.capabilities as string[];
+  return capabilities.every((c) => modelCaps.includes(c));
+}
+
+/**
+ * List connected models that support ALL of the given capabilities.
+ * Only used internally by ModelGate v2 for the fallback path.
+ */
+export async function listModelsForCapabilities(connectedProviders: string[], capabilities: string[]) {
+  const rows = await prisma.modelRegistry.findMany({
+    where: { status: ModelStatus.ACTIVE, provider: { in: connectedProviders } },
+    orderBy: [{ provider: 'asc' }, { model: 'asc' }],
+  });
+  return rows.filter((r) => {
+    const caps = r.capabilities as string[];
+    return capabilities.every((c) => caps.includes(c));
+  });
+}
+
 export type { ModelDef };

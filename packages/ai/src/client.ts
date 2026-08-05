@@ -117,6 +117,10 @@ export class AiClient {
 
     if (!res.ok) {
       const body = await res.text().catch(() => '');
+      // OpenAI returns 429 with insufficient_quota when the account billing is exhausted.
+      if (res.status === 429 && /insufficient_quota|quota/i.test(body)) {
+        throw new AiClientError('QUOTA_EXHAUSTED', `Quota exhausted: ${body}`, false);
+      }
       if (res.status === 429) throw new AiClientError('RATE_LIMIT_EXCEEDED', `Rate limited (429): ${body}`, true);
       if (res.status >= 500) throw new AiClientError('PROVIDER_UNAVAILABLE', `Provider error (${res.status})`, true);
       throw new AiClientError('PROVIDER_ERROR', `Provider error (${res.status}): ${body}`);

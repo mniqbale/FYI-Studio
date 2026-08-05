@@ -32,6 +32,8 @@ export interface ModelPolicy {
   capabilities: Record<string, CapabilityDef>;
   models: ModelDef[];
   defaults: Record<string, DefaultDef>;
+  /** Maps a worker capability (e.g. research:real) to required model capabilities. */
+  worker_capabilities?: Record<string, string[]>;
 }
 
 export function loadModelPolicy(path = DEFAULT_POLICY_PATH): ModelPolicy {

@@ -65,12 +65,12 @@ related_documents:
 | `@fyi/ai` AI client (OpenAI/Anthropic/Gemini/Ollama adapters via fetch) | ✅ Done |
 | Real Research worker (`research:real` via ModelGate) | ✅ Done |
 | Real Script worker (`text-synthesis:script:real` via ModelGate) | ✅ Done |
-| Supervisor routing + model_policy defaults for `*:real` | ✅ Done |
-| 6 AI adapter unit tests | ✅ Done |
-| End-to-end wiring (no-key failure path) verified | ✅ Done |
-| **Real AI call (needs API key)** | ⏳ Blocked — connect a provider key |
+| Supervisor routing + model_policy defaults + `worker_capabilities` mapping | ✅ Done |
+| 7 AI adapter unit tests (incl. quota/rate-limit classification) | ✅ Done |
+| ModelGate resolves real capabilities (verified with OpenAI connected) | ✅ Done |
+| **Real AI call** | ⏳ Blocked — OpenAI key auth OK but account **quota exhausted** (`QUOTA_EXHAUSTED`) |
 
-**Next:** Connect a provider (e.g. `npm run fyi provider connect openai` + set `OPENAI_API_KEY`) to make real calls.
+**Next:** Top up/add billing on the OpenAI account (or connect a different provider key, e.g. Gemini) to complete real calls.
 
 ---
 

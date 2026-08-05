@@ -12,7 +12,7 @@ export {
   type ConnectResult,
 } from './connection-manager.js';
 export { loadModelPolicy, type ModelPolicy, type ModelDef, type DefaultDef } from './model-policy.js';
-export { seedModels, listModels, listModelsForCapability, getModel, modelSupportsCapability } from './model-registry.js';
+export { seedModels, listModels, listModelsForCapability, listModelsForCapabilities, getModel, modelSupportsCapability, modelSupportsCapabilities } from './model-registry.js';
 export { seedCapabilities, listCapabilities, hasCapability } from './capability-registry.js';
 export { ModelGate, type ResolvedModel, type ResolveResult } from './modelgate.js';
 export { seedRegistries, disconnectDb } from './seed.js';
