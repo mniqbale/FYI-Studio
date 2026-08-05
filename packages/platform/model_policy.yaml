@@ -81,6 +81,24 @@ models:
     context_window: 128000
     capabilities: [reasoning, tool_calling, structured_output]
   - provider: ollama
+    model: llama3.2
+    version: "latest"
+    pricing_per_1k_tokens: 0.0
+    context_window: 128000
+    capabilities: [reasoning, structured_output]
+  - provider: ollama
+    model: llama3.2:1b
+    version: "latest"
+    pricing_per_1k_tokens: 0.0
+    context_window: 131072
+    capabilities: [reasoning, structured_output]
+  - provider: ollama
+    model: deepseek-v4-flash
+    version: "0731"
+    pricing_per_1k_tokens: 0.0
+    context_window: 128000
+    capabilities: [reasoning, structured_output]
+  - provider: ollama
     model: qwen2.5
     version: "latest"
     pricing_per_1k_tokens: 0.0
@@ -88,13 +106,14 @@ models:
     capabilities: [reasoning, structured_output]
 
 # Default recommended model per worker capability (user may override, capability-gated).
+# Ollama Cloud (https://ollama.com/v1) is the working provider — set as default.
 defaults:
   research:real:        # Research Worker (real AI)
-    provider: gemini
-    model: gemini-2.5-pro
+    provider: ollama
+    model: deepseek-v4-flash
   text-synthesis:script:real: # Script Worker (real AI)
-    provider: openai
-    model: gpt-4o
+    provider: ollama
+    model: deepseek-v4-flash
   text-synthesis:script:  # Script Worker (mock)
     provider: mock
     model: mock-script-model

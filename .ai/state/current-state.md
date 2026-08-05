@@ -23,12 +23,12 @@ related_documents:
 
 | Metric | Value |
 |--------|-------|
-| **Current Milestone** | Milestone 3: Cognitive Core (real AI workers) — **IN PROGRESS** |
-| **Current Sprint** | Sprint 3: Cognitive Core |
+| **Current Milestone** | Milestone 3: Cognitive Core (real AI workers) — **COMPLETE** |
+| **Current Sprint** | Sprint 3: Cognitive Core — **COMPLETE** |
 | **Architecture Version** | MVP v1.0 (ADR-0001) |
 | **Contracts Version** | v1.1 Frozen (ADR-0002) |
 | **Engineering Standards** | v1.0 (ADR-0005) |
-| **Project Health** | 🟢 On Track — M3 wiring built; needs API key for real calls |
+| **Project Health** | 🟢 On Track — M3 complete via Ollama Cloud |
 
 ---
 
@@ -66,11 +66,13 @@ related_documents:
 | Real Research worker (`research:real` via ModelGate) | ✅ Done |
 | Real Script worker (`text-synthesis:script:real` via ModelGate) | ✅ Done |
 | Supervisor routing + model_policy defaults + `worker_capabilities` mapping | ✅ Done |
-| 7 AI adapter unit tests (incl. quota/rate-limit classification) | ✅ Done |
-| ModelGate resolves real capabilities (verified with OpenAI connected) | ✅ Done |
-| **Real AI call** | ⏳ Blocked — OpenAI key auth OK but account **quota exhausted** (`QUOTA_EXHAUSTED`) |
+| 7 AI adapter unit tests (incl. quota/rate-limit/reasoning-model handling) | ✅ Done |
+| ModelGate resolves real capabilities (scope fallback to default) | ✅ Done |
+| **Real AI pipeline end-to-end (via Ollama Cloud)** | ✅ **DONE** — research:real → script:real → COMPLETED with real sources + script |
 
-**Next:** Top up/add billing on the OpenAI account (or connect a different provider key, e.g. Gemini) to complete real calls.
+**🏁 Milestone 3 (Cognitive Core) — COMPLETE.** Real Research + Script workers generate content via Ollama Cloud (deepseek-v4-flash).
+
+**Next Milestone:** Milestone 4 — Knowledge Layer + Memory Management.
 
 ---
 

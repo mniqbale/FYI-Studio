@@ -81,8 +81,19 @@ function resolveSecret(provider: string): string | undefined {
 loadEnvIfPresent();
 
 export class AiClient {
+  /**
+   * Resolve the base URL for a provider. Ollama supports a cloud override via
+   * OLLAMA_BASE_URL (defaults to localhost). All others use the static map.
+   */
+  private resolveBaseUrl(provider: string): string | undefined {
+    if (provider === 'ollama' && process.env.OLLAMA_BASE_URL) {
+      return process.env.OLLAMA_BASE_URL;
+    }
+    return BASE_URL[provider];
+  }
+
   async complete(req: AiRequest): Promise<AiResult> {
-    const base = BASE_URL[req.provider];
+    const base = this.resolveBaseUrl(req.provider);
     if (!base) {
       throw new AiClientError('UNKNOWN_PROVIDER', `No adapter for provider: ${req.provider}`);
     }
@@ -138,11 +149,14 @@ export class AiClient {
     }
 
     const data = (await res.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
+      choices?: Array<{ message?: { content?: string; reasoning?: string } }>;
       usage?: { prompt_tokens?: number; completion_tokens?: number };
     };
+    // Reasoning models (e.g. deepseek) emit `reasoning` before `content`, and may
+    // exhaust max_tokens leaving content empty — fall back to reasoning text.
+    const msg = data.choices?.[0]?.message;
     return {
-      text: data.choices?.[0]?.message?.content ?? '',
+      text: msg?.content || msg?.reasoning || '',
       tokens_in: data.usage?.prompt_tokens ?? 0,
       tokens_out: data.usage?.completion_tokens ?? 0,
     };

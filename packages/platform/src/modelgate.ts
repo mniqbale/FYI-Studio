@@ -42,6 +42,15 @@ export class ModelGate {
     return mapped && mapped.length > 0 ? mapped : [capability];
   }
 
+  /** Connected provider ids for a scope, falling back to the 'default' scope. */
+  private async connectedProviderIdsFor(scope?: string): Promise<string[]> {
+    if (scope && scope !== 'default') {
+      const scoped = await connectedProviderIds({ scope });
+      if (scoped.length > 0) return scoped;
+    }
+    return connectedProviderIds({ scope: 'default' });
+  }
+
   /**
    * Resolve a model for a worker capability.
    * @param capability e.g. "research:real", "text-synthesis:script:real"
@@ -52,7 +61,7 @@ export class ModelGate {
     capability: string,
     opts: { override?: { provider: string; model: string }; scope?: string } = {},
   ): Promise<ResolveResult> {
-    const connected = await connectedProviderIds({ scope: opts.scope });
+    const connected = await this.connectedProviderIdsFor(opts.scope);
     const required = this.requiredModelCaps(capability);
 
     // 1. User override: must be connected AND capable, else fail explicitly.
