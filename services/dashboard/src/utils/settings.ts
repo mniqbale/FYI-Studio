@@ -48,6 +48,10 @@ export interface CapabilityAssignment {
   requiredModelCaps: string[];
   current: { provider: string; model: string } | null;
   candidates: Array<{ provider: string; model: string }>;
+  /** 'llm' for text workers, 'media' for voice/subtitle/video. */
+  kind: 'llm' | 'media';
+  /** Short user-facing note explaining why a media worker shows what it does. */
+  note?: string;
 }
 
 export interface SettingsOverview {
@@ -66,6 +70,13 @@ const CAPABILITY_LABELS: Record<string, string> = {
   'voice:tts': 'Voice Worker',
   'subtitle:generate': 'Subtitle Worker',
   'video:compose': 'Video Worker',
+};
+
+/** Short user-facing note per media worker (shown in the UI). */
+const MEDIA_WORKER_NOTES: Record<string, string> = {
+  'voice:tts': 'TTS (text-to-speech). Default: espeak-ng (offline). Assign an AI TTS model (e.g. openai/tts-1) if connected.',
+  'subtitle:generate': 'Transcription (speech-to-text). Default: local ffmpeg. Assign an ASR model (e.g. openai/whisper-1) if connected.',
+  'video:compose': 'Video composition. Default: ffmpeg (offline). Assign an AI video model (e.g. gemini/veo-3, openai/sora) if connected.',
 };
 
 /** Workers that are driven by an LLM model (selectable). Media workers are not. */
@@ -172,6 +183,7 @@ export async function getSettingsOverview(tenantId?: string): Promise<SettingsOv
       requiredModelCaps: required,
       current,
       candidates: [...candidateSet.values()],
+      kind: 'llm',
     });
   }
 
@@ -182,7 +194,7 @@ export async function getSettingsOverview(tenantId?: string): Promise<SettingsOv
   // etc.) for every worker, not just the seeded ones.
   const mediaWorkers: Array<{ capability: string; label: string; requiredModelCaps: string[]; current: { provider: string; model: string } | null; candidates: Array<{ provider: string; model: string }> }> = [
     { capability: 'voice:tts', label: 'Voice Worker', requiredModelCaps: ['speech'], current: { provider: 'espeak-ng', model: 'espeak-ng' }, candidates: [] },
-    { capability: 'subtitle:generate', label: 'Subtitle Worker', requiredModelCaps: ['speech'], current: { provider: 'local', model: 'ffmpeg-srt' }, candidates: [] },
+    { capability: 'subtitle:generate', label: 'Subtitle Worker', requiredModelCaps: ['transcription'], current: { provider: 'local', model: 'ffmpeg-srt' }, candidates: [] },
     { capability: 'video:compose', label: 'Video Worker', requiredModelCaps: ['video'], current: { provider: 'ffmpeg', model: 'ffmpeg' }, candidates: [] },
   ];
   for (const mw of mediaWorkers) {
@@ -198,7 +210,7 @@ export async function getSettingsOverview(tenantId?: string): Promise<SettingsOv
     const candidateSet = new Map<string, { provider: string; model: string }>();
     for (const c of seeded) candidateSet.set(`${c.provider}:${c.model}`, { provider: c.provider, model: c.model });
     for (const [, m] of discovered) if (!candidateSet.has(`${m.provider}:${m.model}`)) candidateSet.set(`${m.provider}:${m.model}`, m);
-    assignments.push({ ...mw, candidates: [...candidateSet.values()] });
+    assignments.push({ ...mw, candidates: [...candidateSet.values()], kind: 'media', note: MEDIA_WORKER_NOTES[mw.capability] });
   }
 
   return {

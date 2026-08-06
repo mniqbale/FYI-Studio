@@ -226,6 +226,7 @@ body {
 .key-status.err { color: #ef4444; }
 .key-status.validating { color: var(--muted); }
 .btn-small { padding: 4px 10px; font-size: 0.8rem; }
+.assign-note { font-size: 0.75rem; color: var(--muted); margin-top: 4px; max-width: 420px; }
 
 /* Social table + modal (WS-D) */
 .social-toolbar { margin-bottom: 12px; }

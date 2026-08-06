@@ -13,7 +13,9 @@ capabilities:
   image:
     description: "Image generation"
   speech:
-    description: "Speech synthesis / transcription"
+    description: "Speech synthesis (text-to-speech)"
+  transcription:
+    description: "Speech-to-text / transcription (ASR)"
   embedding:
     description: "Text embedding generation"
   video:
@@ -104,6 +106,41 @@ models:
     pricing_per_1k_tokens: 0.0
     context_window: 32768
     capabilities: [reasoning, structured_output]
+  # --- Media models (TTS / ASR / video) ---
+  # These are real AI models for the media workers. They are registered so the
+  # user can assign an AI model to Voice/Subtitle/Video workers. The actual
+  # provider call happens in the media worker (offline engines espeak-ng /
+  # ffmpeg remain the default when no AI model is assigned).
+  - provider: openai
+    model: tts-1
+    version: "latest"
+    pricing_per_1k_tokens: 0.015
+    context_window: 0
+    capabilities: [speech]
+  - provider: openai
+    model: whisper-1
+    version: "latest"
+    pricing_per_1k_tokens: 0.006
+    context_window: 0
+    capabilities: [transcription]
+  - provider: gemini
+    model: gemini-2.5-flash
+    version: "2025-01"
+    pricing_per_1k_tokens: 0.0003
+    context_window: 1000000
+    capabilities: [reasoning, vision, tool_calling, structured_output, search, transcription]
+  - provider: gemini
+    model: veo-3
+    version: "latest"
+    pricing_per_1k_tokens: 0.0
+    context_window: 0
+    capabilities: [video]
+  - provider: openai
+    model: sora
+    version: "latest"
+    pricing_per_1k_tokens: 0.0
+    context_window: 0
+    capabilities: [video]
 
 # Default recommended model per worker capability (user may override, capability-gated).
 # Ollama Cloud (https://ollama.com/v1) is the working provider — set as default.
@@ -124,3 +161,6 @@ defaults:
 worker_capabilities:
   research:real: [reasoning, structured_output]
   text-synthesis:script:real: [reasoning, structured_output]
+  voice:tts: [speech]
+  subtitle:generate: [transcription]
+  video:compose: [video]

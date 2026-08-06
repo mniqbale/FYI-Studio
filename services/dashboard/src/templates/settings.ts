@@ -48,7 +48,6 @@ export function renderSettingsPage(
 
   const assignmentRows = assignments
     .map((a) => {
-      const isLlm = a.candidates.length > 0 || a.current?.provider !== 'espeak-ng' && a.current?.provider !== 'ffmpeg' && a.current?.provider !== 'local';
       // Group candidates by provider (WS-B): ollama, anthropic, gemini, openai, ...
       const byProvider = new Map<string, Array<{ provider: string; model: string }>>();
       for (const c of a.candidates) {
@@ -69,18 +68,17 @@ export function renderSettingsPage(
           <strong>${esc(a.label)}</strong>
           <code>${esc(a.capability)}</code>
           <span class="muted">needs: ${esc(a.requiredModelCaps.join(', '))}</span>
-          ${!isLlm ? `<span class="badge off">local engine</span>` : ''}
+          ${a.kind === 'media' ? `<span class="badge off">media worker</span>` : ''}
+          ${a.note ? `<p class="assign-note">${esc(a.note)}</p>` : ''}
         </div>
-        ${isLlm ? `
-          <form method="post" action="/settings/assign" class="assign-form">
-            <input type="hidden" name="capability" value="${esc(a.capability)}">
-            <select name="model" class="model-select">
-              <option value="">— ${a.current ? `Current: ${esc(a.current.provider)}/${esc(a.current.model)}` : 'no model assigned'} —</option>
-              ${groupedOptions}
-            </select>
-            <button type="submit" class="btn">Assign</button>
-          </form>
-        ` : `<span class="muted">${esc(a.current?.provider ?? '')}/${esc(a.current?.model ?? '')}</span>`}
+        <form method="post" action="/settings/assign" class="assign-form">
+          <input type="hidden" name="capability" value="${esc(a.capability)}">
+          <select name="model" class="model-select">
+            <option value="">— ${a.current ? `Current: ${esc(a.current.provider)}/${esc(a.current.model)}` : 'no model assigned'} —</option>
+            ${groupedOptions}
+          </select>
+          <button type="submit" class="btn">Assign</button>
+        </form>
       </div>
     `;
     })
