@@ -97,16 +97,31 @@ export async function discoverProviderModels(provider: string): Promise<Array<{ 
     const base = process.env[`${provider.toUpperCase()}_BASE_URL`] ?? PROVIDER_BASE_URLS[provider];
     if (!base) return [];
     const url = `${base.replace(/\/$/, '')}/models`;
-    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+
+    // Gemini (generativelanguage) REQUIRES an API key on every request — either
+    // as ?key= query param or x-goog-api-key header. Without it the endpoint
+    // returns 403 and discovery silently yields []. Inject the key when present.
+    const headers: Record<string, string> = {};
+    if (provider === 'gemini' || provider === 'vertex') {
+      const key = process.env.GOOGLE_GEMINI_API_KEY ?? process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY;
+      if (key) {
+        headers['x-goog-api-key'] = key;
+      }
+    }
+
+    const res = await fetch(url, { headers, signal: AbortSignal.timeout(8000) });
     if (!res.ok) return [];
     const data = (await res.json()) as {
       models?: Array<{ name?: string; model?: string; id?: string }>;
       data?: Array<{ id?: string; name?: string; model?: string }>;
     };
-    // OpenAI-compatible /models returns { data: [{ id }] }; /api/tags returns
-    // { models: [{ name }] }. Handle both shapes.
+    // Gemini returns { models: [{ name: "models/gemini-2.5-flash", ... }] };
+    // OpenAI-compatible returns { data: [{ id }] }; /api/tags returns
+    // { models: [{ name }] }. Normalize: strip a "models/" prefix.
     const list = data.models ?? data.data ?? [];
-    const names = list.map((m) => m.name ?? m.model ?? m.id ?? '').filter(Boolean);
+    const names = list
+      .map((m) => (m.name ?? m.model ?? m.id ?? '').replace(/^models\//, ''))
+      .filter(Boolean);
     return names.map((model) => ({ provider, model }));
   } catch {
     return [];
