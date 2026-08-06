@@ -1,12 +1,17 @@
-// Settings "AI Workspace" page template — providers, model assignment, tenants.
+// Settings "AI Workspace" page template — providers, model assignment, tenants,
+// social accounts & publishing (Issue 9.2 / ADR-0008).
 import { renderLayout } from './layout.js';
 import type { SettingsOverview } from '../utils/settings.js';
+import type { SocialAccountRow, ScheduledPublishRow } from '../utils/social-publish.js';
 
 function esc(s: string): string {
   return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] ?? c);
 }
 
-export function renderSettingsPage(data: SettingsOverview): string {
+export function renderSettingsPage(
+  data: SettingsOverview,
+  social?: { accounts: SocialAccountRow[]; schedules: ScheduledPublishRow[] },
+): string {
   const { providers, assignments, tenants } = data;
 
   const providerCards = providers
@@ -86,13 +91,64 @@ export function renderSettingsPage(data: SettingsOverview): string {
       <div class="tenants-grid">${tenantCards || '<p>No tenants yet.</p>'}</div>
       <a href="/settings?edit=new" class="btn">+ New Brand</a>
     </section>
+
+    <section class="settings-section" id="social-section">
+      <h3>Social Accounts & Publishing</h3>
+      <p class="muted">Connect a YouTube / Facebook / Instagram / TikTok account and schedule approved jobs to publish. YouTube is the primary monetization target (ADR-0008).</p>
+
+      <div class="social-connect">
+        <h4>Connect account</h4>
+        <form id="social-connect-form" class="brand-form">
+          <label>Tenant ID
+            <input name="tenant_id" value="demo" required>
+          </label>
+          <label>Platform
+            <select name="platform" required>
+              <option value="youtube">YouTube</option>
+              <option value="facebook">Facebook</option>
+              <option value="instagram">Instagram</option>
+              <option value="tiktok">TikTok</option>
+            </select>
+          </label>
+          <label>Display Name
+            <input name="display_name" placeholder="My Channel" required>
+          </label>
+          <label>Account Ref (channel/account id)
+            <input name="account_ref" placeholder="UC..." required>
+          </label>
+          <label>Access Token
+            <input name="access_token" placeholder="OAuth access token" required>
+          </label>
+          <button type="submit" class="btn">Connect</button>
+        </form>
+      </div>
+
+      <h4>Connected accounts</h4>
+      <div class="social-accounts" id="social-accounts-list">
+        ${(social?.accounts ?? []).length === 0 ? '<p class="muted">No connected accounts.</p>' : ''}
+      </div>
+
+      <h4>Schedule a publish</h4>
+      <form id="schedule-form" class="brand-form">
+        <label>Tenant ID <input name="tenant_id" value="demo" required></label>
+        <label>Job ID <input name="job_id" placeholder="job uuid" required></label>
+        <label>Social Account <select name="social_account_id" id="schedule-account-select"></select></label>
+        <label>Scheduled At (UTC) <input type="datetime-local" name="scheduled_at" required></label>
+        <button type="submit" class="btn">Schedule</button>
+      </form>
+
+      <h4>Scheduled publishes</h4>
+      <div class="schedules-list" id="schedules-list">
+        ${(social?.schedules ?? []).length === 0 ? '<p class="muted">No scheduled publishes.</p>' : ''}
+      </div>
+    </section>
   `;
 
   return renderLayout({
     title: 'Settings',
     currentPage: 'settings',
     content,
-    extraHead: '<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>',
+    extraHead: '<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script type="module" src="/assets/settings-social.js"></script>',
   });
 }
 

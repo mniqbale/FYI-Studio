@@ -12,16 +12,21 @@ import {
   removeTenantBrand,
 } from '../utils/settings.js';
 import { renderSettingsPage, renderBrandEditPage } from '../templates/settings.js';
+import { listSocialAccounts, listScheduledPublishes } from '../utils/social-publish.js';
 
 export async function settingsRoutes(app: FastifyInstance): Promise<void> {
-  // Page (GET) — list providers, assignments, tenants.
+  // Page (GET) — list providers, assignments, tenants, social accounts.
   app.get('/settings', async (request, reply) => {
     const q = request.query as { edit?: string; tenant_id?: string };
     const data = await getSettingsOverview(q.tenant_id);
     if (q.edit) {
       return reply.type('text/html').send(renderBrandEditPage(q.edit, data));
     }
-    return reply.type('text/html').send(renderSettingsPage(data));
+    const [accounts, schedules] = await Promise.all([
+      listSocialAccounts(q.tenant_id),
+      listScheduledPublishes(q.tenant_id),
+    ]);
+    return reply.type('text/html').send(renderSettingsPage(data, { accounts, schedules }));
   });
 
   // Connect / disconnect a provider.

@@ -260,6 +260,9 @@ importers:
       '@fyi/platform':
         specifier: workspace:1.0.0
         version: link:../../packages/platform
+      '@fyi/publish':
+        specifier: workspace:1.0.0
+        version: link:../../packages/publish
       '@fyi/utils':
         specifier: workspace:1.0.0
         version: link:../../packages/utils

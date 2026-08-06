@@ -24,6 +24,7 @@
     "@fyi/knowledge": "workspace:1.0.0",
     "@fyi/media": "workspace:1.0.0",
     "@fyi/platform": "workspace:1.0.0",
+    "@fyi/publish": "workspace:1.0.0",
     "@fyi/utils": "workspace:1.0.0"
   },
   "devDependencies": {

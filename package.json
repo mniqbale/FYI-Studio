@@ -22,6 +22,11 @@
     "dashboard:build": "pnpm --filter @fyi/dashboard run build",
     "dashboard:typecheck": "pnpm --filter @fyi/dashboard run typecheck",
     "dashboard:seed": "tsx services/dashboard/scripts/seed-test-job.ts",
+    "publish:scheduler": "tsx services/publish/src/index.ts",
+    "publish:worker": "tsx workers/publish-real/src/index.ts",
+    "publish:seed": "tsx services/dashboard/scripts/seed-publish-demo.ts",
+    "analytics:ingest": "tsx services/analytics-ingest/scripts/run-cycle-check.ts",
+    "analytics:ingest:seed": "tsx services/analytics-ingest/scripts/seed-published.ts",
     "test:e2e": "vitest run tests/e2e/skeleton-run.test.ts",
     "test:e2e:watch": "vitest tests/e2e/skeleton-run.test.ts",
     "fyi": "tsx packages/cli/src/provider.ts"
