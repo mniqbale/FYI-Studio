@@ -2,7 +2,7 @@
 id: sprint-009-readme
 title: "Sprint 9 — Social Publish & Scheduling Implementation Plan (Milestone 10)"
 owner: "Lead Engineer (AI Agent)"
-status: "proposed"
+status: "in-progress"
 version: "1.0.0"
 last_updated: "2026-08-06"
 review_cycle: "per-sprint"
@@ -22,7 +22,7 @@ related_sprint: "Sprint-009"
 
 # Sprint 9 — Social Publish & Scheduling Implementation Plan (Milestone 10)
 
-> **Status:** PROPOSED (pending Founder approval). This sprint implements **Milestone 10: Social Publish & Scheduling** — publishing approved content to social platforms (YouTube Channel, Facebook, Instagram, TikTok) on schedule. **YouTube is the primary monetization target** (ADR-0008).
+> **Status:** IN PROGRESS (implementation delegated — Founder approval 2026-08-06). This sprint implements **Milestone 10: Social Publish & Scheduling** — publishing approved content to social platforms (YouTube Channel, Facebook, Instagram, TikTok) on schedule. **YouTube is the primary monetization target** (ADR-0008).
 
 ---
 

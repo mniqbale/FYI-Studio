@@ -1,7 +1,7 @@
 ---
 id: ADR-0010-hitl-revise-approve
 title: "Dashboard HITL Write Operations (Approve / Revise Step Re-run)"
-status: "Proposed"
+status: "Accepted"
 date: "2026-08-06"
 deciders: ["Founder", "Lead Engineer", "Principal Architect"]
 tags: [post-mvp, dashboard, hitl, approval, revise, write-operation, supervisor, step-runner]
@@ -10,7 +10,7 @@ source_conversation: "Founder post-MVP review feedback (Milestone 8 Dashboard re
 
 # ADR-0010: Dashboard HITL Write Operations (Approve / Revise Step Re-run)
 
-> **Status:** PROPOSED (pending Founder approval). This ADR records a **deliberate exception** to the read-only Dashboard invariant: allowing the Dashboard to perform **write operations** for the human-in-the-loop (HITL) approve/revise workflow. This is the first documented deviation from ADR-0001's "Dashboard never writes" rule.
+> **Status:** ACCEPTED (Founder approval 2026-08-06). This ADR records a **deliberate exception** to the read-only Dashboard invariant: allowing the Dashboard to perform **write operations** for the human-in-the-loop (HITL) approve/revise workflow. This is the first documented deviation from ADR-0001's "Dashboard never writes" rule.
 
 ## Context
 

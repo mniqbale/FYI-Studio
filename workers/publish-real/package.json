@@ -1,0 +1,29 @@
+{
+  "name": "@fyi/publish-real",
+  "version": "1.0.0",
+  "description": "FYI Studio publishing worker — consumes publish-queue and uploads via the platform adapter (YouTube-first, mock default) (Milestone 10 / ADR-0008)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@fyi/contracts": "workspace:1.1.0",
+    "@fyi/database": "workspace:1.0.0",
+    "@fyi/publish": "workspace:1.0.0",
+    "@fyi/utils": "workspace:1.0.0",
+    "bullmq": "^5.34.0",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.4.0"
+  }
+}

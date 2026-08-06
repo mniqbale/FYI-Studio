@@ -1,0 +1,31 @@
+{
+  "name": "@fyi/publish",
+  "version": "1.0.0",
+  "description": "FYI Studio Social Publish & Scheduling — platform adapters, social account registry, scheduler + write-back (Milestone 10 / ADR-0008)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fyi/database": "workspace:1.0.0",
+    "@fyi/utils": "workspace:1.0.0",
+    "bullmq": "^5.34.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.1.0"
+  }
+}

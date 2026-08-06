@@ -2,7 +2,7 @@
 id: sprint-010-readme
 title: "Sprint 10 — Platform Analytics & Revenue Implementation Plan (Milestone 11)"
 owner: "Lead Engineer (AI Agent)"
-status: "proposed"
+status: "in-progress"
 version: "1.0.0"
 last_updated: "2026-08-06"
 review_cycle: "per-sprint"
@@ -22,7 +22,7 @@ related_sprint: "Sprint-010"
 
 # Sprint 10 — Platform Analytics & Revenue Implementation Plan (Milestone 11)
 
-> **Status:** PROPOSED (pending Founder approval). This sprint implements **Milestone 11: Platform Analytics & Revenue** — ingesting content performance (views, likes, comments, watch time, **YouTube revenue per video**) into local tables under a hard YouTube API quota budget (ADR-0009), and feeding results back to the Memory Layer for future content.
+> **Status:** IN PROGRESS (implementation delegated — Founder approval 2026-08-06). This sprint implements **Milestone 11: Platform Analytics & Revenue** — ingesting content performance (views, likes, comments, watch time, **YouTube revenue per video**) into local tables under a hard YouTube API quota budget (ADR-0009), and feeding results back to the Memory Layer for future content.
 
 ---
 

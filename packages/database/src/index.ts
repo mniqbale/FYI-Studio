@@ -24,6 +24,11 @@ export type {
   TenantContext,
   MemoryEntry,
   TenantPolicy,
+  SocialAccount,
+  ScheduledPublish,
+  PlatformMetric,
+  VideoRevenue,
+  AnalyticsIngestionLog,
 } from '@prisma/client';
 
 export default prisma;

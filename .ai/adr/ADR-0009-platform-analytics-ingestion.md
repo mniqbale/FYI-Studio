@@ -1,7 +1,7 @@
 ---
 id: ADR-0009-platform-analytics-ingestion
 title: "Scheduled Platform Analytics Ingestion (YouTube Revenue, Quota-Budgeted)"
-status: "Proposed"
+status: "Accepted"
 date: "2026-08-06"
 deciders: ["Founder", "Lead Engineer", "Principal Architect", "CTO"]
 tags: [post-mvp, analytics, ingestion, youtube, revenue, quota, cron, memory-layer]
@@ -10,7 +10,7 @@ source_conversation: "Founder post-MVP review feedback (Milestone 8 Dashboard re
 
 # ADR-0009: Scheduled Platform Analytics Ingestion (YouTube Revenue, Quota-Budgeted)
 
-> **Status:** PROPOSED (pending Founder approval). This ADR records the architecture for Workstream C — ingesting platform analytics (views, likes, comments, watch time, **YouTube revenue per video**) into local tables, under a hard API-quota budget. Results feed back to the Memory Layer as reflection for producing future content.
+> **Status:** ACCEPTED (Founder approval 2026-08-06). This ADR records the architecture for Workstream C — ingesting platform analytics (views, likes, comments, watch time, **YouTube revenue per video**) into local tables, under a hard API-quota budget. Results feed back to the Memory Layer as reflection for producing future content.
 
 ## Context
 

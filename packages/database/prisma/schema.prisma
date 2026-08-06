@@ -181,3 +181,98 @@ model TenantPolicy {
   @@map("tenant_policies")
 }
 
+// ---- Social Publish & Scheduling (Milestone 10 / ADR-0008) ----
+
+/// A connected social account per tenant. Stores a token_ref (never the OAuth
+/// token material — ADR-0006/0007 secret pattern).
+model SocialAccount {
+  id            String   @id @default(uuid()) @db.Uuid
+  tenant_id     String   @db.VarChar(255)
+  platform      String   @db.VarChar(50) // 'youtube' | 'facebook' | 'instagram' | 'tiktok'
+  display_name  String   @db.VarChar(255)
+  account_ref   String   @db.VarChar(255) // platform channel/account id
+  token_ref     String   @db.VarChar(255) // OAuth credential reference (never the token)
+  enabled       Boolean  @default(true)
+  connected_at  DateTime @default(now()) @db.Timestamptz(6)
+  last_sync_at  DateTime? @db.Timestamptz(6)
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime @updatedAt @db.Timestamptz(6)
+
+  schedules ScheduledPublish[]
+
+  @@index([tenant_id, platform], name: "idx_social_account_tenant_platform")
+  @@map("social_accounts")
+}
+
+/// A scheduled publication of a job's content to a social account.
+/// Status machine: scheduled -> publishing -> published | failed (ADR-0008).
+model ScheduledPublish {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenant_id         String   @db.VarChar(255)
+  job_id            String   @db.Uuid
+  social_account_id String   @db.Uuid
+  scheduled_at      DateTime @db.Timestamptz(6)
+  status            String   @default("scheduled") // scheduled | publishing | published | failed
+  platform_response Json?    // { videoId, url, error } from the platform
+  attempts          Int      @default(0)
+  created_at        DateTime @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime @updatedAt @db.Timestamptz(6)
+
+  social_account SocialAccount @relation(fields: [social_account_id], references: [id], onDelete: Cascade)
+
+  @@index([status, scheduled_at], name: "idx_scheduled_publish_status_time")
+  @@index([job_id], name: "idx_scheduled_publish_job")
+  @@map("scheduled_publishes")
+}
+
+// ---- Platform Analytics & Revenue (Milestone 11 / ADR-0009) ----
+
+/// Per-video content performance snapshot (views, likes, comments, watch time).
+model PlatformMetric {
+  id               String   @id @default(uuid()) @db.Uuid
+  tenant_id        String   @db.VarChar(255)
+  video_id         String   @db.VarChar(255)
+  platform         String   @default("youtube") @db.VarChar(50)
+  snapshot_date    DateTime @db.Timestamptz(6) // date-only (start of day) key
+  views            Int      @default(0)
+  likes            Int      @default(0)
+  comments         Int      @default(0)
+  watch_time_minutes Int    @default(0)
+  retention_pct    Float?
+  fetched_at       DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([video_id, platform, snapshot_date], name: "idx_platform_metric_unique")
+  @@index([tenant_id, snapshot_date], name: "idx_platform_metric_tenant_time")
+  @@map("platform_metrics")
+}
+
+/// YouTube (or platform) revenue per video per period.
+model VideoRevenue {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenant_id String   @db.VarChar(255)
+  video_id  String   @db.VarChar(255)
+  platform  String   @default("youtube") @db.VarChar(50)
+  revenue   Decimal  @db.Decimal(14, 6)
+  currency  String   @default("USD") @db.VarChar(10)
+  period    String   @db.VarChar(50) // e.g. "2026-08-06" or "2026-08"
+  fetched_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([video_id, platform, period], name: "idx_video_revenue_unique")
+  @@index([tenant_id], name: "idx_video_revenue_tenant")
+  @@map("video_revenue")
+}
+
+/// Accounting log for each analytics ingestion run (quota ledger, ADR-0009).
+model AnalyticsIngestionLog {
+  id             String    @id @default(uuid()) @db.Uuid
+  run_started_at DateTime  @default(now()) @db.Timestamptz(6)
+  run_finished_at DateTime? @db.Timestamptz(6)
+  units_consumed Int       @default(0)
+  units_remaining Int      @default(10000)
+  status         String    @default("running") // running | completed | failed | skipped_quota
+  error          Json?
+
+  @@index([run_started_at], name: "idx_ingestion_log_started")
+  @@map("analytics_ingestion_log")
+}
+

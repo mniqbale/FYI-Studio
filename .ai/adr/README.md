@@ -37,9 +37,9 @@ related_documents:
 | [ADR-0005](./ADR-0005-engineering-standards.md) | Adopt Engineering Standards v1.0 | Accepted | 2026-08-04 | — |
 | [ADR-0006](./ADR-0006-user-configurable-provider-connection.md) | User-Configurable Provider Connections & Capability-Filtered Model Selection | **Accepted** | 2026-08-04 | — |
 | [ADR-0007](./ADR-0007-ai-platform-foundation.md) | Introduce AI Platform Foundation as Milestone 2 (BYOAI Layer) | Accepted | 2026-08-04 | — |
-| [ADR-0008](./ADR-0008-social-publish-scheduling.md) | Social Publish & Scheduling (YouTube-First Monetization) | Proposed | 2026-08-06 | — |
-| [ADR-0009](./ADR-0009-platform-analytics-ingestion.md) | Platform Analytics Ingestion & YouTube Revenue | Proposed | 2026-08-06 | — |
-| [ADR-0010](./ADR-0010-hitl-revise-approve.md) | HITL Revise/Approve (Dashboard Write) | Proposed | 2026-08-06 | — |
+| [ADR-0008](./ADR-0008-social-publish-scheduling.md) | Social Publish & Scheduling (YouTube-First Monetization) | Accepted | 2026-08-06 | — |
+| [ADR-0009](./ADR-0009-platform-analytics-ingestion.md) | Platform Analytics Ingestion & YouTube Revenue | Accepted | 2026-08-06 | — |
+| [ADR-0010](./ADR-0010-hitl-revise-approve.md) | HITL Revise/Approve (Dashboard Write) | Accepted | 2026-08-06 | — |
 
 ---
 

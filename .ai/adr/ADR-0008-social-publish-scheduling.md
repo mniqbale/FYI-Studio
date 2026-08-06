@@ -1,7 +1,7 @@
 ---
 id: ADR-0008-social-publish-scheduling
 title: "Social Publish & Scheduling (YouTube-First Monetization)"
-status: "Proposed"
+status: "Accepted"
 date: "2026-08-06"
 deciders: ["Founder", "Lead Engineer", "Principal Architect", "CTO"]
 tags: [post-mvp, publish, scheduling, social, youtube, monetization, bullmq, social-accounts]
@@ -10,7 +10,7 @@ source_conversation: "Founder post-MVP review feedback (Milestone 8 Dashboard re
 
 # ADR-0008: Social Publish & Scheduling (YouTube-First Monetization)
 
-> **Status:** PROPOSED (pending Founder approval). This ADR records the architecture for Workstream B — publishing approved content to social platforms (YouTube Channel, Facebook, Instagram, TikTok) on a schedule. YouTube is the primary monetization target.
+> **Status:** ACCEPTED (Founder approval 2026-08-06). This ADR records the architecture for Workstream B — publishing approved content to social platforms (YouTube Channel, Facebook, Instagram, TikTok) on a schedule. YouTube is the primary monetization target.
 
 ## Context
 

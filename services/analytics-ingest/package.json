@@ -1,0 +1,39 @@
+{
+  "name": "@fyi/analytics-ingest",
+  "version": "1.0.0",
+  "description": "FYI Studio Platform Analytics & Revenue — scheduled YouTube ingestion pipeline (quota ledger, mock/real adapter, Memory feedback, Milestone 11 / ADR-0009)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest run",
+    "seed": "tsx scripts/seed-published.ts"
+  },
+  "dependencies": {
+    "@fyi/analytics": "workspace:1.0.0",
+    "@fyi/database": "workspace:1.0.0",
+    "@fyi/knowledge": "workspace:1.0.0",
+    "@fyi/utils": "workspace:1.0.0",
+    "bullmq": "^5.34.0",
+    "ioredis": "^5.4.0",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.1.0"
+  }
+}

@@ -29,14 +29,14 @@ related_documents:
 
 | Metric | Value |
 |--------|-------|
-| **Current Milestone** | Milestone 8: Dashboard UI (Post-MVP Option A) — **COMPLETE** ✅ |
-| **Current Sprint** | Sprint 7: Dashboard UI — **COMPLETE** |
-| **Completed Milestones** | M1 ✅ · M2 ✅ · M3 ✅ · M4 ✅ · M5 ✅ · M6 ✅ · M7 Analytics ✅ · M8 Dashboard ✅ |
-| **Next Milestone** | M9: Settings AI Workspace (Sprint 8) — then Social Publish (M10/Sprint 9), Platform Analytics (M11/Sprint 10) |
+| **Current Milestone** | Milestone 11: Platform Analytics & Revenue — **COMPLETE** ✅ |
+| **Current Sprint** | Sprint 10: Platform Analytics — **COMPLETE** |
+| **Completed Milestones** | M1 ✅ · M2 ✅ · M3 ✅ · M4 ✅ · M5 ✅ · M6 ✅ · M7 ✅ · M8 Dashboard ✅ · M9 Settings ✅ · M10 Social Publish ✅ · M11 Platform Analytics ✅ |
+| **Next Milestone** | Post-MVP — Hardening (ADR-0010 HITL Revise), External Analytics, Auto-Optimization, A/B, Worker Registry v2 |
 | **Architecture Version** | MVP v1.0 (ADR-0001) |
 | **Contracts Version** | v1.1 Frozen (ADR-0002) |
 | **Engineering Standards** | v1.0 (ADR-0005) |
-| **Project Health** | 🟢 On Track — MVP + Dashboard COMPLETE; Settings AI Workspace IMPLEMENTED & VERIFIED; Publish + Analytics documented (ADRs 0008-0010 Proposed) |
+| **Project Health** | 🟢 On Track — M1–M11 COMPLETE; Publish + Analytics implemented (ADR-0008/0009 Accepted) |
 
 ---
 
@@ -203,4 +203,4 @@ related_documents:
 
 ## Ready for Next Session?
 
-**YES — MVP COMPLETE + Dashboard IMPLEMENTED + Settings AI Workspace IMPLEMENTED & VERIFIED.** Milestones 1–8 all done. **Dashboard UI (M8) and Settings AI Workspace (M9 / Sprint 8) are implemented and verified in-browser.** Run `pnpm run dashboard` (http://localhost:3001), seed a demo job with `pnpm run dashboard:seed`. Post-MVP workstreams documented (ADRs 0008–0010 Proposed + Sprint 8/9/10 planning): **Settings AI Workspace** (done), **Social Publish & Scheduling** (M10/Sprint 9 — YouTube-first monetization), **Platform Analytics & Revenue** (M11/Sprint 10).
+**YES — Milestones 1–11 COMPLETE.** MVP (M1–M7) + Dashboard (M8) + Settings AI Workspace (M9) + Social Publish & Scheduling (M10) + Platform Analytics & Revenue (M11) all implemented & verified. Run `pnpm run dashboard` (http://localhost:3001) — includes new `/platform` analytics page (views/revenue from local tables). **Publish worker + analytics ingestion use mock YouTube adapters by default** (real enabled via `YOUTUBE_API_KEY_REF` / OAuth token). Next candidate workstreams: **Production Hardening**, **ADR-0010 HITL Revise/Approve**, External Analytics, Auto-Optimization, A/B, Worker Registry v2.
