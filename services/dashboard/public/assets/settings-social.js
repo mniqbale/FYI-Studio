@@ -1,6 +1,6 @@
-// Settings social section — connect/disconnect social accounts (WS-4).
+// Settings social section — connect/disconnect social accounts (WS-D).
+// Renders accounts as a table, with a popup modal to add a new account.
 // Interacts with the local /api/social/* endpoints (no platform API).
-// Scheduling moved to /jobs (WS-5).
 const DEFAULT_TENANT = 'demo';
 
 function esc(s) {
@@ -10,24 +10,26 @@ function esc(s) {
 async function loadAccounts() {
   const res = await fetch(`/api/social?tenant_id=${DEFAULT_TENANT}`);
   const accounts = await res.json();
-  const list = document.getElementById('social-accounts-list');
-  if (!list) return;
+  const tbody = document.getElementById('social-accounts-list');
+  if (!tbody) return;
   if (accounts.length === 0) {
-    list.innerHTML = '<p class="muted">No connected accounts.</p>';
+    tbody.innerHTML = '<tr><td colspan="5">Belum ada akun terhubung.</td></tr>';
     return;
   }
-  list.innerHTML = accounts
+  tbody.innerHTML = accounts
     .map(
       (a) => `
-      <div class="account-chip">
-        <strong>${esc(a.display_name)}</strong> · ${esc(a.platform)} · <code>${esc(a.account_ref)}</code>
-        <span class="badge ${a.enabled ? 'ok' : 'off'}">${a.enabled ? 'connected' : 'disabled'}</span>
-        <button class="btn-danger btn-small" data-id="${a.id}" data-action="disconnect">Disconnect</button>
-      </div>
+      <tr>
+        <td><strong>${esc(a.display_name)}</strong></td>
+        <td>${esc(a.platform)}</td>
+        <td><code>${esc(a.account_ref)}</code></td>
+        <td><span class="badge ${a.enabled ? 'ok' : 'off'}">${a.enabled ? 'connected' : 'disabled'}</span></td>
+        <td><button class="btn-danger btn-small" data-id="${a.id}" data-action="disconnect">Disconnect</button></td>
+      </tr>
     `,
     )
     .join('');
-  list.querySelectorAll('[data-action="disconnect"]').forEach((btn) => {
+  tbody.querySelectorAll('[data-action="disconnect"]').forEach((btn) => {
     btn.addEventListener('click', () => disconnect(btn.dataset.id));
   });
 }
@@ -42,7 +44,17 @@ async function disconnect(id) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  const addBtn = document.getElementById('add-account-btn');
+  const modal = document.getElementById('add-account-modal');
+  const closeBtn = document.getElementById('close-modal');
   const connectForm = document.getElementById('social-connect-form');
+
+  if (addBtn && modal) {
+    addBtn.addEventListener('click', () => { modal.hidden = false; });
+  }
+  if (closeBtn && modal) {
+    closeBtn.addEventListener('click', () => { modal.hidden = true; });
+  }
 
   if (connectForm) {
     connectForm.addEventListener('submit', async (e) => {
@@ -58,7 +70,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       const out = await res.json();
       alert(out.ok ? `Connected ${out.account.platform} account` : `Error: ${out.error}`);
       connectForm.reset();
-      if (out.ok) await loadAccounts();
+      if (out.ok) {
+        modal.hidden = true;
+        await loadAccounts();
+      }
     });
   }
 

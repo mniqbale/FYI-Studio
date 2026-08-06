@@ -23,6 +23,7 @@ import {
   listModels,
   setProviderApiKey,
   deleteProviderApiKey,
+  validateProviderKey,
 } from '@fyi/platform';
 import {
   upsertTenantKnowledge,
@@ -78,9 +79,9 @@ const LLM_WORKER_CAPS = new Set(['research:real', 'text-synthesis:script:real'])
 export async function discoverProviderModels(provider: string): Promise<Array<{ provider: string; model: string }>> {
   try {
     if (provider === 'ollama') {
-      const base = process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434';
+      const base = process.env.OLLAMA_BASE_URL ?? 'https://ollama.com/v1';
       const url = base.endsWith('/v1') ? `${base}/models` : `${base}/api/tags`;
-      const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
       if (!res.ok) return [];
       const data = (await res.json()) as { models?: Array<{ name?: string; model?: string }> };
       const names = (data.models ?? []).map((m) => m.name ?? m.model ?? '').filter(Boolean);
@@ -132,23 +133,40 @@ export async function getSettingsOverview(tenantId?: string): Promise<SettingsOv
     const pref = tenantPrefs?.[cap];
     const current = pref ?? (policy.defaults[cap] ? { provider: policy.defaults[cap].provider, model: policy.defaults[cap].model } : null);
     const candidates = await listModelsForCapability([...connectedSet], required[0] ?? cap);
+
+    // Merge discovered models (from connected providers) into the candidates so
+    // the user sees ALL available models, not just the seeded ones (WS-B).
+    const discovered = new Map<string, { provider: string; model: string }>();
+    for (const provider of connectedSet) {
+      const models = await discoverProviderModels(provider);
+      for (const m of models) discovered.set(`${m.provider}:${m.model}`, m);
+    }
+    const candidateSet = new Map<string, { provider: string; model: string }>();
+    for (const c of candidates) candidateSet.set(`${c.provider}:${c.model}`, { provider: c.provider, model: c.model });
+    for (const [, m] of discovered) if (!candidateSet.has(`${m.provider}:${m.model}`)) candidateSet.set(`${m.provider}:${m.model}`, m);
+
     assignments.push({
       capability: cap,
       label: CAPABILITY_LABELS[cap] ?? cap,
       requiredModelCaps: required,
       current,
-      candidates: candidates.map((m) => ({ provider: m.provider, model: m.model })),
+      candidates: [...candidateSet.values()],
     });
   }
 
-  // Add media workers (non-LLM) so the Founder sees the full pipeline.
+  // Add media workers (voice/subtitle/video) so the Founder sees the full
+  // pipeline. These are selectable too (WS-B): the user can assign an AI model
+  // if a connected provider supports the capability, defaulting to local engine.
   const mediaWorkers: Array<{ capability: string; label: string; requiredModelCaps: string[]; current: { provider: string; model: string } | null; candidates: Array<{ provider: string; model: string }> }> = [
     { capability: 'voice:tts', label: 'Voice Worker', requiredModelCaps: ['speech'], current: { provider: 'espeak-ng', model: 'espeak-ng' }, candidates: [] },
     { capability: 'subtitle:generate', label: 'Subtitle Worker', requiredModelCaps: ['speech'], current: { provider: 'local', model: 'ffmpeg-srt' }, candidates: [] },
     { capability: 'video:compose', label: 'Video Worker', requiredModelCaps: ['video'], current: { provider: 'ffmpeg', model: 'ffmpeg' }, candidates: [] },
   ];
   for (const mw of mediaWorkers) {
-    if (!assignments.some((a) => a.capability === mw.capability)) assignments.push(mw);
+    if (assignments.some((a) => a.capability === mw.capability)) continue;
+    // Populate candidates from connected providers that support the capability.
+    const candidates = await listModelsForCapability([...connectedSet], mw.requiredModelCaps[0] ?? mw.capability);
+    assignments.push({ ...mw, candidates: candidates.map((m) => ({ provider: m.provider, model: m.model })) });
   }
 
   return {
@@ -183,6 +201,15 @@ export async function setProviderApiKeyById(
 export async function deleteProviderApiKeyById(providerId: string): Promise<{ ok: boolean; error?: string }> {
   const res = await deleteProviderApiKey(providerId);
   return res.deleted ? { ok: true } : { ok: false, error: res.error };
+}
+
+/** Validate a provider's API key against the real provider API. */
+export async function validateProviderKeyById(
+  providerId: string,
+  apiKey: string,
+): Promise<{ ok: boolean; reason?: string; status?: number }> {
+  const res = await validateProviderKey(providerId, apiKey);
+  return { ok: res.valid, reason: res.reason, status: res.status };
 }
 
 /** Upsert a tenant's brand knowledge (knowledge base). */
@@ -238,3 +265,16 @@ export async function assignModelForCapability(input: {
 
 export { JobStatus };
 export { getTenantKnowledge };
+
+/** Get the worker→model assignment map for the Overview neuron graph (WS-E). */
+export async function getWorkerAssignments(): Promise<
+  Array<{ capability: string; label: string; provider: string; model: string }>
+> {
+  const overview = await getSettingsOverview();
+  return overview.assignments.map((a) => ({
+    capability: a.capability,
+    label: a.label,
+    provider: a.current?.provider ?? '—',
+    model: a.current?.model ?? '—',
+  }));
+}

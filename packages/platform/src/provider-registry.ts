@@ -23,7 +23,7 @@ export const PROVIDER_CATALOG: ProviderDefinition[] = [
   { id: 'gemini', name: 'Google Gemini', base_url: 'https://generativelanguage.googleapis.com/v1beta', requires_api_key: true },
   { id: 'openrouter', name: 'OpenRouter', base_url: 'https://openrouter.ai/api/v1', requires_api_key: true },
   { id: 'groq', name: 'Groq', base_url: 'https://api.groq.com/openai/v1', requires_api_key: true },
-  { id: 'ollama', name: 'Ollama (local)', base_url: 'http://localhost:11434', requires_api_key: false },
+  { id: 'ollama', name: 'Ollama (Cloud)', base_url: 'https://ollama.com/v1', requires_api_key: true },
   { id: 'azure', name: 'Azure OpenAI', requires_api_key: true },
   { id: 'vertex', name: 'Google Vertex AI', requires_api_key: true },
   { id: 'together', name: 'Together AI', base_url: 'https://api.together.xyz/v1', requires_api_key: true },

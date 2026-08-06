@@ -9,6 +9,7 @@ import {
   disconnectProviderById,
   setProviderApiKeyById,
   deleteProviderApiKeyById,
+  validateProviderKeyById,
   assignModelForCapability,
   saveTenantBrand,
   removeTenantBrand,
@@ -45,15 +46,29 @@ export async function settingsRoutes(app: FastifyInstance): Promise<void> {
     return reply.redirect('/settings' + (result.ok ? '' : `?error=${encodeURIComponent(result.error ?? 'failed')}`));
   });
 
-  // Set / replace a provider's API key (encrypted at rest).
+  // Set / replace a provider's API key (encrypted at rest) + validate it.
   app.post('/settings/providers/:id/key', async (request, reply) => {
     const { id } = request.params as { id: string };
     const body = request.body as { api_key?: string };
     if (!body.api_key || !body.api_key.trim()) {
       return reply.redirect('/settings?error=api+key+required');
     }
+    // Validate the key against the real provider API first.
+    const validation = await validateProviderKeyById(id, body.api_key);
+    if (!validation.ok) {
+      return reply.redirect(`/settings?error=${encodeURIComponent(`API key invalid: ${validation.reason ?? 'unknown'}`)}`);
+    }
     const result = await setProviderApiKeyById(id, body.api_key);
-    return reply.redirect('/settings' + (result.ok ? '' : `?error=${encodeURIComponent(result.error ?? 'failed')}`));
+    return reply.redirect('/settings' + (result.ok ? `?msg=${encodeURIComponent('API key valid & saved')}` : `?error=${encodeURIComponent(result.error ?? 'failed')}`));
+  });
+
+  // Validate a provider's API key without saving (returns JSON for inline status).
+  app.post('/api/settings/providers/:id/validate', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const body = request.body as { api_key?: string };
+    if (!body.api_key) return reply.code(400).send({ ok: false, reason: 'api_key required' });
+    const result = await validateProviderKeyById(id, body.api_key);
+    return result;
   });
 
   // Delete a provider's stored API key + disconnect.

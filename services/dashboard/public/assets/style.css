@@ -216,3 +216,35 @@ body {
 .cal-event.status-published { background: rgba(59,130,246,0.2); }
 .schedule-form-wrap { margin-top: 8px; }
 .schedule-form-wrap .brand-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+
+/* Providers table (WS-A) */
+.providers-table td { vertical-align: middle; }
+.providers-table .key-form { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.providers-table .key-form input[type="password"] { width: 180px; }
+.key-status { font-size: 0.8rem; }
+.key-status.ok { color: #22c55e; }
+.key-status.err { color: #ef4444; }
+.key-status.validating { color: var(--muted); }
+.btn-small { padding: 4px 10px; font-size: 0.8rem; }
+
+/* Social table + modal (WS-D) */
+.social-toolbar { margin-bottom: 12px; }
+.social-table td { vertical-align: middle; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal-overlay[hidden] { display: none; }
+.modal { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; width: min(480px, 90vw); }
+.modal .brand-form { display: grid; gap: 10px; }
+.modal-actions { display: flex; gap: 8px; margin-top: 8px; }
+
+/* Neuron knowledge graph (WS-E) */
+.neuron-graph { margin-top: 24px; }
+.neuron-canvas { position: relative; min-height: 360px; display: flex; align-items: center; justify-content: center; }
+.neuron-core { position: relative; z-index: 2; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #1e3a5f, #0f172a); border: 2px solid var(--accent); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 0 30px rgba(34,197,94,0.3); }
+.neuron-core-label { font-weight: 700; color: #fff; font-size: 0.95rem; padding: 0 12px; }
+.neuron-socials { display: flex; gap: 8px; margin-top: 8px; }
+.social-ico { width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.15); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+.neuron-cells { position: absolute; inset: 0; }
+.neuron-cell { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(calc(var(--i) * 360deg / var(--n))) translateY(-150px) rotate(calc(var(--i) * -360deg / var(--n))); }
+.neuron-cell-body { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; text-align: center; min-width: 120px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.neuron-cell-body strong { display: block; font-size: 0.85rem; }
+.neuron-model { display: block; font-size: 0.72rem; color: var(--accent); margin-top: 4px; word-break: break-word; }

@@ -22,6 +22,15 @@ vi.mock('../src/utils/data.js', async (importOriginal) => {
 
 import * as data from '../src/utils/data.js';
 
+// Mock the settings layer (used by the overview route for the neuron graph).
+vi.mock('../src/utils/settings.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/utils/settings.js')>();
+  return {
+    ...actual,
+    getWorkerAssignments: vi.fn().mockResolvedValue([]),
+  };
+});
+
 const publicDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'public', 'assets');
 
 describe('Dashboard API Routes', () => {
