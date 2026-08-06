@@ -74,7 +74,7 @@ const CAPABILITY_LABELS: Record<string, string> = {
 
 /** Short user-facing note per media worker (shown in the UI). */
 const MEDIA_WORKER_NOTES: Record<string, string> = {
-  'voice:tts': 'TTS (text-to-speech). Default: espeak-ng (offline). Assign an AI TTS model (e.g. openai/tts-1) if connected.',
+  'voice:tts': 'TTS (text-to-speech). Default: espeak-ng (offline, robot). Assign an AI TTS model (e.g. replicate/kokoro-82m — natural voice, ~$0.0023/run; or openai/tts-1) if connected.',
   'subtitle:generate': 'Transcription (speech-to-text). Default: local ffmpeg. Assign an ASR model (e.g. openai/whisper-1) if connected.',
   'video:compose': 'Video composition. Default: ffmpeg (offline). Assign an AI video model (e.g. gemini/veo-3, openai/sora) if connected.',
 };
@@ -121,6 +121,7 @@ const PROVIDER_BASE_URLS: Record<string, string> = {
   openrouter: 'https://openrouter.ai/api/v1',
   groq: 'https://api.groq.com/openai/v1',
   ollama: 'https://ollama.com/v1',
+  replicate: 'https://api.replicate.com/v1',
   together: 'https://api.together.xyz/v1',
   azure: 'https://api.openai.com/v1',
   vertex: 'https://generativelanguage.googleapis.com/v1beta',

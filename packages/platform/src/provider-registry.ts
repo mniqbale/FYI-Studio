@@ -24,6 +24,7 @@ export const PROVIDER_CATALOG: ProviderDefinition[] = [
   { id: 'openrouter', name: 'OpenRouter', base_url: 'https://openrouter.ai/api/v1', requires_api_key: true },
   { id: 'groq', name: 'Groq', base_url: 'https://api.groq.com/openai/v1', requires_api_key: true },
   { id: 'ollama', name: 'Ollama (Cloud)', base_url: 'https://ollama.com/v1', requires_api_key: true },
+  { id: 'replicate', name: 'Replicate', base_url: 'https://api.replicate.com/v1', requires_api_key: true },
   { id: 'azure', name: 'Azure OpenAI', requires_api_key: true },
   { id: 'vertex', name: 'Google Vertex AI', requires_api_key: true },
   { id: 'together', name: 'Together AI', base_url: 'https://api.together.xyz/v1', requires_api_key: true },

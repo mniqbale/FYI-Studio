@@ -22,6 +22,7 @@ const VALIDATION_ENDPOINTS: Record<string, { url: string; method: 'GET' | 'POST'
   openrouter: { url: 'https://openrouter.ai/api/v1/models', method: 'GET', headers: { Authorization: 'Bearer {KEY}' } },
   groq: { url: 'https://api.groq.com/openai/v1/models', method: 'GET', headers: { Authorization: 'Bearer {KEY}' } },
   ollama: { url: 'https://ollama.com/v1/models', method: 'GET', headers: { Authorization: 'Bearer {KEY}' } },
+  replicate: { url: 'https://api.replicate.com/v1/models', method: 'GET', headers: { Authorization: 'Bearer {KEY}' } },
   together: { url: 'https://api.together.xyz/v1/models', method: 'GET', headers: { Authorization: 'Bearer {KEY}' } },
   azure: { url: 'https://api.openai.com/v1/models', method: 'GET', headers: { Authorization: 'Bearer {KEY}' } },
   vertex: { url: 'https://generativelanguage.googleapis.com/v1beta/models?key={KEY}', method: 'GET' },

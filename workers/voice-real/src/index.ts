@@ -1,7 +1,7 @@
 import { Worker, Queue, Job } from 'bullmq';
 import { type TaskEnvelope, type WorkerResponse, WorkerStatus } from '@fyi/contracts';
 import { createRedisConnection, createTaskLogger } from '@fyi/utils';
-import { synthesizeSpeech, toReference } from '@fyi/media';
+import { synthesizeSpeechSmart, toReference } from '@fyi/media';
 
 const QUEUE_NAME = 'voice-real-queue';
 const COMPLETION_QUEUE = 'completion-queue';
@@ -23,7 +23,9 @@ async function processTask(job: Job<TaskEnvelope>): Promise<WorkerResponse> {
       throw new Error('Real voice worker: no narration or script text provided in payload');
     }
 
-    const tts = await synthesizeSpeech(envelope.execution_id, narration);
+    const tts = await synthesizeSpeechSmart(envelope.execution_id, narration, {
+      voice: typeof envelope.payload?.voice === 'string' ? envelope.payload.voice : 'af_bella',
+    });
     const finishedAt = new Date().toISOString();
 
     const response: WorkerResponse = {
@@ -41,7 +43,7 @@ async function processTask(job: Job<TaskEnvelope>): Promise<WorkerResponse> {
       new_references: { voice_output: toReference(tts.audio_path) },
       usage: {
         seconds: tts.duration_seconds,
-        cost_estimate: 0,
+        cost_estimate: tts.cost_estimate ?? 0,
       },
       performance: { duration_ms: Date.now() - startTime, started_at: startedAt, finished_at: finishedAt },
     };

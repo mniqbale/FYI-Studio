@@ -141,6 +141,14 @@ models:
     pricing_per_1k_tokens: 0.0
     context_window: 0
     capabilities: [video]
+  # Kokoro-82M TTS via Replicate (cloud, ~$0.0023/run). Natural voice, no
+  # local model, no OpenAI/Gemini key — only a Replicate API token.
+  - provider: replicate
+    model: kokoro-82m
+    version: "latest"
+    pricing_per_1k_tokens: 0.0
+    context_window: 0
+    capabilities: [speech]
 
 # Default recommended model per worker capability (user may override, capability-gated).
 # Ollama Cloud (https://ollama.com/v1) is the working provider — set as default.
