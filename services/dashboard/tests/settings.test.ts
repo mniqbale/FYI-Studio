@@ -20,6 +20,11 @@ vi.mock('../src/utils/settings.js', async (importOriginal) => {
 
 import * as settings from '../src/utils/settings.js';
 
+vi.mock('../src/utils/social-publish.js', () => ({
+  listSocialAccounts: vi.fn().mockResolvedValue([]),
+  listScheduledPublishes: vi.fn().mockResolvedValue([]),
+}));
+
 describe('Settings Routes (AI Workspace)', () => {
   let app: FastifyInstance;
 

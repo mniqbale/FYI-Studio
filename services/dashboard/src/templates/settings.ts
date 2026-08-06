@@ -12,7 +12,7 @@ export function renderSettingsPage(
   data: SettingsOverview,
   social?: { accounts: SocialAccountRow[]; schedules: ScheduledPublishRow[] },
 ): string {
-  const { providers, assignments, tenants } = data;
+  const { providers, assignments } = data;
 
   const providerCards = providers
     .map((p) => `
@@ -26,6 +26,17 @@ export function renderSettingsPage(
           <p><strong>API Key:</strong> ${p.requiresApiKey ? (p.keyConfigured ? '✅ configured' : '❌ not set') : 'not required'}</p>
           ${p.healthError ? `<p class="error-text">${esc(p.healthError)}</p>` : ''}
         </div>
+        ${p.requiresApiKey ? `
+          <form method="post" action="/settings/providers/${esc(p.id)}/key" class="key-form">
+            <input type="password" name="api_key" placeholder="Paste ${esc(p.name)} API key" autocomplete="off">
+            <button type="submit" class="btn">${p.keyConfigured ? 'Update Key' : 'Save Key'}</button>
+          </form>
+          ${p.keyConfigured ? `
+            <form method="post" action="/settings/providers/${esc(p.id)}/key/delete" class="inline-form" onsubmit="return confirm('Delete this API key?')">
+              <button type="submit" class="btn-danger">Delete Key</button>
+            </form>
+          ` : ''}
+        ` : ''}
         <form method="post" action="/settings/providers/${esc(p.id)}">
           ${p.connected
             ? `<button type="submit" name="action" value="disconnect" class="btn-danger">Disconnect</button>`
@@ -36,38 +47,31 @@ export function renderSettingsPage(
     .join('');
 
   const assignmentRows = assignments
-    .map((a) => `
+    .map((a) => {
+      const isLlm = a.candidates.length > 0 || a.current?.provider !== 'espeak-ng' && a.current?.provider !== 'ffmpeg' && a.current?.provider !== 'local';
+      return `
       <div class="assign-row">
         <div class="assign-info">
           <strong>${esc(a.label)}</strong>
           <code>${esc(a.capability)}</code>
           <span class="muted">needs: ${esc(a.requiredModelCaps.join(', '))}</span>
+          ${!isLlm ? `<span class="badge off">local engine</span>` : ''}
         </div>
-        <form method="post" action="/settings/assign" class="assign-form">
-          <input type="hidden" name="capability" value="${esc(a.capability)}">
-          <select name="model" class="model-select">
-            <option value="">— ${a.current ? `Current: ${esc(a.current.provider)}/${esc(a.current.model)}` : 'no model assigned'} —</option>
-            ${a.candidates
-              .map((c) => `<option value="${esc(c.provider)}/${esc(c.model)}">${esc(c.provider)}/${esc(c.model)}</option>`)
-              .join('')}
-          </select>
-          <button type="submit" class="btn">Assign</button>
-        </form>
+        ${isLlm ? `
+          <form method="post" action="/settings/assign" class="assign-form">
+            <input type="hidden" name="capability" value="${esc(a.capability)}">
+            <select name="model" class="model-select">
+              <option value="">— ${a.current ? `Current: ${esc(a.current.provider)}/${esc(a.current.model)}` : 'no model assigned'} —</option>
+              ${a.candidates
+                .map((c) => `<option value="${esc(c.provider)}/${esc(c.model)}">${esc(c.provider)}/${esc(c.model)}</option>`)
+                .join('')}
+            </select>
+            <button type="submit" class="btn">Assign</button>
+          </form>
+        ` : `<span class="muted">${esc(a.current?.provider ?? '')}/${esc(a.current?.model ?? '')}</span>`}
       </div>
-    `)
-    .join('');
-
-  const tenantCards = tenants
-    .map((t) => `
-      <div class="tenant-card">
-        <h3>${esc(t.tenantId)}</h3>
-        <p class="muted">${esc((t.brandVoice || 'No brand voice set').slice(0, 90))}</p>
-        <a href="/settings?edit=${encodeURIComponent(t.tenantId)}" class="btn">Edit</a>
-        <form method="post" action="/settings/tenants/${encodeURIComponent(t.tenantId)}" class="inline-form" onsubmit="return confirm('Delete this tenant?')">
-          <button type="submit" class="btn-danger">Delete</button>
-        </form>
-      </div>
-    `)
+    `;
+    })
     .join('');
 
   const content = `
@@ -81,20 +85,22 @@ export function renderSettingsPage(
 
     <section class="settings-section">
       <h3>Model Assignment per Task</h3>
-      <p class="muted">Choose which AI model handles each worker. Only connected + capable models are shown.</p>
+      <p class="muted">Choose which AI model handles each worker. Only connected + capable models are shown. Media workers (voice/subtitle/video) use local offline engines.</p>
       <div class="assignments">${assignmentRows || '<p>No worker capabilities defined.</p>'}</div>
+      <form method="post" action="/settings/refresh-models" class="inline-form">
+        <button type="submit" class="btn">↻ Refresh Models (discover from providers)</button>
+      </form>
     </section>
 
     <section class="settings-section">
       <h3>Brands / Tenants</h3>
-      <p class="muted">Manage brand voice, language, and forbidden terms per channel.</p>
-      <div class="tenants-grid">${tenantCards || '<p>No tenants yet.</p>'}</div>
-      <a href="/settings?edit=new" class="btn">+ New Brand</a>
+      <p class="muted">Kelola brand voice, bahasa, dan forbidden terms per channel di halaman <a href="/tenants">/tenants</a>.</p>
+      <a href="/tenants" class="btn">Buka halaman Tenants</a>
     </section>
 
     <section class="settings-section" id="social-section">
       <h3>Social Accounts & Publishing</h3>
-      <p class="muted">Connect a YouTube / Facebook / Instagram / TikTok account and schedule approved jobs to publish. YouTube is the primary monetization target (ADR-0008).</p>
+      <p class="muted">Connect a YouTube / Facebook / Instagram / TikTok account. Setiap akun divalidasi formatnya agar agent AI tidak salah posting. Penjadwalan publish ada di halaman <a href="/jobs">/jobs</a> (kalender).</p>
 
       <div class="social-connect">
         <h4>Connect account</h4>
@@ -114,7 +120,7 @@ export function renderSettingsPage(
             <input name="display_name" placeholder="My Channel" required>
           </label>
           <label>Account Ref (channel/account id)
-            <input name="account_ref" placeholder="UC..." required>
+            <input name="account_ref" placeholder="UC... / @handle" required>
           </label>
           <label>Access Token
             <input name="access_token" placeholder="OAuth access token" required>
@@ -126,20 +132,6 @@ export function renderSettingsPage(
       <h4>Connected accounts</h4>
       <div class="social-accounts" id="social-accounts-list">
         ${(social?.accounts ?? []).length === 0 ? '<p class="muted">No connected accounts.</p>' : ''}
-      </div>
-
-      <h4>Schedule a publish</h4>
-      <form id="schedule-form" class="brand-form">
-        <label>Tenant ID <input name="tenant_id" value="demo" required></label>
-        <label>Job ID <input name="job_id" placeholder="job uuid" required></label>
-        <label>Social Account <select name="social_account_id" id="schedule-account-select"></select></label>
-        <label>Scheduled At (UTC) <input type="datetime-local" name="scheduled_at" required></label>
-        <button type="submit" class="btn">Schedule</button>
-      </form>
-
-      <h4>Scheduled publishes</h4>
-      <div class="schedules-list" id="schedules-list">
-        ${(social?.schedules ?? []).length === 0 ? '<p class="muted">No scheduled publishes.</p>' : ''}
       </div>
     </section>
   `;

@@ -1,13 +1,18 @@
-// Unit tests for the Platform analytics routes (Milestone 11 / ADR-0009).
-// Verifies the read-only /platform + /api/platform/analytics endpoints and the
-// hard invariant: NO platform API call happens on page load.
+// Unit tests for the Platform analytics section (Milestone 11 / ADR-0009),
+// now merged into the /analytics page (WS-6). Verifies the read-only
+// /api/platform/analytics endpoint and the hard invariant: NO platform API
+// call happens on page load.
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
-import { platformRoutes } from '../src/routes/platform.js';
+import { analyticsRoutes } from '../src/routes/analytics.js';
 
 vi.mock('../src/utils/platform-data.js', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../src/utils/platform-data.js')>();
   return { ...actual, getPlatformAnalytics: vi.fn() };
+});
+vi.mock('../src/utils/data.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/utils/data.js')>();
+  return { ...actual, getAnalyticsData: vi.fn().mockResolvedValue({ costOverTime: [], costByWorker: [], tokensByWorker: [] }) };
 });
 
 import * as platformData from '../src/utils/platform-data.js';
@@ -24,13 +29,13 @@ const mockData = {
   lastIngestion: { id: 'log1', runStartedAt: '2026-08-06T00:00:00.000Z', unitsConsumed: 5, unitsRemaining: 9995, status: 'completed' },
 };
 
-describe('Platform Analytics Routes', () => {
+describe('Platform Analytics (merged into /analytics)', () => {
   let app: FastifyInstance;
 
   beforeEach(async () => {
     vi.clearAllMocks();
     app = Fastify();
-    await platformRoutes(app);
+    await analyticsRoutes(app);
     await app.ready();
   });
 
@@ -48,20 +53,21 @@ describe('Platform Analytics Routes', () => {
     expect(body.totalRevenue).toBe(3.25);
   });
 
-  it('GET /platform renders the HTML page', async () => {
+  it('GET /analytics renders the platform section (revenue + performance)', async () => {
     vi.mocked(platformData.getPlatformAnalytics).mockResolvedValue(mockData);
-    const res = await app.inject({ method: 'GET', url: '/platform' });
+    const res = await app.inject({ method: 'GET', url: '/analytics' });
     expect(res.statusCode).toBe(200);
     expect(res.headers['content-type']).toContain('text/html');
+    expect(res.body).toContain('Platform Analytics');
     expect(res.body).toContain('Revenue by Video');
     expect(res.body).toContain('Content Performance');
   });
 
-  it('GET /platform does NOT reference any youtube/analytics API client', async () => {
-    // The route data layer only queries local Prisma tables; this asserts the
-    // page does not embed a platform API call. (Hard invariant from ADR-0009.)
+  it('GET /analytics does NOT reference any youtube/analytics API client', async () => {
+    // The data layer only queries local Prisma tables; this asserts the page
+    // does not embed a platform API call. (Hard invariant from ADR-0009.)
     vi.mocked(platformData.getPlatformAnalytics).mockResolvedValue(mockData);
-    const res = await app.inject({ method: 'GET', url: '/platform' });
+    const res = await app.inject({ method: 'GET', url: '/analytics' });
     const body = res.body;
     expect(body).not.toMatch(/googleapis|youtube\.com\/youtubei|api\.youtube/);
   });

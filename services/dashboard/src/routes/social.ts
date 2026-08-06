@@ -5,6 +5,34 @@ import { connectSocialAccount, disconnectSocialAccount } from '@fyi/publish';
 import { schedulePublish } from '@fyi/publish';
 import { listSocialAccounts, listScheduledPublishes } from '../utils/social-publish.js';
 
+/**
+ * Lightweight platform validation (WS-4): verifies the account_ref format is
+ * plausible for the platform so an agent AI doesn't post to a wrong/malformed
+ * account. Real OAuth verification happens when a live token is present.
+ */
+function validateAccountRef(platform: string, accountRef: string): string | null {
+  const ref = accountRef.trim();
+  if (!ref) return 'account_ref is required';
+  switch (platform) {
+    case 'youtube':
+      // YouTube channel ids start with UC, UU, or a handle @.
+      if (!/^(UC|UU|@)/.test(ref)) return 'YouTube channel id should start with UC, UU, or @';
+      break;
+    case 'facebook':
+      if (!/^[0-9]+$/.test(ref) && !ref.startsWith('@')) return 'Facebook page id should be numeric or @handle';
+      break;
+    case 'instagram':
+      if (!ref.startsWith('@')) return 'Instagram account should be @handle';
+      break;
+    case 'tiktok':
+      if (!ref.startsWith('@')) return 'TikTok account should be @handle';
+      break;
+    default:
+      return `Unsupported platform: ${platform}`;
+  }
+  return null;
+}
+
 export async function socialRoutes(app: FastifyInstance): Promise<void> {
   // Connect a social account (store token_ref, never the token).
   app.post('/api/social/connect', async (request, reply) => {
@@ -17,6 +45,10 @@ export async function socialRoutes(app: FastifyInstance): Promise<void> {
     };
     if (!body.tenant_id || !body.platform || !body.display_name || !body.account_ref || !body.access_token) {
       return reply.code(400).send({ ok: false, error: 'tenant_id, platform, display_name, account_ref, access_token required' });
+    }
+    const validationError = validateAccountRef(body.platform, body.account_ref);
+    if (validationError) {
+      return reply.code(400).send({ ok: false, error: validationError });
     }
     try {
       const account = await connectSocialAccount({

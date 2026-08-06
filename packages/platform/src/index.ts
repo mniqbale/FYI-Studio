@@ -8,6 +8,8 @@ export {
   connectProvider,
   disconnectProvider,
   listConnections,
+  setProviderApiKey,
+  deleteProviderApiKey,
   connectedProviderIds,
   type ConnectResult,
 } from './connection-manager.js';
@@ -27,4 +29,4 @@ export {
   type TenantPolicyInput,
 } from './tenant-policy.js';
 export { seedRegistries, disconnectDb } from './seed.js';
-export { hasSecret, resolveSecret, secretRef, loadEnvIfPresent } from './secrets.js';
+export { hasSecret, resolveSecret, secretRef, loadEnvIfPresent, encryptSecret, decryptSecret, isEncryptedRef } from './secrets.js';

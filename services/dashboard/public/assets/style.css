@@ -202,3 +202,17 @@ body {
 .account-chip { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--panel); border: 1px solid var(--border); padding: 8px 12px; border-radius: 6px; }
 .account-chip .btn-small { margin-left: auto; }
 #social-section .brand-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+
+/* Calendar (WS-5) */
+.calendar { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+.cal-head { font-weight: 600; margin-bottom: 10px; text-transform: capitalize; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-cell { min-height: 64px; border: 1px solid var(--border); border-radius: 4px; padding: 4px; background: var(--bg); }
+.cal-cell.empty { border-color: transparent; background: transparent; }
+.cal-cell.today { border-color: var(--accent); }
+.cal-day { font-size: 0.8rem; color: var(--muted); }
+.cal-event { font-size: 0.7rem; background: rgba(34,197,94,0.15); color: var(--text); border-radius: 3px; padding: 1px 4px; margin-top: 2px; overflow: hidden; white-space: nowrap; }
+.cal-event.status-failed { background: rgba(239,68,68,0.2); }
+.cal-event.status-published { background: rgba(59,130,246,0.2); }
+.schedule-form-wrap { margin-top: 8px; }
+.schedule-form-wrap .brand-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }

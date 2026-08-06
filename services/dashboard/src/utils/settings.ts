@@ -21,6 +21,8 @@ import {
   upsertTenantPolicy,
   hasSecret,
   listModels,
+  setProviderApiKey,
+  deleteProviderApiKey,
 } from '@fyi/platform';
 import {
   upsertTenantKnowledge,
@@ -55,10 +57,41 @@ export interface SettingsOverview {
 
 // Worker capabilities surfaced in the Model Assignment tab (from model_policy
 // defaults + worker_capabilities). Human-friendly labels for the Founder.
+// Includes ALL pipeline workers; media workers (voice/subtitle/video) use local
+// offline engines (espeak-ng/ffmpeg) so they are shown but marked non-LLM.
 const CAPABILITY_LABELS: Record<string, string> = {
   'research:real': 'Research Worker',
   'text-synthesis:script:real': 'Script Worker',
+  'voice:tts': 'Voice Worker',
+  'subtitle:generate': 'Subtitle Worker',
+  'video:compose': 'Video Worker',
 };
+
+/** Workers that are driven by an LLM model (selectable). Media workers are not. */
+const LLM_WORKER_CAPS = new Set(['research:real', 'text-synthesis:script:real']);
+
+/**
+ * Discover models actually available on a connected provider (e.g. Ollama
+ * /api/tags or /v1/models). Returns a list of { provider, model } that the
+ * user may not have in the seeded registry. Never throws — returns [] on error.
+ */
+export async function discoverProviderModels(provider: string): Promise<Array<{ provider: string; model: string }>> {
+  try {
+    if (provider === 'ollama') {
+      const base = process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434';
+      const url = base.endsWith('/v1') ? `${base}/models` : `${base}/api/tags`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+      if (!res.ok) return [];
+      const data = (await res.json()) as { models?: Array<{ name?: string; model?: string }> };
+      const names = (data.models ?? []).map((m) => m.name ?? m.model ?? '').filter(Boolean);
+      return names.map((model) => ({ provider, model }));
+    }
+    // Other providers: fall back to the seeded registry (no generic discovery).
+    return [];
+  } catch {
+    return [];
+  }
+}
 
 /** Read-only snapshot of providers + connections + tenants + model assignments. */
 export async function getSettingsOverview(tenantId?: string): Promise<SettingsOverview> {
@@ -90,6 +123,8 @@ export async function getSettingsOverview(tenantId?: string): Promise<SettingsOv
     prefsRow?.model_preferences as unknown as Record<string, { provider: string; model: string }> | undefined;
 
   // Build per-capability assignments for every worker capability in the policy.
+  // LLM workers (research/script) get selectable model candidates; media workers
+  // (voice/subtitle/video) are shown as fixed local engines.
   const workerCaps = Object.keys(policy.defaults ?? {}).filter((c) => c.endsWith(':real'));
   const assignments: CapabilityAssignment[] = [];
   for (const cap of workerCaps) {
@@ -104,6 +139,16 @@ export async function getSettingsOverview(tenantId?: string): Promise<SettingsOv
       current,
       candidates: candidates.map((m) => ({ provider: m.provider, model: m.model })),
     });
+  }
+
+  // Add media workers (non-LLM) so the Founder sees the full pipeline.
+  const mediaWorkers: Array<{ capability: string; label: string; requiredModelCaps: string[]; current: { provider: string; model: string } | null; candidates: Array<{ provider: string; model: string }> }> = [
+    { capability: 'voice:tts', label: 'Voice Worker', requiredModelCaps: ['speech'], current: { provider: 'espeak-ng', model: 'espeak-ng' }, candidates: [] },
+    { capability: 'subtitle:generate', label: 'Subtitle Worker', requiredModelCaps: ['speech'], current: { provider: 'local', model: 'ffmpeg-srt' }, candidates: [] },
+    { capability: 'video:compose', label: 'Video Worker', requiredModelCaps: ['video'], current: { provider: 'ffmpeg', model: 'ffmpeg' }, candidates: [] },
+  ];
+  for (const mw of mediaWorkers) {
+    if (!assignments.some((a) => a.capability === mw.capability)) assignments.push(mw);
   }
 
   return {
@@ -123,6 +168,21 @@ export async function connectProviderById(providerId: string): Promise<{ ok: boo
 export async function disconnectProviderById(providerId: string): Promise<{ ok: boolean; error?: string }> {
   const res = await disconnectProvider(providerId);
   return res.disconnected ? { ok: true } : { ok: false, error: res.error };
+}
+
+/** Set (or replace) a provider's API key, stored encrypted at rest. */
+export async function setProviderApiKeyById(
+  providerId: string,
+  apiKey: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const res = await setProviderApiKey(providerId, apiKey);
+  return res.ok ? { ok: true } : { ok: false, error: res.error };
+}
+
+/** Delete a provider's stored API key + disconnect it. */
+export async function deleteProviderApiKeyById(providerId: string): Promise<{ ok: boolean; error?: string }> {
+  const res = await deleteProviderApiKey(providerId);
+  return res.deleted ? { ok: true } : { ok: false, error: res.error };
 }
 
 /** Upsert a tenant's brand knowledge (knowledge base). */

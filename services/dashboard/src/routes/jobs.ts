@@ -4,6 +4,7 @@ import { getJobsList, getJobDetail, type JobListParams } from '../utils/data.js'
 import { renderJobListPage } from '../templates/job-list.js';
 import { renderJobDetailPage } from '../templates/job-detail.js';
 import { buildZip, artifactsAsZipFiles } from '../utils/downloads.js';
+import { listScheduledPublishes, listSocialAccounts, getJobsForScheduling } from '../utils/social-publish.js';
 
 export async function jobsRoutes(app: FastifyInstance): Promise<void> {
   app.get('/api/jobs', async (request, reply) => {
@@ -31,8 +32,19 @@ export async function jobsRoutes(app: FastifyInstance): Promise<void> {
     const limit = Math.min(100, Math.max(1, Number(q.limit) || 20));
     const params: JobListParams = { page, limit, status: q.status, tenantId: q.tenant_id };
     const data = await getJobsList(params);
+    const [schedules, accounts, schedulableJobs] = await Promise.all([
+      listScheduledPublishes(q.tenant_id),
+      listSocialAccounts(q.tenant_id),
+      getJobsForScheduling(),
+    ]);
     return reply.type('text/html').send(
-      renderJobListPage({ data, params: { page, limit, status: q.status, tenantId: q.tenant_id } }),
+      renderJobListPage({
+        data,
+        params: { page, limit, status: q.status, tenantId: q.tenant_id },
+        schedules,
+        accounts,
+        schedulableJobs,
+      }),
     );
   });
 
