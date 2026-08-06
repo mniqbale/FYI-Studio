@@ -2,6 +2,7 @@
 // Runs locally: pnpm run dashboard (port 3001). See dashboard-architecture.md.
 import Fastify, { type FastifyInstance } from 'fastify';
 import fastifyStatic from '@fastify/static';
+import fastifyFormBody from '@fastify/formbody';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEnv } from './utils/env.js';
@@ -17,6 +18,9 @@ export async function buildApp(): Promise<FastifyInstance> {
       level: process.env.LOG_LEVEL ?? 'info',
     },
   });
+
+  // Parse application/x-www-form-urlencoded POST bodies (for Settings forms).
+  await app.register(fastifyFormBody);
 
   await registerRoutes(app);
   await mediaRoutes(app);

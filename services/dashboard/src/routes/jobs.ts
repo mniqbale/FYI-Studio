@@ -3,6 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import { getJobsList, getJobDetail, type JobListParams } from '../utils/data.js';
 import { renderJobListPage } from '../templates/job-list.js';
 import { renderJobDetailPage } from '../templates/job-detail.js';
+import { buildZip, artifactsAsZipFiles } from '../utils/downloads.js';
 
 export async function jobsRoutes(app: FastifyInstance): Promise<void> {
   app.get('/api/jobs', async (request, reply) => {
@@ -40,6 +41,38 @@ export async function jobsRoutes(app: FastifyInstance): Promise<void> {
     try {
       const data = await getJobDetail(id);
       return reply.type('text/html').send(renderJobDetailPage(data));
+    } catch (err) {
+      const code = (err as { statusCode?: number }).statusCode;
+      if (code === 404) return reply.code(404).send({ error: `Job not found: ${id}` });
+      throw err;
+    }
+  });
+
+  // Download all artifacts as a ZIP (point 6).
+  app.get('/jobs/:id/download', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const q = request.query as { file?: string };
+    try {
+      const data = await getJobDetail(id);
+      const artifacts = data.job.artifacts ?? {};
+
+      // Single-file download: /download?file=artifact-<key>.json or references.json / all-artifacts.json
+      if (q.file) {
+        const files = artifactsAsZipFiles(artifacts);
+        const content = files[q.file];
+        if (content === undefined) return reply.code(404).send({ error: 'File not found' });
+        return reply
+          .header('Content-Disposition', `attachment; filename="${q.file}"`)
+          .type('application/json')
+          .send(content);
+      }
+
+      // Full ZIP of all artifacts.
+      const zip = buildZip(artifactsAsZipFiles(artifacts));
+      return reply
+        .header('Content-Disposition', `attachment; filename="job-${id}.zip"`)
+        .type('application/zip')
+        .send(zip);
     } catch (err) {
       const code = (err as { statusCode?: number }).statusCode;
       if (code === 404) return reply.code(404).send({ error: `Job not found: ${id}` });

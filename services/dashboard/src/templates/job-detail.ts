@@ -1,6 +1,8 @@
-// Job detail page template — pipeline timeline, per-step artifacts, video player.
+// Job detail page template — pipeline timeline, human-readable artifacts,
+// bibliography (point 7), video player, and JSON download buttons (point 6).
 import { renderLayout } from './layout.js';
 import type { JobDetailResponse } from '../utils/data.js';
+import { humanReadable, extractSources } from '../utils/downloads.js';
 
 function esc(s: string): string {
   return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] ?? c);
@@ -19,6 +21,9 @@ function isSubtitle(key: string): boolean {
 export function renderJobDetailPage(data: JobDetailResponse): string {
   const { job, telemetry, mediaUrls, videoRef } = data;
   const steps = job.recipeSnapshot?.steps ?? [];
+  const artifacts = job.artifacts ?? {};
+  const references = (artifacts._references as Record<string, string>) ?? {};
+  const sources = extractSources(artifacts);
 
   const content = `
     <section class="job-header">
@@ -32,6 +37,7 @@ export function renderJobDetailPage(data: JobDetailResponse): string {
         <span><strong>Updated:</strong> ${new Date(job.updatedAt).toLocaleString()}</span>
       </div>
     </section>
+
     <section class="pipeline-timeline">
       <h3>Pipeline Timeline</h3>
       <div id="timeline" class="timeline">
@@ -54,52 +60,84 @@ export function renderJobDetailPage(data: JobDetailResponse): string {
         }
       </div>
     </section>
+
+    ${
+      videoRef
+        ? `<section class="video-section">
+            <h3>Generated Video</h3>
+            <video id="video-player" controls class="video-player" src="${esc(videoRef)}"></video>
+          </section>`
+        : ''
+    }
+
     <section class="artifacts">
-      <h3>Artifacts</h3>
+      <div class="section-head">
+        <h3>Artifacts</h3>
+        <div class="download-actions">
+          <a href="/jobs/${job.id}/download" class="btn">⬇ Download All (ZIP)</a>
+        </div>
+      </div>
       <div class="artifacts-grid" id="artifacts-grid">
         ${
-          videoRef
-            ? `<div class="artifact-card video-card">
-                <h4>Generated Video</h4>
-                <video id="video-player" controls class="video-player" src="${esc(videoRef)}"></video>
-              </div>`
-            : ''
-        }
-        ${
-          Object.keys(job.artifacts).length
-            ? Object.entries(job.artifacts)
+          Object.keys(artifacts).length
+            ? Object.entries(artifacts)
+                .filter(([key]) => key !== '_references')
                 .map(([key, value]) => {
-                  const isRefs = key === '_references';
-                  if (isRefs) {
-                    const refs = value as Record<string, string>;
-                    return `
-                      <div class="artifact-card" data-key="${esc(key)}">
-                        <h4>${esc(key)}</h4>
-                        ${Object.entries(refs)
-                          .map(([rk, ref]) => {
-                            const url = mediaUrls.find((m) => m.key === rk)?.url;
-                            return `<div class="ref-line"><code>${esc(rk)}</code> → <span class="ref-val">${esc(String(ref))}</span>${
-                              url ? ` <a href="${esc(url)}" target="_blank" class="btn">Open</a>` : ''
-                            }</div>`;
-                          })
-                          .join('')}
-                      </div>`;
-                  }
-                  const plain = typeof value === 'string' || typeof value === 'number';
+                  const mediaRef = (() => {
+                    for (const m of mediaUrls) if (isVideo(key) && m.key.includes('video')) return m.url;
+                    return null;
+                  })();
+                  const isMedia = typeof value === 'string' && (value.startsWith('file://') || value.startsWith('/tmp/fyi-studio'));
+                  const mediaUrl = mediaRef;
+                  const readable = humanReadable(key, value);
                   return `<div class="artifact-card" data-key="${esc(key)}">
-                    <h4>${esc(key)}</h4>
+                    <div class="artifact-head">
+                      <h4>${esc(key)}</h4>
+                      <a href="/jobs/${job.id}/download?file=${encodeURIComponent(`artifact-${key}.json`)}" class="btn btn-sm" title="Download ${esc(key)} as JSON">⬇ JSON</a>
+                    </div>
                     ${
-                      plain
-                        ? `<p>${esc(String(value))}</p>`
-                        : `<pre>${esc(JSON.stringify(value, null, 2))}</pre>`
+                      isMedia && mediaUrl && (isAudio(key) || isSubtitle(key))
+                        ? (isAudio(key)
+                            ? `<audio controls class="audio-player" src="${esc(mediaUrl)}"></audio>`
+                            : `<a href="${esc(mediaUrl)}" target="_blank" class="btn">Open ${esc(key)}</a>`)
+                        : ''
                     }
+                    <p class="artifact-text">${esc(readable)}</p>
                   </div>`;
                 })
                 .join('')
             : '<p>No artifacts yet</p>'
         }
       </div>
+      ${
+        Object.keys(references).length
+          ? `<details class="references-block">
+              <summary>References / Pointers (${Object.keys(references).length})</summary>
+              ${Object.entries(references)
+                .map(([k, ref]) => {
+                  const url = mediaUrls.find((m) => m.key === k)?.url;
+                  return `<div class="ref-line"><code>${esc(k)}</code> → <span class="ref-val">${esc(String(ref))}</span>${
+                    url ? ` <a href="${esc(url)}" target="_blank" class="btn btn-sm">Open</a>` : ''
+                  }</div>`;
+                })
+                .join('')}
+            </details>`
+          : ''
+      }
     </section>
+
+    ${
+      sources.length
+        ? `<section class="bibliography">
+            <h3>Daftar Pustaka / Referensi (${sources.length})</h3>
+            <p class="muted">Sumber rujukan yang dipakai dalam riset konten ini.</p>
+            <ol class="source-list">
+              ${sources.map((s) => `<li>${esc(s)}</li>`).join('')}
+            </ol>
+          </section>`
+        : ''
+    }
+
     <section class="telemetry">
       <h3>Telemetry</h3>
       <table class="telemetry-table">

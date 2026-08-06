@@ -1,7 +1,7 @@
 // Shared HTML shell for all dashboard pages (dashboard-architecture.md §4.1).
 export interface LayoutData {
   title: string;
-  currentPage: 'overview' | 'jobs' | 'job-detail' | 'tenants' | 'analytics';
+  currentPage: 'overview' | 'jobs' | 'job-detail' | 'tenants' | 'analytics' | 'settings';
   content: string;
   extraHead?: string;
 }
@@ -11,6 +11,7 @@ const NAV_ITEMS: Array<{ href: string; label: string; page: LayoutData['currentP
   { href: '/jobs', label: 'Jobs', page: 'jobs' },
   { href: '/tenants', label: 'Tenants', page: 'tenants' },
   { href: '/analytics', label: 'Analytics', page: 'analytics' },
+  { href: '/settings', label: 'Settings', page: 'settings' },
 ];
 
 export function renderLayout(data: LayoutData): string {

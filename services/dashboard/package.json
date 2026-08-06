@@ -17,10 +17,13 @@
   },
   "dependencies": {
     "fastify": "^4.28.0",
+    "@fastify/formbody": "^7.4.0",
     "@fastify/static": "^7.0.0",
     "@fyi/analytics": "workspace:1.0.0",
     "@fyi/database": "workspace:1.0.0",
+    "@fyi/knowledge": "workspace:1.0.0",
     "@fyi/media": "workspace:1.0.0",
+    "@fyi/platform": "workspace:1.0.0",
     "@fyi/utils": "workspace:1.0.0"
   },
   "devDependencies": {

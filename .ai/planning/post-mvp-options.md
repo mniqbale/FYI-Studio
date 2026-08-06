@@ -74,6 +74,7 @@ Production hardening (F) ────► independent; prerequisite for any produ
 | Date | Decision | Notes |
 |------|----------|-------|
 | 2026-08-05 | **Proceed with Option A — Dashboard UI** | Founder: "karena aku human yang akan menggunakan dan melihat prosesnya secara visual." Rationale: highest fit with the visual-review workflow, builds directly on existing telemetry/artifacts, independent of external accounts/credits. |
+| 2026-08-06 | **Post-Dashboard workstreams (from Dashboard review): Settings AI Workspace → Social Publish → Platform Analytics** | Founder review feedback named: (1) a **Settings page** — connect AI providers (Claude/Gemini/Ollama/ChatGPT), assign a model per worker task (capability-gated), and CRUD for brand/tenant; (2) **social account integration + scheduled posting** after approval (YouTube Channel, Facebook, Instagram, TikTok) as the core monetization path; (3) **platform analytics incl. YouTube revenue** per content, feeding the Memory Layer for reflection; (4) Dashboard polish (human-readable artifacts + JSON/ZIP download, bibliography/references on /jobs/:id, and a Revise step before approval). **Youtube quota constraint:** Data API v3 is 10k units/day free, 1.6k per upload — platform APIs must NEVER be called on dashboard page load; use scheduled cron workers writing to local tables. See ADR-0008/0009/0010. |
 
 ---
 

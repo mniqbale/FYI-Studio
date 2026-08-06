@@ -4,6 +4,7 @@ import { overviewRoutes } from './overview.js';
 import { jobsRoutes } from './jobs.js';
 import { tenantsRoutes } from './tenants.js';
 import { analyticsRoutes } from './analytics.js';
+import { settingsRoutes } from './settings.js';
 
 export async function registerRoutes(app: FastifyInstance): Promise<void> {
   await Promise.all([
@@ -11,5 +12,6 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
     jobsRoutes(app),
     tenantsRoutes(app),
     analyticsRoutes(app),
+    settingsRoutes(app),
   ]);
 }

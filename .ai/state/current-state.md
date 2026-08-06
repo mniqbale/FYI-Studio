@@ -32,11 +32,11 @@ related_documents:
 | **Current Milestone** | Milestone 8: Dashboard UI (Post-MVP Option A) — **COMPLETE** ✅ |
 | **Current Sprint** | Sprint 7: Dashboard UI — **COMPLETE** |
 | **Completed Milestones** | M1 ✅ · M2 ✅ · M3 ✅ · M4 ✅ · M5 ✅ · M6 ✅ · M7 Analytics ✅ · M8 Dashboard ✅ |
-| **Next Milestone** | Post-MVP — see [post-mvp-options.md](../planning/post-mvp-options.md) (Hardening, External Analytics, Auto-Optimization, A/B, Worker Registry v2) |
+| **Next Milestone** | M9: Settings AI Workspace (Sprint 8) — then Social Publish (M10/Sprint 9), Platform Analytics (M11/Sprint 10) |
 | **Architecture Version** | MVP v1.0 (ADR-0001) |
 | **Contracts Version** | v1.1 Frozen (ADR-0002) |
 | **Engineering Standards** | v1.0 (ADR-0005) |
-| **Project Health** | 🟢 On Track — MVP COMPLETE + Dashboard UI IMPLEMENTED & VERIFIED |
+| **Project Health** | 🟢 On Track — MVP + Dashboard COMPLETE; Settings AI Workspace IMPLEMENTED & VERIFIED; Publish + Analytics documented (ADRs 0008-0010 Proposed) |
 
 ---
 
@@ -181,7 +181,21 @@ related_documents:
 | **Planning: Dashboard Proposal (updated) | ✅ Complete | 2026-08-06 |
 | **Planning: Post-MVP Options | ✅ Complete | 2026-08-05 |
 | **Planning: Orchestration Delegation Brief v2.0 | ✅ Complete | 2026-08-06 |
+| **Planning: Orchestration Delegation Brief v3.0 | ✅ Complete | 2026-08-06 |
+| **Planning: Settings AI Workspace Stack Proposal | ✅ Complete | 2026-08-06 |
+| **Planning: Social Publish Stack Proposal | ✅ Complete | 2026-08-06 |
+| **Planning: Platform Analytics Stack Proposal | ✅ Complete | 2026-08-06 |
+| **Architecture: Settings AI Workspace (M9) | ✅ Complete | 2026-08-06 |
+| **Architecture: Social Publish (M10) | ✅ Complete | 2026-08-06 |
+| **Architecture: Platform Analytics (M11) | ✅ Complete | 2026-08-06 |
+| **Planning: Sprint 8 README (M9 Settings) | ✅ Complete | 2026-08-06 |
+| **Planning: Issues 8.1–8.5 (Sprint-008) | ✅ Complete | 2026-08-06 |
+| **Planning: Sprint 9 README (M10 Publish) | ✅ Complete | 2026-08-06 |
+| **Planning: Issues 9.1–9.5 (Sprint-009) | ✅ Complete | 2026-08-06 |
+| **Planning: Sprint 10 README (M11 Analytics) | ✅ Complete | 2026-08-06 |
+| **Planning: Issues 10.1–10.5 (Sprint-010) | ✅ Complete | 2026-08-06 |
 | ADR: ADR-0001 through ADR-0007 | ✅ Complete | 2026-08-04 |
+| ADR: ADR-0008 through ADR-0010 | ✅ Complete (Proposed) | 2026-08-06 |
 | Memory: Project Memory | ✅ Complete | 2026-08-06 |
 | Handoff: M3 Handoff (2026-08-04) | ✅ Complete | 2026-08-05 |
 
@@ -189,4 +203,4 @@ related_documents:
 
 ## Ready for Next Session?
 
-**YES — MVP COMPLETE + Dashboard UI IMPLEMENTED & VERIFIED.** Milestones 1–8 all done. **Dashboard UI (Milestone 8 / Sprint 7) is implemented and verified in-browser** — run `pnpm run dashboard` (http://localhost:3001), seed a demo job with `pnpm run dashboard:seed`. Next candidate post-MVP workstreams (from [post-mvp-options.md](../planning/post-mvp-options.md)): **F (Production Hardening)**, **B (External Analytics)**, **C (Auto-Optimization)**, **D (A/B Orchestration)**, **E (Worker Registry v2)**.
+**YES — MVP COMPLETE + Dashboard IMPLEMENTED + Settings AI Workspace IMPLEMENTED & VERIFIED.** Milestones 1–8 all done. **Dashboard UI (M8) and Settings AI Workspace (M9 / Sprint 8) are implemented and verified in-browser.** Run `pnpm run dashboard` (http://localhost:3001), seed a demo job with `pnpm run dashboard:seed`. Post-MVP workstreams documented (ADRs 0008–0010 Proposed + Sprint 8/9/10 planning): **Settings AI Workspace** (done), **Social Publish & Scheduling** (M10/Sprint 9 — YouTube-first monetization), **Platform Analytics & Revenue** (M11/Sprint 10).

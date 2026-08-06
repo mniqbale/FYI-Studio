@@ -157,3 +157,41 @@ body {
 
 .tenant-spend { margin-top: 8px; font-size: 0.85rem; }
 .tenant-policy pre { font-size: 0.75rem; }
+
+/* Settings page */
+.settings-section { margin-bottom: 28px; }
+.settings-section h3 { border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+.providers-grid, .tenants-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.provider-card, .tenant-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.provider-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.provider-head h4 { margin: 0; }
+.badge { font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+.badge.ok { background: rgba(34,197,94,0.15); color: var(--green); }
+.badge.off { background: rgba(239,68,68,0.15); color: var(--red); }
+.provider-meta p { margin: 4px 0; font-size: 0.85rem; }
+.error-text { color: var(--red); }
+.assign-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.assign-info { display: flex; flex-direction: column; gap: 2px; }
+.assign-info .muted { font-size: 0.78rem; }
+.assign-form { display: flex; gap: 8px; align-items: center; }
+.model-select { background: var(--panel); border: 1px solid var(--border); color: var(--text); padding: 8px; border-radius: 6px; min-width: 220px; }
+.btn-danger { color: var(--red); background: transparent; border: 1px solid var(--red); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.88rem; }
+.inline-form { display: inline; }
+.brand-form { display: flex; flex-direction: column; gap: 12px; max-width: 520px; }
+.brand-form label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; }
+.brand-form input, .brand-form textarea, .brand-form select { background: var(--panel); border: 1px solid var(--border); color: var(--text); padding: 8px; border-radius: 6px; }
+
+/* Job detail: human-readable artifacts + bibliography + downloads */
+.section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.download-actions .btn { font-size: 0.85rem; }
+.artifact-head { display: flex; justify-content: space-between; align-items: center; }
+.artifact-head h4 { margin: 0 0 6px; }
+.btn-sm { font-size: 0.75rem; padding: 3px 8px; }
+.artifact-text { font-size: 0.92rem; line-height: 1.5; margin-top: 8px; }
+.references-block { margin-top: 14px; }
+.references-block summary { cursor: pointer; color: var(--muted); font-size: 0.88rem; }
+.video-section { margin-bottom: 20px; }
+.bibliography { margin-top: 20px; }
+.bibliography h3 { border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+.source-list { padding-left: 20px; }
+.source-list li { margin-bottom: 6px; font-size: 0.88rem; word-break: break-word; }

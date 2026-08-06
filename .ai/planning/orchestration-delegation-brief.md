@@ -3,18 +3,28 @@ id: orchestration-delegation-brief
 title: "Orchestration Delegation Brief — for External AI Agents"
 owner: "Founder (orchestrator) + Lead Engineer"
 status: "active"
-version: "2.0.0"
+version: "3.0.0"
 last_updated: "2026-08-06"
 review_cycle: "per-delegation"
-tags: [delegation, orchestration, brief, dashboard, ai-agent, knowledge-transfer]
+tags: [delegation, orchestration, brief, settings, publish, analytics, ai-agent, knowledge-transfer]
 related_documents:
-  - "dashboard-proposal.md"
+  - "post-mvp-options.md"
   - "dashboard-stack-proposal.md"
   - "dashboard-architecture.md"
-  - "post-mvp-options.md"
+  - "settings-ai-workspace-stack-proposal.md"
+  - "social-publish-stack-proposal.md"
+  - "platform-analytics-stack-proposal.md"
+  - "../architecture/settings-ai-workspace-architecture.md"
+  - "../architecture/social-publish-architecture.md"
+  - "../architecture/platform-analytics-architecture.md"
   - "../architecture/contracts.md"
   - "../architecture/mvp-architecture.md"
-  - "../planning/sprints/Sprint-007/README.md"
+  - "../planning/sprints/Sprint-008/README.md"
+  - "../planning/sprints/Sprint-009/README.md"
+  - "../planning/sprints/Sprint-010/README.md"
+  - "../adr/ADR-0008-social-publish-scheduling.md"
+  - "../adr/ADR-0009-platform-analytics-ingestion.md"
+  - "../adr/ADR-0010-hitl-revise-approve.md"
 ---
 
 # Orchestration Delegation Brief
@@ -25,8 +35,8 @@ related_documents:
 
 ## 1. How to Use This Brief (for the Orchestrator / Founder)
 
-1. Pick a workstream from [post-mvp-options.md](./post-mvp-options.md) (currently: **Dashboard UI**).
-2. Give the external agent THIS brief + the relevant proposals ([dashboard-proposal.md](./dashboard-proposal.md), [dashboard-stack-proposal.md](./dashboard-stack-proposal.md), [dashboard-architecture.md](../architecture/dashboard-architecture.md)) + the repo's constitution entrypoints.
+1. Pick a workstream from [post-mvp-options.md](./post-mvp-options.md). The current post-MVP workstreams are **Settings AI Workspace (Sprint 8)**, **Social Publish & Scheduling (Sprint 9)**, and **Platform Analytics & Revenue (Sprint 10)**.
+2. Give the external agent THIS brief + the relevant proposals ([settings-ai-workspace-stack-proposal.md](./settings-ai-workspace-stack-proposal.md), [social-publish-stack-proposal.md](./social-publish-stack-proposal.md), [platform-analytics-stack-proposal.md](./platform-analytics-stack-proposal.md)) + the architecture docs ([settings-ai-workspace-architecture.md](../architecture/settings-ai-workspace-architecture.md), [social-publish-architecture.md](../architecture/social-publish-architecture.md), [platform-analytics-architecture.md](../architecture/platform-analytics-architecture.md)) + the repo's constitution entrypoints.
 3. Tell the agent which **deliverable** to produce and the **output contract** (Section 5).
 4. After the agent finishes, review its output and, if accepted, integrate + commit it (or ask the agent to commit if you've granted push access).
 5. Record the outcome in the constitution (append to `project-memory.md`, update `current-state.md`).
@@ -46,7 +56,7 @@ related_documents:
 
 **Orchestration protocol for the external agent:**
 1. **Read, don't rewrite** — follow the mandated reading order in Section 2. Presume the constitution (`.ai/`) is the source of truth; do NOT invent new architecture, contracts, or schemas without proposing an ADR.
-2. **Scope is fixed** — work only the delegated deliverable (currently the Dashboard per [dashboard-architecture.md](../architecture/dashboard-architecture.md) and Sprint 7 issues). Do NOT expand into other workstreams.
+2. **Scope is fixed** — work only the delegated deliverable (currently one of the post-MVP workstreams: Settings AI Workspace per [settings-ai-workspace-architecture.md](../architecture/settings-ai-workspace-architecture.md) and Sprint 8 issues; or Social Publish per [social-publish-architecture.md](../architecture/social-publish-architecture.md) and Sprint 9; or Platform Analytics per [platform-analytics-architecture.md](../architecture/platform-analytics-architecture.md) and Sprint 10). Do NOT expand into other workstreams.
 3. **Return, don't absorb** — when the deliverable is done, hand it back per the output contract. Do NOT merge into `main`, do NOT push, do NOT claim "done" without verification evidence.
 4. **If the agent has deeper expertise** (e.g. a better charting/media-serving/UI approach) it should **propose** that as a knowledge doc (Section 4) for the Orchestrator/Lead Engineer to review — not silently implement a different stack than the approved proposal.
 
@@ -69,8 +79,11 @@ related_documents:
 > 3. `.ai/architecture/mvp-architecture.md` — data plane, thin orchestrator invariants
 > 4. `.ai/architecture/engineering-standards.md` — naming, logging, errors, anti-monster
 > 5. `.ai/state/current-state.md` — what's done
-> 6. `.ai/planning/post-mvp-options.md` + `.ai/planning/dashboard-proposal.md` + `.ai/planning/dashboard-stack-proposal.md` + `.ai/architecture/dashboard-architecture.md` — decision + technical blueprint + stack rationale + architecture
-> 7. `.ai/planning/sprints/Sprint-007/README.md` + `Issue-701.md` through `Issue-705.md` — implementation plan
+> 6. `.ai/planning/post-mvp-options.md` + the relevant workstream docs (decision + technical blueprint + stack rationale + architecture) — for the delegated workstream, read its stack proposal + architecture + ADR:
+>    - **Settings AI Workspace:** `.ai/planning/settings-ai-workspace-stack-proposal.md` + `.ai/architecture/settings-ai-workspace-architecture.md` + `.ai/adr/ADR-0010-hitl-revise-approve.md`
+>    - **Social Publish:** `.ai/planning/social-publish-stack-proposal.md` + `.ai/architecture/social-publish-architecture.md` + `.ai/adr/ADR-0008-social-publish-scheduling.md`
+>    - **Platform Analytics:** `.ai/planning/platform-analytics-stack-proposal.md` + `.ai/architecture/platform-analytics-architecture.md` + `.ai/adr/ADR-0009-platform-analytics-ingestion.md`
+> 7. `.ai/planning/sprints/Sprint-008/README.md` (Settings) + `Issue-801.md`..`Issue-805.md`; or `Sprint-009/README.md` + `Issue-901.md`..`Issue-905.md` (Publish); or `Sprint-010/README.md` + `Issue-1001.md`..`Issue-1005.md` (Analytics) — implementation plan
 > 8. **THIS brief (Section 1a ROLES & ORCHESTRATION PROTOCOL)** — your role as Executor and the requirement to **return work to the Orchestrator/Lead Engineer** (do NOT merge/commit/push unless explicitly authorized)
 > 9. The `fyi-studio-monorepo` skill (`skill_view name='fyi-studio-monorepo'`) for proven repo workflows
 >
@@ -79,7 +92,7 @@ related_documents:
 > **Environment facts:**
 > - Working AI provider = Ollama Cloud (`OLLAMA_BASE_URL=https://ollama.com/v1`, model `deepseek-v4-flash`). Media = offline `espeak-ng` + `ffmpeg`. Cloud free tiers (OpenAI/Gemini/Anthropic) are credit-blocked.
 > - Stack: TypeScript ESM, Node.js 20+, pnpm workspaces, PostgreSQL (Prisma) + Redis (BullMQ), Vitest, Biome.
-> - Repo layout: `packages/{contracts,database,utils,ai,platform,knowledge,media,analytics,cli}`, `workers/{research,script,voice,mock,research-real,script-real,voice-real,subtitle-real,video-real}`, `services/{supervisor,dashboard}`, `tests/`.
+> - Repo layout: `packages/{contracts,database,utils,ai,platform,knowledge,media,analytics,cli}`, `workers/{research,script,voice,mock,research-real,script-real,voice-real,subtitle-real,video-real,publish-real}`, `services/{supervisor,dashboard,settings,publish,analytics-ingest}`, `tests/`.
 > - **Verify with:** `pnpm run typecheck` and `pnpm run build`. **Do not commit/push unless explicitly authorized.**
 > - **Language:** write code/comments in English; the user communicates in Indonesian but code stays English.
 
@@ -87,25 +100,31 @@ related_documents:
 
 ## 3. Current Delegated Workstream
 
-### Dashboard UI (Post-MVP Option A) — Sprint 7 / Milestone 8
+> **Note:** The Milestone 8 **Dashboard UI** (Sprint 7) is **COMPLETE**. The three post-MVP workstreams below are the active/next delegated workstreams (proposed, pending Founder approval). Each is self-contained; delegate one at a time.
 
-- **Source of truth for scope:** [dashboard-architecture.md](../architecture/dashboard-architecture.md) + [Sprint-007 README](../planning/sprints/Sprint-007/README.md) + Issues 701-705
-- **Goal:** Build a read-only web Dashboard over the existing Job Ledger so the Founder can review pipeline progress, per-step artifacts (including video playback), and cost analytics **visually**.
-- **Stack (as decided):**
-  - **Fastify** (HTTP server) + **server-rendered HTML** + **vanilla JS** (ES modules, no bundler)
-  - **Chart.js** (via CDN) for analytics charts
-  - **@fastify/static** for media serving (`/media/*` → `/tmp/fyi-studio`)
-  - **@fyi/database** (Prisma) + **@fyi/analytics** for data access
-  - **No React/Vue/Svelte, no WebSocket, no auth, no writes** — MVP is read-only, polling-based
-- **Acceptance criteria (from Sprint 7 DoD):**
-  1. `npm run dashboard` starts a local server on port 3001
-  2. `/` shows jobs-by-status + cost/token overview + recent jobs
-  3. `/jobs` shows paginated, filterable job list
-  4. `/jobs/:id` shows a per-step pipeline timeline and **plays the generated video**
-  5. `/tenants` shows tenants + policy + spend-vs-quota
-  6. `/analytics` renders 3 charts (cost over time, cost per capability, tokens per worker)
-  7. No writes to the Job Ledger; `pnpm run typecheck` + `pnpm run build` pass
-  8. Unit tests for API routes (≥80% coverage), E2E smoke test passes
+### 3A. Settings AI Workspace (Sprint 8 / Milestone 9)
+
+- **Source of truth for scope:** [settings-ai-workspace-architecture.md](../architecture/settings-ai-workspace-architecture.md) + [Sprint-008 README](../planning/sprints/Sprint-008/README.md) + Issues 801-805
+- **Goal:** A web Settings surface to connect AI providers (Claude, Gemini, Ollama, ChatGPT) via UI, assign a model per worker/task via ModelGate + tenant `model_preferences`, and full CRUD for Brand/Tenant context + policy. **Folds in Dashboard polish (Workstream D):** readable artifacts + Download JSON, References/Bibliography, HITL Revise/Approve (ADR-0010).
+- **Stack (as decided):** Fastify + server-rendered HTML + native forms + `@fyi/database` + `@fyi/platform` (Connection Manager, ModelGate, Policy Engine).
+- **Key invariants:** all writes route via `@fyi/platform`; no raw arbitrary writes; HITL approve/revise is the deliberate write exception (ADR-0010) delegating to the Supervisor/StepRunner.
+- **Acceptance criteria (from Sprint 8 DoD):** provider connect/disconnect; capability-gated model assignment; Brand/Tenant + policy full CRUD; readable artifacts + Download JSON (zip/individual); References section; Revise re-runs a step + Approve resumes a job; typecheck/build pass.
+
+### 3B. Social Publish & Scheduling (Sprint 9 / Milestone 10)
+
+- **Source of truth for scope:** [social-publish-architecture.md](../architecture/social-publish-architecture.md) + [Sprint-009 README](../planning/sprints/Sprint-009/README.md) + Issues 901-905
+- **Goal:** Publish approved content to social platforms (YouTube Channel, Facebook, Instagram, TikTok) on schedule. **YouTube is the primary monetization target** (ADR-0008).
+- **Stack (as decided):** BullMQ repeatable scheduler + `services/publish` + `workers/publish-real` + YouTube Data API v3 (`videos.insert`); new tables `social_accounts` + `scheduled_publishes`.
+- **Key invariants:** publishing is always a background worker (never on Dashboard page load); uploads use file pointers (ADR-0003); YouTube quota shared with analytics (ADR-0009).
+- **Acceptance criteria (from Sprint 9 DoD):** account registry CRUD; schedule a publish; scheduler fires; worker uploads (YouTube-first, mock or real); platform URL written back; no page-load platform API; typecheck/build pass.
+
+### 3C. Platform Analytics & Revenue (Sprint 10 / Milestone 11)
+
+- **Source of truth for scope:** [platform-analytics-architecture.md](../architecture/platform-analytics-architecture.md) + [Sprint-010 README](../planning/sprints/Sprint-010/README.md) + Issues 1001-1005
+- **Goal:** Ingest content performance (views, likes, comments, watch time, **YouTube revenue per video**) into local tables under a hard YouTube API quota budget; feed the Memory Layer for future content.
+- **Stack (as decided):** BullMQ repeatable/cron + `services/analytics-ingest` + YouTube Data API v3 + YouTube Analytics API; new tables `platform_metrics` + `video_revenue` + `analytics_ingestion_log`.
+- **Key invariants:** **Dashboard NEVER calls a platform API on page load** (reads local tables only); joint quota ledger (10k units/day shared with uploads, 1,600/upload — ADR-0008/0009); idempotent ingestion; memory feedback.
+- **Acceptance criteria (from Sprint 10 DoD):** ingestion worker upserts stats + revenue idempotently; quota ledger respected; memory feedback written; Dashboard platform views read local tables only; typecheck/build pass.
 
 ---
 
@@ -140,26 +159,43 @@ The external agent should report back with:
 
 ---
 
-## 6. Sprint 7 Implementation Details (for the Executor)
+## 6. Sprint Implementation Details (for the Executor)
 
-### Issue Breakdown
+### 6A. Sprint 8 — Settings AI Workspace (Milestone 9)
 
 | Issue | Task | Key Files to Create |
 |-------|------|---------------------|
-| **7.1** | Scaffold `services/dashboard` package | `services/dashboard/{package.json,tsconfig.json,.env.example,src/index.ts,src/routes/*.ts,src/templates/*.ts,src/client/*.ts,src/utils/*.ts,public/assets/style.css}` |
-| **7.2** | Read-Only API Endpoints | `src/utils/analytics.ts`, `src/routes/{overview,jobs,tenants,analytics}.ts` |
-| **7.3** | Server-Rendered Pages + Client JS | `src/templates/*.ts` (refactored), `src/client/{overview,job-list,job-detail,analytics,polling}.ts` |
-| **7.4** | Media Serving Route | `src/utils/media.ts`, `src/routes/media.ts` |
-| **7.5** | E2E Smoke Test + Verification | `scripts/seed-test-job.ts`, `tests/e2e/dashboard.test.ts`, `tests/routes.test.ts` |
+| **8.1** | Scaffold `services/settings` package | `services/settings/{package.json,tsconfig.json,.env.example,src/index.ts,src/routes/*.ts,src/templates/*.ts,src/client/*.ts,src/utils/*.ts,public/assets/style.css}` |
+| **8.2** | Provider + Model Assignment UI | `src/routes/{providers,models}.ts`, `src/utils/platform.ts`, templates |
+| **8.3** | Brand/Tenant Context + Policy CRUD | `src/routes/{tenants,policy}.ts`, templates |
+| **8.4** | Dashboard polish (readable artifacts + References + Download JSON) | `services/dashboard/src/utils/artifacts.ts`, `templates/job-detail-partials/{artifacts,references}.ts`, `routes/jobs.ts` |
+| **8.5** | HITL Revise/Approve (ADR-0010) | `services/supervisor/src/step-runner.ts` (reRunStep), `routes/jobs.ts` (approve/revise), `client/job-detail.ts` |
 
-### Key Technical Patterns (must follow)
+**Key patterns:** native HTML forms + Fastify POST (server-side validation); all writes route via `@fyi/platform`; HITL approve/revise delegates to Supervisor/StepRunner (supervisor stays sole writer to `jobs.status` — ADR-0004).
 
-1. **Server-rendered HTML via template functions** — no build step, TypeScript template strings
-2. **Vanilla JS polling** — `setInterval(fetch('/api/...'), 2000)` + DOM updates
-3. **Chart.js from CDN** — `<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>`
-4. **Media URLs** — `file:///tmp/fyi-studio/<exec_id>/video.mp4` → `/media/<exec_id>/video.mp4`
-5. **Read-only Prisma queries** — `select`, `findMany`, `groupBy`, `count` — NO create/update/delete
-6. **Reuse `@fyi/analytics`** for all aggregations
+### 6B. Sprint 9 — Social Publish & Scheduling (Milestone 10)
+
+| Issue | Task | Key Files to Create |
+|-------|------|---------------------|
+| **9.1** | Social Account + Schedule Schema | `packages/database/prisma/schema.prisma` (`social_accounts`, `scheduled_publishes`) + migration |
+| **9.2** | Social Account Registry CRUD | `services/settings/src/routes/social-accounts.ts`, `utils/secret.ts` (token ref) |
+| **9.3** | Publishing Worker + YouTube Adapter | `workers/publish-real/src/{index.ts,adapters/youtube.ts,adapters/types.ts,publish.ts}` |
+| **9.4** | Scheduler + Scheduled-Publish Flow | `services/publish/src/{index.ts,scheduler.ts,handler.ts,utils/*}` |
+| **9.5** | Publish E2E + Verification | `tests/e2e/publish.test.ts`, `adapters/youtube.mock.ts` |
+
+**Key patterns:** BullMQ repeatable scheduler; uploads via file pointer (ADR-0003); YouTube `videos.insert` (1,600 units, ADR-0009); OAuth token ref in DB; result written back to `scheduled_publishes.platform_response` + `jobs.artifacts.published`.
+
+### 6C. Sprint 10 — Platform Analytics & Revenue (Milestone 11)
+
+| Issue | Task | Key Files to Create |
+|-------|------|---------------------|
+| **10.1** | Analytics Store Schema | `packages/database/prisma/schema.prisma` (`platform_metrics`, `video_revenue`, `analytics_ingestion_log`) + migration |
+| **10.2** | YouTube Client + Quota Ledger | `services/analytics-ingest/src/{utils/youtube.ts,quota.ts}` |
+| **10.3** | Ingestion Worker | `services/analytics-ingest/src/{scheduler.ts,ingest.ts,revenue.ts}` |
+| **10.4** | Memory Feedback + Dashboard Views | `services/analytics-ingest/src/utils/memory.ts`, `services/dashboard/src/routes/platform.ts`, `templates/platform.ts` |
+| **10.5** | Ingestion E2E + Quota Verification | `tests/e2e/analytics-ingest.test.ts`, `utils/youtube.mock.ts` |
+
+**Key patterns:** BullMQ repeatable daily cycle; **Dashboard NEVER calls platform API on page load** (reads local tables only); joint quota ledger (10k units/day shared with uploads, 1,600/upload); idempotent upsert keyed by `video_id` + platform + snapshot/period; `memory_entries` kind: `analytics`.
 
 ### Commands to Run
 
@@ -173,27 +209,29 @@ pnpm run typecheck
 # Build
 pnpm run build
 
-# Start dashboard (dev)
-pnpm run dashboard:dev
-
-# Start dashboard (prod)
-pnpm run dashboard
-
 # Run tests
 pnpm test
 
-# Seed test job (for E2E)
-pnpm tsx services/dashboard/scripts/seed-test-job.ts
+# Settings (Sprint 8)
+pnpm run settings:dev        # http://localhost:3002
+
+# Publish (Sprint 9)
+pnpm run publish:dev
+pnpm run worker:publish-real
+
+# Analytics ingest (Sprint 10)
+pnpm run analytics-ingest:dev
 ```
 
 ---
 
 ## 7. Cross-References
 
-- **Dashboard blueprint:** [dashboard-proposal.md](./dashboard-proposal.md)
-- **Stack rationale:** [dashboard-stack-proposal.md](./dashboard-stack-proposal.md)
-- **Architecture:** [dashboard-architecture.md](../architecture/dashboard-architecture.md)
 - **Decision record:** [post-mvp-options.md](./post-mvp-options.md)
-- **Sprint plan:** [Sprint-007 README](../planning/sprints/Sprint-007/README.md)
+- **Settings blueprint + stack:** [settings-ai-workspace-architecture.md](../architecture/settings-ai-workspace-architecture.md) + [settings-ai-workspace-stack-proposal.md](./settings-ai-workspace-stack-proposal.md)
+- **Publish blueprint + stack:** [social-publish-architecture.md](../architecture/social-publish-architecture.md) + [social-publish-stack-proposal.md](./social-publish-stack-proposal.md)
+- **Analytics blueprint + stack:** [platform-analytics-architecture.md](../architecture/platform-analytics-architecture.md) + [platform-analytics-stack-proposal.md](./platform-analytics-stack-proposal.md)
+- **Sprint plans:** [Sprint-008 README](../planning/sprints/Sprint-008/README.md) · [Sprint-009 README](../planning/sprints/Sprint-009/README.md) · [Sprint-010 README](../planning/sprints/Sprint-010/README.md)
+- **ADRs:** [ADR-0008 (Publish)](../adr/ADR-0008-social-publish-scheduling.md) · [ADR-0009 (Analytics/quota)](../adr/ADR-0009-platform-analytics-ingestion.md) · [ADR-0010 (HITL write exception)](../adr/ADR-0010-hitl-revise-approve.md)
 - **Constitution entrypoints:** [start-here.md](../context/start-here.md), [contracts.md](../architecture/contracts.md)
 - **Repo workflows:** the `fyi-studio-monorepo` Hermes skill
