@@ -83,8 +83,14 @@ export async function discoverProviderModels(provider: string): Promise<Array<{ 
       const url = base.endsWith('/v1') ? `${base}/models` : `${base}/api/tags`;
       const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
       if (!res.ok) return [];
-      const data = (await res.json()) as { models?: Array<{ name?: string; model?: string }> };
-      const names = (data.models ?? []).map((m) => m.name ?? m.model ?? '').filter(Boolean);
+      const data = (await res.json()) as {
+        models?: Array<{ name?: string; model?: string; id?: string }>;
+        data?: Array<{ id?: string; name?: string; model?: string }>;
+      };
+      // Ollama /v1/models returns { data: [{ id, ... }] }; /api/tags returns
+      // { models: [{ name, ... }] }. Handle both shapes.
+      const list = data.models ?? data.data ?? [];
+      const names = list.map((m) => m.name ?? m.model ?? m.id ?? '').filter(Boolean);
       return names.map((model) => ({ provider, model }));
     }
     // Other providers: fall back to the seeded registry (no generic discovery).
@@ -155,8 +161,10 @@ export async function getSettingsOverview(tenantId?: string): Promise<SettingsOv
   }
 
   // Add media workers (voice/subtitle/video) so the Founder sees the full
-  // pipeline. These are selectable too (WS-B): the user can assign an AI model
-  // if a connected provider supports the capability, defaulting to local engine.
+  // pipeline. These are selectable too (WS-B round 2): the user can assign an
+  // AI model from any connected provider's discovered models, defaulting to
+  // the local engine. This surfaces ALL Ollama :cloud models (nemotron, gemma,
+  // etc.) for every worker, not just the seeded ones.
   const mediaWorkers: Array<{ capability: string; label: string; requiredModelCaps: string[]; current: { provider: string; model: string } | null; candidates: Array<{ provider: string; model: string }> }> = [
     { capability: 'voice:tts', label: 'Voice Worker', requiredModelCaps: ['speech'], current: { provider: 'espeak-ng', model: 'espeak-ng' }, candidates: [] },
     { capability: 'subtitle:generate', label: 'Subtitle Worker', requiredModelCaps: ['speech'], current: { provider: 'local', model: 'ffmpeg-srt' }, candidates: [] },
@@ -164,9 +172,18 @@ export async function getSettingsOverview(tenantId?: string): Promise<SettingsOv
   ];
   for (const mw of mediaWorkers) {
     if (assignments.some((a) => a.capability === mw.capability)) continue;
-    // Populate candidates from connected providers that support the capability.
-    const candidates = await listModelsForCapability([...connectedSet], mw.requiredModelCaps[0] ?? mw.capability);
-    assignments.push({ ...mw, candidates: candidates.map((m) => ({ provider: m.provider, model: m.model })) });
+    // Candidates: seeded models that support the capability + ALL discovered
+    // models from connected providers (so nemotron/gemma/etc. appear).
+    const seeded = await listModelsForCapability([...connectedSet], mw.requiredModelCaps[0] ?? mw.capability);
+    const discovered = new Map<string, { provider: string; model: string }>();
+    for (const provider of connectedSet) {
+      const models = await discoverProviderModels(provider);
+      for (const m of models) discovered.set(`${m.provider}:${m.model}`, m);
+    }
+    const candidateSet = new Map<string, { provider: string; model: string }>();
+    for (const c of seeded) candidateSet.set(`${c.provider}:${c.model}`, { provider: c.provider, model: c.model });
+    for (const [, m] of discovered) if (!candidateSet.has(`${m.provider}:${m.model}`)) candidateSet.set(`${m.provider}:${m.model}`, m);
+    assignments.push({ ...mw, candidates: [...candidateSet.values()] });
   }
 
   return {

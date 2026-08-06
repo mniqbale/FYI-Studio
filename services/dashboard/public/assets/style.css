@@ -248,3 +248,5 @@ body {
 .neuron-cell-body { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; text-align: center; min-width: 120px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 .neuron-cell-body strong { display: block; font-size: 0.85rem; }
 .neuron-model { display: block; font-size: 0.72rem; color: var(--accent); margin-top: 4px; word-break: break-word; }
+.neuron-wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+.neuron-wire { stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 4 3; opacity: 0.6; }

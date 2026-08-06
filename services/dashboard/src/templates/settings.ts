@@ -24,7 +24,8 @@ export function renderSettingsPage(
           ${p.requiresApiKey ? `
             <form method="post" action="/settings/providers/${esc(p.id)}/key" class="key-form" data-validate="${esc(p.id)}">
               <input type="password" name="api_key" placeholder="Paste ${esc(p.name)} API key" autocomplete="off">
-              <button type="submit" class="btn">${p.keyConfigured ? 'Update' : 'Save'}</button>
+              <button type="button" class="btn btn-small validate-btn">Validate</button>
+              <button type="submit" class="btn btn-small">${p.keyConfigured ? 'Update' : 'Save'}</button>
               <span class="key-status"></span>
             </form>
             ${p.keyConfigured ? `

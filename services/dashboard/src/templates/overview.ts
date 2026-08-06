@@ -17,10 +17,11 @@ function esc(s: string): string {
 
 export function renderOverviewPage(data: OverviewData, workers: WorkerNode[] = []): string {
   // Build the neuron graph: a central core + worker cells around it.
+  const n = Math.max(1, workers.length);
   const workerCells = workers
     .map(
       (w, i) => `
-      <div class="neuron-cell" style="--i:${i}; --n:${Math.max(1, workers.length)}">
+      <div class="neuron-cell" style="--i:${i}; --n:${n}">
         <div class="neuron-cell-body">
           <strong>${esc(w.label)}</strong>
           <span class="neuron-model">${esc(w.provider)}/${esc(w.model)}</span>
@@ -28,6 +29,21 @@ export function renderOverviewPage(data: OverviewData, workers: WorkerNode[] = [
       </div>
     `,
     )
+    .join('');
+
+  // Wiring: SVG lines from the core (center) to each worker cell. Each cell is
+  // placed at angle (i * 360/n) at radius 150px from center. We draw a line
+  // from the center to that point so the cells visibly connect to the core.
+  const cx = 300;
+  const cy = 200;
+  const radius = 150;
+  const lines = workers
+    .map((_, i) => {
+      const angle = (i * 2 * Math.PI) / n - Math.PI / 2;
+      const x = cx + radius * Math.cos(angle);
+      const y = cy + radius * Math.sin(angle);
+      return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" class="neuron-wire" />`;
+    })
     .join('');
 
   const content = `
@@ -45,6 +61,7 @@ export function renderOverviewPage(data: OverviewData, workers: WorkerNode[] = [
       <h2>🧠 Knowledge Graph — Distribution Flow</h2>
       <p class="muted">Cell inti di tengah siap mendistribusikan konten. Setiap worker (cell body) menunjukkan model AI yang ditugaskan berdasarkan setting.</p>
       <div class="neuron-canvas">
+        <svg class="neuron-wires" viewBox="0 0 600 400" aria-hidden="true">${lines}</svg>
         <div class="neuron-core">
           <div class="neuron-core-label">Ready to Distribution</div>
           <div class="neuron-socials">
