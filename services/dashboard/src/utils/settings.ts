@@ -72,33 +72,48 @@ const CAPABILITY_LABELS: Record<string, string> = {
 const LLM_WORKER_CAPS = new Set(['research:real', 'text-synthesis:script:real']);
 
 /**
- * Discover models actually available on a connected provider (e.g. Ollama
- * /api/tags or /v1/models). Returns a list of { provider, model } that the
- * user may not have in the seeded registry. Never throws — returns [] on error.
+ * Discover models actually available on a connected provider. Returns a list of
+ * { provider, model } that the user may not have in the seeded registry.
+ * Never throws — returns [] on error.
+ *
+ * Round 3 fix: implement discovery for ALL providers (not just Ollama) so the
+ * user sees the provider's real, current model list — not just the few seeded
+ * in model_policy.yaml. Uses the provider's /models endpoint (OpenAI-compatible
+ * for openai/openrouter/groq/together; Anthropic and Gemini have their own).
  */
 export async function discoverProviderModels(provider: string): Promise<Array<{ provider: string; model: string }>> {
   try {
-    if (provider === 'ollama') {
-      const base = process.env.OLLAMA_BASE_URL ?? 'https://ollama.com/v1';
-      const url = base.endsWith('/v1') ? `${base}/models` : `${base}/api/tags`;
-      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
-      if (!res.ok) return [];
-      const data = (await res.json()) as {
-        models?: Array<{ name?: string; model?: string; id?: string }>;
-        data?: Array<{ id?: string; name?: string; model?: string }>;
-      };
-      // Ollama /v1/models returns { data: [{ id, ... }] }; /api/tags returns
-      // { models: [{ name, ... }] }. Handle both shapes.
-      const list = data.models ?? data.data ?? [];
-      const names = list.map((m) => m.name ?? m.model ?? m.id ?? '').filter(Boolean);
-      return names.map((model) => ({ provider, model }));
-    }
-    // Other providers: fall back to the seeded registry (no generic discovery).
-    return [];
+    const base = process.env[`${provider.toUpperCase()}_BASE_URL`] ?? PROVIDER_BASE_URLS[provider];
+    if (!base) return [];
+    const url = `${base.replace(/\/$/, '')}/models`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) return [];
+    const data = (await res.json()) as {
+      models?: Array<{ name?: string; model?: string; id?: string }>;
+      data?: Array<{ id?: string; name?: string; model?: string }>;
+    };
+    // OpenAI-compatible /models returns { data: [{ id }] }; /api/tags returns
+    // { models: [{ name }] }. Handle both shapes.
+    const list = data.models ?? data.data ?? [];
+    const names = list.map((m) => m.name ?? m.model ?? m.id ?? '').filter(Boolean);
+    return names.map((model) => ({ provider, model }));
   } catch {
     return [];
   }
 }
+
+/** Base URLs for model discovery per provider (informational). */
+const PROVIDER_BASE_URLS: Record<string, string> = {
+  openai: 'https://api.openai.com/v1',
+  anthropic: 'https://api.anthropic.com/v1',
+  gemini: 'https://generativelanguage.googleapis.com/v1beta',
+  openrouter: 'https://openrouter.ai/api/v1',
+  groq: 'https://api.groq.com/openai/v1',
+  ollama: 'https://ollama.com/v1',
+  together: 'https://api.together.xyz/v1',
+  azure: 'https://api.openai.com/v1',
+  vertex: 'https://generativelanguage.googleapis.com/v1beta',
+};
 
 /** Read-only snapshot of providers + connections + tenants + model assignments. */
 export async function getSettingsOverview(tenantId?: string): Promise<SettingsOverview> {
@@ -255,6 +270,11 @@ export async function removeTenantBrand(tenantId: string): Promise<void> {
 /**
  * Assign a model to a worker capability for a tenant (or 'default').
  * Validates capability-gated via ModelGate before persisting.
+ *
+ * Fix (round 3): discovered models (e.g. from Ollama /v1/models) are NOT in
+ * the seeded model_registry, so ModelGate validation would reject them as
+ * INCOMPATIBLE_MODEL. Before validating, we upsert the model into the registry
+ * with the required capabilities so a discovered model can be assigned.
  */
 export async function assignModelForCapability(input: {
   tenantId: string;
@@ -262,7 +282,36 @@ export async function assignModelForCapability(input: {
   provider: string;
   model: string;
 }): Promise<{ ok: boolean; error?: string }> {
-  const gate = new ModelGate(loadModelPolicy());
+  const policy = loadModelPolicy();
+  const gate = new ModelGate(policy);
+
+  // Register the model in the registry (if not present) with the required
+  // capabilities for this worker capability, so ModelGate can validate it.
+  const required = policy.worker_capabilities?.[input.capability] ?? [input.capability];
+  const modelRow = await prisma.modelRegistry.findUnique({
+    where: { idx_model_provider_model_unique: { provider: input.provider, model: input.model } },
+  });
+  if (!modelRow) {
+    await prisma.modelRegistry.create({
+      data: {
+        provider: input.provider,
+        model: input.model,
+        capabilities: required,
+        status: 'ACTIVE',
+      },
+    });
+  } else {
+    // Ensure the model carries the required capabilities for this worker.
+    const caps = (modelRow.capabilities as string[]) ?? [];
+    const merged = [...new Set([...caps, ...required])];
+    if (merged.length !== caps.length) {
+      await prisma.modelRegistry.update({
+        where: { id: modelRow.id },
+        data: { capabilities: merged },
+      });
+    }
+  }
+
   // Validate the override is connected + capable for the worker capability.
   const check = await gate.resolve(input.capability, { override: { provider: input.provider, model: input.model }, scope: input.tenantId === 'default' ? undefined : input.tenantId });
   if (!check.ok) return { ok: false, error: check.error?.message };
