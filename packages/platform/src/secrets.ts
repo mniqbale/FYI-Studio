@@ -23,6 +23,7 @@ function envVarName(provider: string): string {
 /** Alternate env var names accepted for a provider (e.g. CLAUDE_API_KEY for anthropic). */
 const SECRET_ALIASES: Record<string, string[]> = {
   anthropic: ['CLAUDE_API_KEY'],
+  gemini: ['GOOGLE_GEMINI_API_KEY', 'GOOGLE_API_KEY'],
 };
 
 /** Load `.env` into the process env if present (idempotent, never overrides). */
