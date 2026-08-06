@@ -1,0 +1,15 @@
+// Route registration — wires all dashboard route modules into the Fastify app.
+import type { FastifyInstance } from 'fastify';
+import { overviewRoutes } from './overview.js';
+import { jobsRoutes } from './jobs.js';
+import { tenantsRoutes } from './tenants.js';
+import { analyticsRoutes } from './analytics.js';
+
+export async function registerRoutes(app: FastifyInstance): Promise<void> {
+  await Promise.all([
+    overviewRoutes(app),
+    jobsRoutes(app),
+    tenantsRoutes(app),
+    analyticsRoutes(app),
+  ]);
+}

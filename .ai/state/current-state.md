@@ -4,7 +4,7 @@ title: "Current Project State"
 owner: "Documentation Architect"
 status: "active"
 version: "1.0.0"
-last_updated: "2026-08-05"
+last_updated: "2026-08-06"
 review_cycle: "per-task"
 tags: [state, current, sprint, progress]
 related_documents:
@@ -15,6 +15,7 @@ related_documents:
   - "../planning/sprints/Sprint-004/README.md"
   - "../planning/sprints/Sprint-005/README.md"
   - "../planning/sprints/Sprint-006/README.md"
+  - "../planning/sprints/Sprint-007/README.md"
   - "../memory/project-memory.md"
 ---
 
@@ -28,13 +29,14 @@ related_documents:
 
 | Metric | Value |
 |--------|-------|
-| **Current Milestone** | Milestone 7: Analytics & Learning Loop — **COMPLETE** (MVP DONE) 🎉
-| **Current Sprint** | Sprint 6: Analytics & Learning Loop — **COMPLETE**
-| **Completed Milestones** | M1 ✅ · M2 ✅ · M3 ✅ · M4 ✅ · M5 ✅ · M6 ✅ · M7 Analytics ✅ |
+| **Current Milestone** | Milestone 8: Dashboard UI (Post-MVP Option A) — **COMPLETE** ✅ |
+| **Current Sprint** | Sprint 7: Dashboard UI — **COMPLETE** |
+| **Completed Milestones** | M1 ✅ · M2 ✅ · M3 ✅ · M4 ✅ · M5 ✅ · M6 ✅ · M7 Analytics ✅ · M8 Dashboard ✅ |
+| **Next Milestone** | Post-MVP — see [post-mvp-options.md](../planning/post-mvp-options.md) (Hardening, External Analytics, Auto-Optimization, A/B, Worker Registry v2) |
 | **Architecture Version** | MVP v1.0 (ADR-0001) |
 | **Contracts Version** | v1.1 Frozen (ADR-0002) |
 | **Engineering Standards** | v1.0 (ADR-0005) |
-| **Project Health** | 🟢 On Track — M1–M6 complete; M7 (Analytics & Learning Loop) in progress / next — **last milestone for MVP** |
+| **Project Health** | 🟢 On Track — MVP COMPLETE + Dashboard UI IMPLEMENTED & VERIFIED |
 
 ---
 
@@ -126,6 +128,22 @@ related_documents:
 
 ---
 
+## Sprint 7 Progress (Milestone 8: Dashboard UI)
+
+> **Status: COMPLETE** — implemented 2026-08-06. Read-only Fastify Dashboard over the Job Ledger shipped and verified end-to-end.
+
+| Issue | Title | Status |
+|-------|-------|--------|
+| 7.1 | Scaffold `services/dashboard` package (Fastify, tsconfig, .env, entry) | **Done** |
+| 7.2 | Read-only API endpoints (`/api/overview`, `/api/jobs`, `/api/jobs/:id`, `/api/tenants`, `/api/analytics`) | **Done** |
+| 7.3 | Server-rendered pages + vanilla JS polling + Chart.js | **Done** |
+| 7.4 | Media serving route (`/media/*` static, Range support) | **Done** |
+| 7.5 | E2E smoke test + unit tests + typecheck/build | **Done** |
+
+**🏁 Milestone 8 (Dashboard UI) — COMPLETE.** Verified in browser: Overview stats, Jobs list (paginated/filterable), Job detail with **real video playback**, Tenants with spend-vs-quota, Analytics with 3 live Chart.js charts, and `/media/*` serving with HTTP 206 Range support. 8 route unit tests pass; `pnpm run typecheck` + `pnpm run build` pass for the entire monorepo. Read-only (no writes to Job Ledger). See [dashboard-architecture.md](../architecture/dashboard-architecture.md) and [Sprint-007 planning](../planning/sprints/Sprint-007/README.md).
+
+---
+
 ## Documentation Status
 
 | Document | Status | Last Updated |
@@ -138,6 +156,7 @@ related_documents:
 | Architecture: Engineering Standards v1.0 | ✅ Complete | 2026-08-04 |
 | Architecture: Supervisor Design | ✅ Complete | 2026-08-04 |
 | Architecture: Roadmap | ✅ Complete | 2026-08-04 |
+| **Architecture: Dashboard UI (Milestone 8) | ✅ Complete | 2026-08-06 |
 | Context: Start Here | ✅ Complete | 2026-08-04 |
 | Context: Project Overview | ✅ Complete | 2026-08-04 |
 | Context: Vision | ✅ Complete | 2026-08-04 |
@@ -156,12 +175,18 @@ related_documents:
 | Planning: Issues M6.1–M6.5 (Sprint-005) | ✅ Complete | 2026-08-05 |
 | Planning: Sprint 6 README (M7) | ✅ Complete | 2026-08-05 |
 | Planning: Issues M7.1–M7.5 (Sprint-006) | ✅ Complete | 2026-08-05 |
+| **Planning: Sprint 7 README (M8 Dashboard) | ✅ Complete | 2026-08-06 |
+| **Planning: Issues 7.1–7.5 (Sprint-007) | ✅ Complete | 2026-08-06 |
+| **Planning: Dashboard Stack Proposal | ✅ Complete | 2026-08-06 |
+| **Planning: Dashboard Proposal (updated) | ✅ Complete | 2026-08-06 |
+| **Planning: Post-MVP Options | ✅ Complete | 2026-08-05 |
+| **Planning: Orchestration Delegation Brief v2.0 | ✅ Complete | 2026-08-06 |
 | ADR: ADR-0001 through ADR-0007 | ✅ Complete | 2026-08-04 |
-| Memory: Project Memory | ✅ Complete | 2026-08-05 |
+| Memory: Project Memory | ✅ Complete | 2026-08-06 |
 | Handoff: M3 Handoff (2026-08-04) | ✅ Complete | 2026-08-05 |
 
 ---
 
 ## Ready for Next Session?
 
-**YES — MVP COMPLETE.** Milestones 1–7 all done (Skeleton Run → AI Platform Foundation → Cognitive Core → Knowledge Layer → Media Workers → Multi-Tenant → Analytics). **Next: Dashboard UI (Post-MVP Option A)** — see [dashboard-proposal.md](../planning/dashboard-proposal.md) (stack + flow) and [orchestration-delegation-brief.md](../planning/orchestration-delegation-brief.md) (brief for delegating to an external AI agent).
+**YES — MVP COMPLETE + Dashboard UI IMPLEMENTED & VERIFIED.** Milestones 1–8 all done. **Dashboard UI (Milestone 8 / Sprint 7) is implemented and verified in-browser** — run `pnpm run dashboard` (http://localhost:3001), seed a demo job with `pnpm run dashboard:seed`. Next candidate post-MVP workstreams (from [post-mvp-options.md](../planning/post-mvp-options.md)): **F (Production Hardening)**, **B (External Analytics)**, **C (Auto-Optimization)**, **D (A/B Orchestration)**, **E (Worker Registry v2)**.
