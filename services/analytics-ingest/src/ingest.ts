@@ -4,7 +4,7 @@
 //   AnalyticsIngestionLog run -> write coalesced analytics memory.
 import { prisma } from './utils/prisma.js';
 import { listPublishedVideos, type PublishedVideo } from './utils/videos.js';
-import { buildYoutubeClient, type YoutubeClient } from './utils/youtube.js';
+import { buildYoutubeClient, RealYoutubeClient, resolveYoutubeAccessToken, type YoutubeClient } from './utils/youtube.js';
 import { ingestRevenue, todayPeriod, type RevenueResult } from './revenue.js';
 import {
   checkQuota,
@@ -53,7 +53,17 @@ export async function runIngestionCycle(): Promise<IngestCycleResult> {
       return { logId: log.id, status: 'skipped_quota', videosFound: 0, metricsUpserted: 0, revenueUpserted: 0, unitsConsumed: 0, unitsRemaining: status.remaining, memoryWritten: 0 };
     }
 
-    const client = buildYoutubeClient();
+    // Resolve a real OAuth access token from a connected YouTube social account
+    // (workstream 1) so ingestion uses REAL data, not the mock. Falls back to
+    // the mock client when no connected account / token is available.
+    const account = await prisma.socialAccount.findFirst({
+      where: { platform: 'youtube', enabled: true },
+      orderBy: { connected_at: 'asc' },
+    });
+    const accessToken = await resolveYoutubeAccessToken(account?.id);
+    const client: YoutubeClient = accessToken
+      ? new RealYoutubeClient(accessToken)
+      : buildYoutubeClient();
     const videos = await listPublishedVideos();
     const period = todayPeriod();
     const snapDate = snapshotDate();

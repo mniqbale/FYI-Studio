@@ -1,7 +1,13 @@
 // YouTube platform client (ADR-0009). Real Data API v3 + Analytics API client
-// behind an interface, with a guarded mock adapter used when no API key/token is
+// behind an interface, with a guarded mock adapter used when no OAuth token is
 // present (tests, E2E, local dev). Selecting the adapter NEVER makes a network
 // call at module-load — callers invoke fetch* methods.
+//
+// Workstream 2: the real client authenticates with an OAuth ACCESS TOKEN
+// (from a connected social account, workstream 1) instead of an API key, so it
+// can read the channel's own analytics (mine=true) and revenue.
+
+import { readOAuthToken } from '@fyi/publish';
 
 /** Stats for a single video from videos.list (Data API v3 `statistics` part). */
 export interface VideoStats {
@@ -30,9 +36,22 @@ export interface YoutubeClient {
   fetchVideoRevenue(videoId: string, period: string, platform?: string): Promise<VideoRevenue | null>;
 }
 
-/** True when a real API credential is configured (enables the real adapter). */
+/**
+ * Resolve an OAuth access token for a connected YouTube social account.
+ * Returns undefined when no connected account / token is available.
+ */
+export async function resolveYoutubeAccessToken(accountId?: string): Promise<string | undefined> {
+  if (accountId) {
+    const bundle = await readOAuthToken(accountId);
+    if (bundle?.access_token) return bundle.access_token;
+  }
+  // Fallback: env override (local dev / tests).
+  return process.env.YOUTUBE_ACCESS_TOKEN;
+}
+
+/** True when a real OAuth credential is available (enables the real adapter). */
 export function hasYoutubeCredential(): boolean {
-  return Boolean(process.env.YOUTUBE_API_KEY_REF);
+  return Boolean(process.env.YOUTUBE_ACCESS_TOKEN);
 }
 
 /** Build the YouTube client: real adapter when a credential is present, else mock. */
@@ -48,16 +67,16 @@ const DATA_API = 'https://www.googleapis.com/youtube/v3/videos';
 const ANALYTICS_API = 'https://youtubeanalytics.googleapis.com/v2/reports';
 
 export class RealYoutubeClient implements YoutubeClient {
-  private key: string;
+  private accessToken: string;
 
-  constructor(key = process.env.YOUTUBE_API_KEY_REF ?? '') {
-    this.key = key;
+  constructor(accessToken = process.env.YOUTUBE_ACCESS_TOKEN ?? '') {
+    this.accessToken = accessToken;
   }
 
-  /** GET helper with Bearer key auth. */
+  /** GET helper with Bearer token auth. */
   private async get<T>(url: string): Promise<T> {
     const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${this.key}` },
+      headers: { Authorization: `Bearer ${this.accessToken}` },
     });
     if (!res.ok) {
       if (res.status === 404) throw new Error('not_found');

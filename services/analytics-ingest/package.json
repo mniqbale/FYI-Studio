@@ -25,6 +25,7 @@
     "@fyi/analytics": "workspace:1.0.0",
     "@fyi/database": "workspace:1.0.0",
     "@fyi/knowledge": "workspace:1.0.0",
+    "@fyi/publish": "workspace:1.0.0",
     "@fyi/utils": "workspace:1.0.0",
     "bullmq": "^5.34.0",
     "ioredis": "^5.4.0",
