@@ -14,6 +14,7 @@ related_documents:
   - "../architecture/contracts.md"
   - "../planning/implementation-strategy.md"
   - "../planning/sprints/Sprint-003/README.md"
+  - "../../FOUNDER_MANIFEST.md"
 ---
 
 # Start Here: FYI Studio Onboarding Guide
@@ -80,6 +81,7 @@ Per the AI Constitution, you **must** read in this order before any implementati
 | 12 | [../planning/implementation-strategy.md](../planning/implementation-strategy.md) | Execution plan (M1–M7 milestone sequence) |
 | 13 | [../planning/sprints/Sprint-003/README.md](../planning/sprints/Sprint-003/README.md) | **Current sprint (Sprint-003)** task breakdown — Milestone 4 |
 | 14 | [../planning/sprints/Sprint-003/Issue-301.md](../planning/sprints/Sprint-003/Issue-301.md) | **Your first task** (M4.1 `tenant_context` schema) |
+| 15 | [FOUNDER_MANIFEST.md](../../FOUNDER_MANIFEST.md) | **Architecture philosophy & rationale** (north-star, BYOAI, MediaEngine, governance) |
 
 > Reading order note: Sprint-001 (M1) and Sprint-002 (M2) plans are archived for reference; the **current sprint is Sprint-003** (Milestone 4).
 

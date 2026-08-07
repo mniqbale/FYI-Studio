@@ -2,7 +2,7 @@
 id: sprint-review-rc1
 title: "Sprint Review — RC1 (AI Platform Foundation Baseline)"
 owner: "CTO"
-status: "proposed"
+status: "accepted"
 version: "1.0.0"
 last_updated: "2026-08-07"
 review_cycle: "per-sprint"
@@ -11,13 +11,15 @@ related_documents:
   - "rc1-baseline.md"
   - "current-state.md"
   - "project-memory.md"
+  - "../../FOUNDER_MANIFEST.md"
 ---
 
 # Sprint Review — RC1 (AI Platform Foundation Baseline)
 
-> **Status:** PROPOSED (pending Founder approval). This is the Sprint Review for
-> the RC1 baseline — a governance freeze of the AI Platform Foundation, not a
-> feature release.
+> **Status:** ACCEPTED (Founder approval 2026-08-07). RC1 is the official,
+> frozen baseline. The Foundation is complete; the project now shifts from
+> building the platform to building products on top of the platform.
+> Architecture philosophy is captured in FOUNDER_MANIFEST.md at the repo root.
 
 ---
 

@@ -2,7 +2,7 @@
 id: rc1-baseline
 title: "FYI Studio RC1 — AI Platform Foundation Baseline"
 owner: "CTO"
-status: "proposed"
+status: "accepted"
 version: "1.0.0"
 last_updated: "2026-08-07"
 review_cycle: "per-release"
@@ -13,14 +13,19 @@ related_documents:
   - "ADR-0011-capability-only-worker-invariant.md"
   - "ADR-0012-media-engine-unified-lifecycle.md"
   - "youtube-oauth-provisioning.md"
+  - "../../FOUNDER_MANIFEST.md"
 ---
 
 # FYI Studio RC1 — AI Platform Foundation Baseline
 
-> **Status:** PROPOSED (pending Founder approval at Sprint Review). This document
-> defines the **RC1 baseline** — a stable, frozen foundation that subsequent
-> milestones build upon. RC1 is NOT a feature release; it is a **governance
-> freeze** of the AI Platform Foundation + the capability-only architecture.
+> **Status:** ACCEPTED (Founder approval 2026-08-07 at Sprint Review). RC1 is the
+> official, frozen baseline of the AI Platform Foundation. The Foundation is
+> **complete** and may only be changed for: **critical bugs, security,
+> performance regressions, or ADR violations.** All subsequent milestones build
+> on this frozen foundation.
+
+> **Architecture philosophy:** see [FOUNDER_MANIFEST.md](../../FOUNDER_MANIFEST.md)
+> at the repository root — the canonical statement of why these decisions were made.
 
 ---
 

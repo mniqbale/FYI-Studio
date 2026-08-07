@@ -180,8 +180,11 @@ A task is done when:
 ### Starting a Session
 1. Read `.ai/context/start-here.md` completely
 2. Follow the 14-document required reading order
-3. Check `.ai/state/current-state.md` for current progress
-4. Read latest `.ai/handoff/YYYY-MM-DD_Handoff.md`
+3. Read `FOUNDER_MANIFEST.md` (repo root) — the canonical architecture philosophy
+   and rationale behind major decisions (north-star, BYOAI, MediaEngine,
+   Rule of Three, source of truth, governance)
+4. Check `.ai/state/current-state.md` for current progress
+5. Read latest `.ai/handoff/YYYY-MM-DD_Handoff.md`
 
 ### Ending a Session
 1. Update `.ai/state/current-state.md`
