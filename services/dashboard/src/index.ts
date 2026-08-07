@@ -11,6 +11,8 @@ loadEnv();
 
 import { registerRoutes } from './routes/index.js';
 import { mediaRoutes } from './routes/media.js';
+import { authRoutes } from './routes/auth.js';
+import { authPreHandler, isAuthEnabled } from './utils/auth.js';
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -22,6 +24,17 @@ export async function buildApp(): Promise<FastifyInstance> {
   // Parse application/x-www-form-urlencoded POST bodies (for Settings forms).
   await app.register(fastifyFormBody);
 
+  // Opt-in HTTP auth gate. When DASHBOARD_AUTH_TOKEN is set, every route except
+  // /health, /assets/*, and the login page requires a valid token (query/header)
+  // or a signed session cookie. When unset, this is a no-op (dev/tests unaffected).
+  app.addHook('preHandler', authPreHandler);
+  if (isAuthEnabled()) {
+    app.log.info('Dashboard auth: enabled (DASHBOARD_AUTH_TOKEN is set)');
+  } else {
+    app.log.info('Dashboard auth: disabled (DASHBOARD_AUTH_TOKEN is not set)');
+  }
+
+  await authRoutes(app);
   await registerRoutes(app);
   await mediaRoutes(app);
 

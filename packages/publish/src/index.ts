@@ -11,7 +11,7 @@ export { sweepDuePublishes } from './scheduler.js';
 // Platform adapters
 export type { PlatformAdapter, PlatformKind, PublishRequest, PublishResult } from './adapters/types.js';
 export { PlatformPublishError } from './adapters/types.js';
-export { youtubeAdapter, uploadVideo, isYouTubeRealEnabled } from './adapters/youtube.js';
+export { youtubeAdapter, uploadVideo, isYouTubeRealEnabled, resolveYouTubeToken } from './adapters/youtube.js';
 export { youtubeMockAdapter, makeMockVideoId, youTubeWatchUrl } from './adapters/youtube.mock.js';
 export { getAdapter, requireAdapter, hasAdapter } from './adapters/index.js';
 

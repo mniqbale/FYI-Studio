@@ -97,6 +97,19 @@ const LLM_WORKER_CAPS = new Set(['research:real', 'text-synthesis:script:real'])
  * for openai/openrouter/groq/together; Anthropic and Gemini have their own).
  */
 export async function discoverProviderModels(provider: string): Promise<Array<{ provider: string; model: string }>> {
+  // Cache discovery per provider so repeated page loads are fast (the model
+  // list on a provider rarely changes within a minute). Mirrors the probe cache.
+  const cached = discoveryCache.get(provider);
+  if (cached && Date.now() - cached.at < DISCOVERY_TTL_MS) return cached.models;
+  const models = await discoverProviderModelsUncached(provider);
+  discoveryCache.set(provider, { at: Date.now(), models });
+  return models;
+}
+
+const discoveryCache = new Map<string, { at: number; models: Array<{ provider: string; model: string }> }>();
+const DISCOVERY_TTL_MS = 60_000;
+
+async function discoverProviderModelsUncached(provider: string): Promise<Array<{ provider: string; model: string }>> {
   try {
     const base = process.env[`${provider.toUpperCase()}_BASE_URL`] ?? PROVIDER_BASE_URLS[provider];
     if (!base) return [];
@@ -113,7 +126,7 @@ export async function discoverProviderModels(provider: string): Promise<Array<{ 
       }
     }
 
-    const res = await fetch(url, { headers, signal: AbortSignal.timeout(8000) });
+    const res = await fetch(url, { headers, signal: AbortSignal.timeout(4000) });
     if (!res.ok) return [];
     const data = (await res.json()) as {
       models?: Array<{ name?: string; model?: string; id?: string }>;
@@ -147,7 +160,11 @@ const PROVIDER_BASE_URLS: Record<string, string> = {
 };
 
 /** Read-only snapshot of providers + connections + tenants + model assignments. */
-export async function getSettingsOverview(tenantId?: string): Promise<SettingsOverview> {
+export async function getSettingsOverview(
+  tenantId?: string,
+  opts: { probeUsability?: boolean } = {},
+): Promise<SettingsOverview> {
+  const { probeUsability = true } = opts;
   await seedRegistries();
   const [connections, tenants, allModels] = await Promise.all([
     listConnections(),
@@ -158,17 +175,42 @@ export async function getSettingsOverview(tenantId?: string): Promise<SettingsOv
   const connectedSet = new Set(connections.filter((c) => c.status === 'CONNECTED').map((c) => c.provider));
 
   const providers: ProviderView[] = [];
+  // Probe usability for connected+configured providers IN PARALLEL so one slow
+  // provider doesn't stall the whole page (some are credit-blocked and time out).
+  // Only run when requested (the Overview neuron graph doesn't need badges).
+  const probeJobs: Array<{ id: string; promise: Promise<ProviderUsabilityResult> }> = [];
+  if (probeUsability) {
+    for (const p of PROVIDER_CATALOG) {
+      const conn = connections.find((c) => c.provider === p.id && c.scope === 'default');
+      const connected = connectedSet.has(p.id);
+      const keyConfigured = p.requires_api_key ? hasSecret(p.id) : true;
+      if (connected && keyConfigured) {
+        const apiKey = p.requires_api_key ? resolveSecret(p.id, conn?.key_ref) : undefined;
+        probeJobs.push({ id: p.id, promise: checkProviderUsability(p.id, apiKey, p.base_url) });
+      }
+    }
+  }
+  const usabilityById = new Map<string, ProviderUsabilityResult>();
+  if (probeJobs.length > 0) {
+    const settled = await Promise.allSettled(probeJobs.map((j) => j.promise));
+    settled.forEach((s, i) => {
+      const job = probeJobs[i];
+      if (job && s.status === 'fulfilled') usabilityById.set(job.id, s.value);
+    });
+  }
   for (const p of PROVIDER_CATALOG) {
     const conn = connections.find((c) => c.provider === p.id && c.scope === 'default');
     const connected = connectedSet.has(p.id);
     const keyConfigured = p.requires_api_key ? hasSecret(p.id) : true;
-    // Probe usability only for connected providers with a key (Opsi 4).
-    let usability: ProviderUsabilityResult | null = null;
-    if (connected && keyConfigured) {
-      const apiKey = p.requires_api_key ? resolveSecret(p.id, conn?.key_ref) : undefined;
-      usability = await checkProviderUsability(p.id, apiKey, p.base_url);
-    }
-    providers.push({ id: p.id, name: p.name, requiresApiKey: p.requires_api_key, connected, keyConfigured, healthError: conn?.health_error ?? null, usability });
+    providers.push({
+      id: p.id,
+      name: p.name,
+      requiresApiKey: p.requires_api_key,
+      connected,
+      keyConfigured,
+      healthError: conn?.health_error ?? null,
+      usability: usabilityById.get(p.id) ?? null,
+    });
   }
 
   // Determine the effective scope for assignments: explicit tenant or 'default'.
@@ -370,7 +412,7 @@ export { getTenantKnowledge };
 export async function getWorkerAssignments(): Promise<
   Array<{ capability: string; label: string; provider: string; model: string }>
 > {
-  const overview = await getSettingsOverview();
+  const overview = await getSettingsOverview(undefined, { probeUsability: false });
   return overview.assignments.map((a) => ({
     capability: a.capability,
     label: a.label,
