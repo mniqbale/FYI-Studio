@@ -1,131 +1,185 @@
-Brief untuk Hermes
+Brief berikutnya untuk Hermes
+Phase 2 berubah fokus
 
-Aku tidak ingin menambah worker ataupun fitur baru.
+Sampai titik ini kita sudah membangun:
 
-Aku ingin kita mendokumentasikan hasil pembelajaran terbesar dari video pertama.
+AI Platform Foundation (RC1)
+Product Constitution
+Channel Constitution
 
-Aku ingin kita membuat dokumen baru:
+Mulai sekarang aku ingin kita mengubah mode kerja.
 
-CHANNEL_CONSTITUTION.md
+Dari:
 
-Namun aku ingin kita menjaga disiplin yang sama seperti PRODUCT_CONSTITUTION.
+Design → Design → Design
 
-Dokumen ini bukan dokumen implementasi.
+menjadi
 
-Ini adalah dokumen bahasa bisnis.
+Build → Validate → Learn
 
-Tujuan
+Setiap task berikutnya harus menghasilkan peningkatan nyata pada produk.
 
-Menjawab satu pertanyaan:
+Tujuan milestone berikutnya
 
-"Apa yang harus diketahui seluruh System Actor sebelum mereka mulai bekerja untuk sebuah Channel?"
+Aku tidak ingin menambah dokumen konstitusi.
 
-Bukan:
+Aku ingin membuktikan bahwa Business Unit (Channel) benar-benar dapat menggerakkan seluruh pipeline produksi.
 
-"Bagaimana implementasinya."
+Objective
 
-Ruang lingkup
+Bangun Channel-aware Production Pipeline v1.
 
-Aku ingin dokumen ini tetap deklaratif.
+Artinya seluruh pipeline mulai bekerja berdasarkan sebuah Channel, bukan lagi hanya Content Initiative atau Content Brief.
 
-Bukan desain database.
+Contoh alur yang ingin kubuktikan
 
-Bukan JSON.
+Founder membuat:
 
-Bukan YAML.
+Business Unit
 
-Bukan state machine.
+Name:
+Just FYI Facts
 
-Bukan UI.
+kemudian membuat
 
-Bukan API.
+Content Initiative
 
-Yang ingin aku eksplorasi
+Planner membuat
 
-Menurutku sebuah Channel minimal mempunyai identitas bisnis seperti:
+Content Brief
 
-Identity
-Mission
-Audience
-Content Pillars
-Brand Voice
-Visual Identity
-Production Preferences
-Publishing Strategy
-Success Metrics
-Guardrails
-Learning Memory
+Research membaca:
 
-Ini bukan field final.
+Channel DNA
++
+Content Brief
 
-Aku ingin kamu mengkritisinya.
+Script membaca:
 
-Buang yang tidak perlu.
+Channel DNA
++
+Research
++
+Brief
 
-Tambahkan yang kurang.
+Media membaca:
 
-Gabungkan jika ada yang tumpang tindih.
+Channel DNA
++
+Script
 
-Tetapi lakukan dari sudut pandang Business Architecture, bukan implementasi teknis.
+Publishing membaca:
+
+Channel DNA
++
+Video
+
+Seluruh pipeline sekarang sadar bahwa mereka bekerja untuk sebuah Business Unit tertentu.
+
+Scope
+
+Aku ingin implementasi sekecil mungkin.
+
+Tidak perlu UI.
+
+Tidak perlu database baru.
+
+Tidak perlu dashboard.
+
+Tidak perlu multi-user.
+
+Tidak perlu multi-channel.
+
+Yang kubutuhkan hanya bukti bahwa architecture baru memang bekerja.
+
+Acceptance Criteria
+AC-1
+
+Founder dapat membuat satu Business Unit sederhana.
+
+(Misal file JSON/YAML/manual object juga boleh.)
+
+AC-2
+
+Content Initiative mengetahui Business Unit asalnya.
+
+AC-3
+
+Planner menghasilkan Brief dengan konteks Business Unit.
+
+AC-4
+
+Research menghasilkan hasil berbeda jika Business Unit berbeda.
+
+Contoh:
+
+Business Unit A
+
+Just FYI Facts
+
+Research:
+
+netral
+edukatif
+
+Business Unit B
+
+Just FYI Sports
+
+Research:
+
+cepat
+hype
+momentum
+
+Walaupun topiknya sama.
+
+AC-5
+
+Script ikut berubah mengikuti Business Unit.
+
+AC-6
+
+Video Worker menerima Production Preference dari Business Unit.
+
+Misalnya
+
+Vertical
+9:16
+1080x1920
+
+atau
+
+Horizontal
+16:9
+
+Walaupun implementasinya sementara hanya berupa log atau metadata.
+
+Aku belum membutuhkan rendering yang sempurna.
+
+Aku hanya ingin membuktikan bahwa konteks berhasil mengalir.
 
 Yang TIDAK boleh dilakukan
-Jangan membuat schema database.
-Jangan membuat struktur JSON.
-Jangan membuat class/interface.
-Jangan membuat Worker baru.
+Jangan redesign Product Constitution.
+Jangan redesign Channel Constitution.
 Jangan membuat ADR baru.
-Jangan mengubah Product Constitution.
-Jangan coding.
-Yang ingin aku dapatkan
+Jangan membuat abstraksi baru.
+Jangan membuat Worker baru.
 
-Aku ingin sebuah dokumen yang menjelaskan:
+Gunakan fondasi yang sudah ada.
 
-Apa itu Channel di dalam FYI Studio.
+Prinsip
 
-Sama seperti PRODUCT_CONSTITUTION menjelaskan:
+Aku ingin kita membuktikan satu hipotesis sederhana:
 
-Apa itu Product.
+Business Unit bukan sekadar dokumen. Business Unit benar-benar mampu mengubah perilaku seluruh pipeline.
 
-Aku ingin CHANNEL_CONSTITUTION menjelaskan:
+Kalau hipotesis ini terbukti, maka kita tidak lagi memiliki "video generator".
 
-Apa itu Channel.
+Kita sudah memiliki Brand-aware Content Operating System.
 
-Success Criteria
+Satu catatan tambahan dariku
 
-Setelah seseorang membaca CHANNEL_CONSTITUTION, ia harus bisa menjawab:
+Aku bahkan akan menambahkan satu instruksi terakhir untuk Hermes:
 
-Mengapa seluruh produksi FYI Studio selalu dimulai dari sebuah Channel.
-Mengapa seluruh System Actor bekerja untuk Channel, bukan untuk Video.
-Mengapa Channel menjadi identitas yang bertahan jauh lebih lama daripada model AI, workflow, ataupun teknologi yang dipakai.
-Mengapa 100 channel berbeda dapat berjalan di atas platform yang sama tanpa mengubah Worker.
-Catatan Founder
-
-Aku mulai menyadari bahwa produk yang sedang kita bangun bukan hanya Content Operating System.
-
-Tetapi Brand Operating System.
-
-Setiap Channel memiliki DNA-nya sendiri.
-
-Dan tugas FYI Studio bukan menghasilkan video.
-
-Tugas FYI Studio adalah menjaga konsistensi DNA setiap Channel di setiap konten yang diproduksi.
-
-Aku ingin kita mengeksplorasi gagasan ini terlebih dahulu sebelum menyentuh implementasi apa pun.
-
-Kenapa aku memilih ini?
-
-Karena menurutku ini adalah momen yang sama seperti ketika kita menemukan Product Constitution.
-
-Kalau dulu kita bertanya:
-
-"Apa itu Product?"
-
-Hari ini kita mulai bertanya:
-
-"Apa itu Channel?"
-
-Dan aku punya firasat... kalau jawaban dari pertanyaan itu akan menentukan 3–5 tahun evolusi FYI Studio ke depan.
-
-Kalau boleh menambahkan satu arahan terakhir untuk Hermes:
-
-"Jangan berusaha membuktikan bahwa ide ini benar. Berusahalah mencari alasan mengapa ide ini salah atau tidak perlu. Jika setelah dikritik habis-habisan konsep 'Channel Constitution' tetap berdiri, maka kemungkinan besar kita baru saja menemukan salah satu fondasi terpenting FYI Studio."
+"Jika selama implementasi kamu menemukan bahwa Product Constitution atau Channel Constitution masih kurang, jangan langsung mengubahnya. Catat sebagai observasi. Kita hanya akan mengubah konstitusi jika implementasi nyata membuktikan ada vocabulary yang benar-benar kurang."
