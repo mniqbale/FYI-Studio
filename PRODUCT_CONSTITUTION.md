@@ -3,7 +3,7 @@ id: product-constitution
 title: "PRODUCT CONSTITUTION — FYI Studio Product Architecture"
 owner: "Founder + CTO"
 status: "accepted"
-version: "1.0.0"
+version: "1.1.0"
 last_updated: "2026-08-07"
 review_cycle: "per-milestone"
 tags: [product, constitution, business-domain, capability-map, roadmap, product-architecture]
@@ -147,7 +147,61 @@ Strategy digabung ke Content Planning, (b) Analytics dan Learning dipisah.
 
 ---
 
-## 4. Worker Evolution Roadmap
+## 4. Business Actors
+
+> **Bahasa bisnis.** Berikut daftar aktor bisnis FYI Studio (kosakata bersama),
+> dipisah berdasarkan kategori. Daftar ini **deklaratif** — mendefinisikan *siapa
+> saja* yang ada, bukan *bagaimana* mereka bekerja.
+
+| Kategori | Actor | Definisi |
+|----------|-------|----------|
+| **Human** | Founder | Pemilik visi & arah bisnis. |
+| **Human** | Operator | Menjalankan produksi harian. |
+| **Human** | Editor | Menyempurnakan / menyetujui kualitas konten. |
+| **Human** | Reviewer | Menilai hasil (bisa peran Founder/Operator/Editor). |
+| **Human** | Audience | Konsumen konten (multi-peran: menonton, memberi umpan balik, sinyal terukur). |
+| **System** | Planner | Fungsi perencanaan konten. |
+| **System** | Research | Fungsi pengumpulan fakta & bahan. |
+| **System** | Script | Fungsi penulisan naskah. |
+| **System** | Media | Fungsi produksi aset (voice/subtitle/video). |
+| **System** | Publishing | Fungsi distribusi ke platform. |
+| **System** | Analytics | Fungsi pengukuran hasil. |
+| **System** | Learning | Fungsi penarikan wawasan. |
+| **External** | YouTube | Platform distribusi. |
+| **External** | Google | Penyedia layanan/platform. |
+| **External** | [Platform lain] | Platform lain yang terintegrasi. |
+
+> **Prinsip:** nama System Actor adalah **fungsi bisnis**, bukan teknologi —
+> *Planner*, bukan *Planner AI*. Di masa depan sebuah fungsi bisnis bisa
+> dijalankan oleh kombinasi AI, rule engine, manusia, atau workflow; yang tetap
+> adalah fungsinya sebagai aktor bisnis.
+
+---
+
+## 5. Business Artifacts
+
+> **Bahasa bisnis.** Berikut daftar artefak yang mengalir di dalam sistem
+> (kosakata bersama), dengan **Business Purpose** (mengapa artefak ini ada).
+> Daftar ini **deklaratif** — tidak mendefinisikan lifecycle, state, transition,
+> owner, atau consumer.
+
+| Artifact | Business Purpose |
+|----------|------------------|
+| **Content Initiative** | Menetapkan tujuan strategis / arah brand — *mengapa* serangkaian konten diproduksi. |
+| **Content Plan** | Menyusun kumpulan konten beserta urutan/prioritas yang melayani sebuah Initiative. |
+| **Content Brief** | Menetapkan kontrak bisnis untuk SATU konten (objective, audience, topic, success metric, constraints, distribution target). |
+| **Production Specification** | Menjabarkan instruksi kreatif konkret (angle, hook, structure, thumbnail brief) untuk produksi satu konten. |
+| **Published Content** | Menyatakan konten yang sudah tayang (berserta identitas platform: video id, URL, waktu). |
+| **Performance Report** | Menyatakan hasil terukur konten (views, retention, revenue, cost). |
+| **Learning Record** | Menyimpan wawasan terdistilasi dari keputusan × hasil, menjadi input keputusan berikutnya. |
+
+> **Prinsip:** artefak ini mendefinisikan *kosakata* produk. Grammar (workflow,
+> responsibilities, state machine, contract, role matrix) lahir kemudian melalui
+> ADR / dokumen desain ketika implementasi benar-benar membutuhkannya.
+
+---
+
+## 6. Worker Evolution Roadmap
 
 > **Prinsip:** Worker = Business Function. Setiap domain dievolusi berdasarkan
 > **Business Domain** (fondasi produk), bukan berdasarkan RC. Milestone bisa
@@ -219,7 +273,7 @@ Strategy digabung ke Content Planning, (b) Analytics dan Learning dipisah.
 
 ---
 
-## 5. Product Capability Map
+## 7. Product Capability Map
 
 > **Prinsip:** Worker = Business Function, BUKAN AI Model. Setiap Worker
 > memetakan ke Tasks → Capabilities → Possible AI Services.
@@ -334,7 +388,7 @@ Learning Worker
 
 ---
 
-## 6. Worker vs Task Guideline
+## 8. Worker vs Task Guideline
 
 Aturan evolusi produk — kapan sesuatu layak menjadi Worker, Task, Capability,
 atau Service.
@@ -357,7 +411,7 @@ atau Service.
 
 ---
 
-## 7. Ultimate Product Workflow
+## 9. Ultimate Product Workflow
 
 Blueprint jangka panjang:
 
@@ -397,7 +451,7 @@ Learning
 
 ---
 
-## 8. Evolution Principles
+## 10. Evolution Principles
 
 Prinsip yang mengatur evolusi produk:
 
@@ -411,7 +465,7 @@ Prinsip yang mengatur evolusi produk:
 
 ---
 
-## 9. Success Criteria
+## 11. Success Criteria
 
 Setelah membaca dokumen ini, Founder harus mampu menjawab:
 
@@ -420,16 +474,16 @@ Setelah membaca dokumen ini, Founder harus mampu menjawab:
 2. **Mengapa tidak setiap output menjadi Worker?** → Karena Worker = Business
    Function; output kecil yang masih dalam domain yang sama cukup menjadi Task.
 3. **Bagaimana Worker akan berevolusi selama beberapa tahun ke depan?** → Lihat
-   roadmap Business Domain → Current State → Next Evolution → Long-term Vision (Bagian 4).
+   roadmap Business Domain → Current State → Next Evolution → Long-term Vision (Bagian 6).
 4. **Bagaimana hubungan Worker → Task → Capability → AI Service?** → Lihat
-   Model Mental (Bagian 2) dan Capability Map (Bagian 5).
+   Model Mental (Bagian 2) dan Capability Map (Bagian 7).
 5. **Bagaimana roadmap produk berkembang tanpa kehilangan arah?** → Dengan
    berpegang pada Product Vision + Evolution Statement (Bagian 1) dan Evolution
-   Principles (Bagian 8).
+   Principles (Bagian 10).
 
 ---
 
-## 10. Architecture Decisions Pending (ADP)
+## 12. Architecture Decisions Pending (ADP)
 
 Setiap perubahan besar memiliki keputusan yang terdokumentasi. Keputusan yang
 belum diambil dicatat sebagai **Architecture Decisions Pending (ADP)**. Ketika
