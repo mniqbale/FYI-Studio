@@ -2,8 +2,8 @@
 id: channel-constitution
 title: "CHANNEL CONSTITUTION — Apa itu Channel di FYI Studio"
 owner: "Founder + CTO"
-status: "draft"
-version: "0.1.0"
+status: "accepted"
+version: "1.0.0"
 last_updated: "2026-08-07"
 review_cycle: "per-milestone"
 tags: [channel, brand, constitution, business-language, identity, dna]
@@ -15,7 +15,7 @@ related_documents:
 
 # CHANNEL CONSTITUTION — Apa itu Channel
 
-> **Status:** DRAFT (untuk diskusi Founder). Dokumen ini mendefinisikan **apa itu
+> **Status:** ACCEPTED (Founder approval 2026-08-07). Dokumen ini mendefinisikan **apa itu
 > Channel** di dalam FYI Studio — bahasa bisnis, bukan implementasi.
 > Sama seperti PRODUCT_CONSTITUTION menjawab *"Apa itu Product?"*, dokumen ini
 > menjawab *"Apa itu Channel?"*.
@@ -80,11 +80,33 @@ adalah *konsekuensi* aktivitas channel, bukan bagian dari identitasnya.
 **Kesimpulan — digabung:** Mission menjadi komponen Identity, bukan dimensi
 terpisah.
 
-### 2.6 Hasil Kritik
+### 2.6 Apakah Channel hanya "identitas", atau "unit bisnis"?
+**Kritik (assumsi dasar):** jika mengelola 100 channel, yang sebenarnya dikelola
+bukan 100 identitas, melainkan 100 **business unit** yang masing-masing punya
+DNA, strategi, dan operating model. "Identitas" hanya menjawab *siapa*, tidak
+menjawab *bagaimana unit ini menang dan bertahan*.
+**Kesimpulan — diterima:** Channel adalah **unit bisnis** yang memiliki
+**identitas (DNA) sebagai salah satu komponen**. Ini mengubah mental model:
+platform mengelola sekumpulan Business Unit, bukan sekumpulan channel/video/
+prompt. Frame ini jauh lebih tahan terhadap evolusi 5–10 tahun.
+
+### 2.7 Apakah Economics harus masuk konstitusi sekarang?
+**Kritik:** setiap channel suatu saat akan punya revenue, cost, ROI, bahkan
+P&L — bukankah itu bagian dari business unit?
+**Kesimpulan — DITUNDA:** Economics belum terbukti dipakai hari ini (sistem
+belum memproduksi konten konsisten). Memasukkannya lebih awal mengaburkan batas
+antara Constitution (bahasa stabil) dan Operating Data (state). Sesuai Rule of
+Three, Economics lahir **nanti** — persis seperti Planner lahir setelah Content
+Brief terbukti berguna. Ketika pertanyaan "budget per channel", "ROI channel",
+"CPM", "operating cost" benar-benar muncul lintas sistem, saat itulah Economics
+ditambahkan ke konstitusi. Hari ini masih terlalu dini.
+
+### 2.8 Hasil Kritik
 11 field hipotesis Founder → **9 dimensi**, dengan:
 - Learning Memory dikeluarkan (state, bukan identitas).
 - Identity + Mission digabung.
-- Beberapa field dipisahkan ke dimensi yang lebih tajam.
+- Channel didefinisikan ulang sebagai **Business Unit** (bukan sekadar identitas).
+- Economics **ditunda** (lahir dari kebutuhan implementasi, bukan desain).
 
 **Konsep "Channel Constitution" bertahan setelah dikritik habis-habisan.**
 
@@ -92,12 +114,16 @@ terpisah.
 
 ## 3. Definisi Channel
 
-> **Channel adalah satu identitas bisnis yang konsisten, yang menjadi titik
-> awal seluruh produksi FYI Studio.**
+> **Channel adalah satu Business Unit yang memiliki identitas (DNA) sebagai
+> komponen intinya, dan menjadi titik awal seluruh produksi FYI Studio.**
 
-Sebuah Channel bukan "satu video" dan bukan "satu platform". Ia adalah **DNA
-yang bertahan**: nilai, audience, cara berbicara, cara tampil, dan cara
-menang — yang mewarnai setiap konten yang diproduksi untuknya.
+Sebuah Channel bukan "satu video" dan bukan "satu platform". Ia adalah **unit
+bisnis yang bertahan**: DNA (nilai, audience, cara berbicara, cara tampil),
+strategi, dan cara beroperasi — yang mewarnai setiap konten yang diproduksi
+untuknya.
+
+Platform FYI Studio mengelola **sekumpulan Business Unit** — bukan sekumpulan
+channel, bukan sekumpulan video, bukan sekumpulan prompt.
 
 Sebuah identitas (brand) dapat hadir di banyak Channel/platform, tetapi setiap
 Channel membawa DNA yang sama. Konsistensi DNA adalah tanggung jawab utama
@@ -105,25 +131,49 @@ FYI Studio.
 
 ---
 
-## 4. Identitas Channel (DNA)
+## 4. Identitas Channel (DNA) — dalam 3 Lapisan
 
 Berikut dimensi identitas yang harus diketahui System Actor sebelum bekerja
 untuk sebuah Channel. Ini **kosakata**, bukan spesifikasi data.
 
+> **Cara membaca (lensa, bukan struktur mengikat):** 9 dimensi DNA lebih mudah
+> dipahami jika dikelompokkan ke tiga lapisan besar — **Identity, Strategy,
+> Operations**. Ini memperkuat model mental **tanpa** mengubah sifat deklaratif
+> dokumen. Beberapa dimensi (Audience, Publishing Strategy) melintasi lapisan;
+> ia adalah lensa, bukan partisi kaku.
+
+### Lapisan 1 — Identity (DNA: siapa channel ini)
+
 | Dimensi | Pertanyaan yang Dijawab |
 |---------|-------------------------|
 | **Identity** | Siapa channel ini? Apa positioning dan misinya? |
-| **Audience** | Untuk siapa konten ini dibuat? |
+| **Audience** | Untuk siapa konten ini dibuat? (fondasi identitas sekaligus input strategi) |
 | **Content Pillars** | Topik inti apa yang selalu menjadi fokus? |
 | **Brand Voice** | Bagaimana channel ini berbicara? (tone, gaya, bahasa) |
 | **Visual Identity** | Bagaimana channel ini terlihat? (ciri visual konsisten) |
-| **Production Preferences** | Bagaimana channel ini ingin diproduksi? (durasi, format, ritme) |
-| **Publishing Strategy** | Kapan, ke mana, dan dengan ritme apa konten dirilis? |
+
+### Lapisan 2 — Strategy (bagaimana unit ini menang)
+
+| Dimensi | Pertanyaan yang Dijawab |
+|---------|-------------------------|
 | **Success Metrics** | Apa yang channel anggap menang? |
+| **Publishing Strategy** | Ke mana, kapan, dan dengan ritme apa konten dirilis? (keputusan strategis) |
 | **Guardrails** | Apa yang tidak boleh dilanggar? (batas, larangan, nilai) |
 
-> Catatan: **Learning Memory tidak termasuk di sini.** Ia adalah hasil dinamis
-> dari aktivitas channel, bukan identitas yang stabil.
+### Lapisan 3 — Operations (bagaimana unit ini berjalan)
+
+| Dimensi | Pertanyaan yang Dijawab |
+|---------|-------------------------|
+| **Production Preferences** | Bagaimana channel ini ingin diproduksi? (durasi, format, ritme) |
+| **Publishing Strategy** | Eksekusi jadwal rilis (aspek operasional dari lapisan 2) |
+
+> **Catatan:** **Economics TIDAK termasuk di sini** — ia belum terbukti dipakai,
+> dan memasukkannya akan mengaburkan batas antara Constitution (bahasa stabil)
+> dan Operating Data (state). Economics lahir nanti ketika benar-benar
+> dipaksakan oleh implementasi (budget/ROI/CPM per channel).
+>
+> **Catatan:** **Learning Memory tidak termasuk di sini** — ia adalah hasil
+> dinamis dari aktivitas channel, bukan identitas yang stabil.
 
 ---
 
@@ -164,12 +214,12 @@ video otonom.
 ## 7. Mengapa Channel Bertahan Lebih Lama daripada Teknologi
 
 Model AI, workflow, worker, dan platform bisa berubah atau hilang. Namun
-**identitas sebuah Channel** (siapa, untuk siapa, bagaimana berbicara, apa yang
-dianggap menang) jauh lebih stabil.
+**Business Unit Channel** (DNA: siapa, untuk siapa, bagaimana berbicara, apa
+yang dianggap menang) jauh lebih stabil.
 
 Sama seperti FOUNDER_MANIFEST: model AI adalah alat eksekusi; yang bertahan
 adalah bahasa, nilai, dan pola. Channel adalah bentuk bisnis dari prinsip itu —
-identitas yang terus hidup melewati pergantian teknologi.
+Business Unit yang terus hidup melewati pergantian teknologi.
 
 ---
 
@@ -198,6 +248,8 @@ Channel Constitution mendefinisikan **bahasa**. Yang TIDAK termasuk:
 - State machine / lifecycle.
 - UI / API.
 - Learning Memory (state dinamis) — ditangani sebagai hasil, bukan identitas.
+- Economics (budget/ROI/CPM per channel) — belum terbukti dipakai; lahir nanti
+  dari kebutuhan implementasi, bukan desain.
 - Detail implementasi produksi.
 
 Hal-hal itu lahir kemudian melalui ADR / desain ketika implementasi benar-benar
@@ -210,7 +262,7 @@ membutuhkannya.
 Setelah membaca dokumen ini, pembaca harus mampu menjawab:
 
 1. **Mengapa seluruh produksi FYI Studio selalu dimulai dari sebuah Channel?**
-   → Karena Channel adalah identitas bisnis yang menetapkan arah, audience,
+   → Karena Channel adalah **Business Unit** yang menetapkan arah, audience,
    cara bicara, dan ukuran sukses; konten hanyalah manifestasinya.
 2. **Mengapa System Actor bekerja untuk Channel, bukan untuk Video?**
    → Karena video adalah hasil sesaat, sedangkan Channel adalah konteks yang
