@@ -9,6 +9,8 @@
 // @fyi/media + a registry entry. This worker is NOT modified.
 
 import { Worker, Queue, Job } from 'bullmq';
+import { readFileSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { type TaskEnvelope, type WorkerResponse, WorkerStatus } from '@fyi/contracts';
 import { createRedisConnection, createTaskLogger } from '@fyi/utils';
 import { seedRegistries, ModelGate, loadModelPolicy } from '@fyi/platform';
@@ -19,6 +21,24 @@ const COMPLETION_QUEUE = 'completion-queue';
 const WORKER_ID = 'real-voice-v1';
 const WORKER_VERSION = '1.0.0';
 const CAPABILITY = 'voice:tts';
+
+// tsx does not auto-load .env; worker runs standalone as `node dist/index.js`.
+(function loadEnvIfPresent(): void {
+  try {
+    const envPath = resolve(process.cwd(), '.env');
+    if (!existsSync(envPath)) return;
+    for (const line of readFileSync(envPath, 'utf8').split('\n')) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const idx = trimmed.indexOf('=');
+      if (idx === -1) continue;
+      const key = trimmed.slice(0, idx).trim();
+      if (key && !(key in process.env)) process.env[key] = trimmed.slice(idx + 1).trim();
+    }
+  } catch {
+    // Ignore — env is optional (policy comes from model_policy.yaml).
+  }
+})();
 
 async function processTask(job: Job<TaskEnvelope>): Promise<WorkerResponse> {
   const envelope = job.data;
