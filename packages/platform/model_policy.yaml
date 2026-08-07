@@ -153,6 +153,9 @@ models:
 # Default recommended model per worker capability (user may override, capability-gated).
 # Ollama Cloud (https://ollama.com/v1) is the working provider — set as default.
 defaults:
+  content:brief:        # Planner Worker (Phase 2.2) — Content Initiative -> Content Brief
+    provider: ollama
+    model: deepseek-v4-flash
   research:real:        # Research Worker (real AI)
     provider: ollama
     model: deepseek-v4-flash
@@ -167,6 +170,7 @@ defaults:
 # ModelGate v2 uses this to find connected + capable models when the default provider
 # is not connected or the user overrides.
 worker_capabilities:
+  content:brief: [reasoning, structured_output]
   research:real: [reasoning, structured_output]
   text-synthesis:script:real: [reasoning, structured_output]
   voice:tts: [speech]

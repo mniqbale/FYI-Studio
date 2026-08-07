@@ -2,7 +2,7 @@
 // Phase 2.1: verifies the brief parses/validates as the shared vocabulary and
 // renders to a prompt for Research/Script.
 import { describe, it, expect } from 'vitest';
-import { parseContentBrief, briefToPrompt } from '../src/content-brief.js';
+import { parseContentBrief, briefToPrompt, parseContentInitiative, initiativeToPrompt } from '../src/content-brief.js';
 
 const validBrief = {
   brief_id: 'brief-001',
@@ -45,5 +45,37 @@ describe('ContentBrief (Phase 2.1 artifact)', () => {
     expect(prompt).toContain('Objective: educate');
     expect(prompt).toContain('Success metric: retention > 60%');
     expect(prompt).toContain('Constraints:');
+  });
+});
+
+const validInitiative = {
+  initiative_id: 'init-001',
+  objective: 'grow subscribers by educating solo creators',
+  audience: 'solo content creators',
+  topic_area: 'AI orchestration for media',
+  constraints: { language: 'en' },
+};
+
+describe('ContentInitiative (Phase 2.2 input)', () => {
+  it('parses a valid initiative', () => {
+    const ini = parseContentInitiative(validInitiative);
+    expect(ini).not.toBeNull();
+    expect(ini!.objective).toBe('grow subscribers by educating solo creators');
+  });
+
+  it('rejects null/non-object', () => {
+    expect(parseContentInitiative(null)).toBeNull();
+    expect(parseContentInitiative('x')).toBeNull();
+  });
+
+  it('rejects an initiative missing a required field', () => {
+    const { topic_area: _drop, ...partial } = validInitiative;
+    expect(parseContentInitiative(partial)).toBeNull();
+  });
+
+  it('renders to a prompt', () => {
+    const prompt = initiativeToPrompt(validInitiative);
+    expect(prompt).toContain('Topic area: AI orchestration for media');
+    expect(prompt).toContain('Objective: grow subscribers');
   });
 });

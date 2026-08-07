@@ -35,6 +35,9 @@ export { validateProviderKey, type KeyValidationResult } from './validate-provid
 export {
   parseContentBrief,
   briefToPrompt,
+  parseContentInitiative,
+  initiativeToPrompt,
   type ContentBrief,
   type ParsedContentBrief,
+  type ContentInitiative,
 } from './content-brief.js';

@@ -89,3 +89,60 @@ export function briefToPrompt(brief: ContentBrief): string {
   }
   return lines.join('\n');
 }
+
+/**
+ * Content Initiative — the strategic input to the Planner (PRODUCT_CONSTITUTION §5).
+ * A Business Actor (Founder/Operator) provides this; the Planner turns it into a
+ * Content Brief. Declarative vocabulary only.
+ */
+export interface ContentInitiative {
+  /** Stable identifier. */
+  initiative_id: string;
+  /** Strategic intent (e.g. grow subscribers, educate, brand, revenue). */
+  objective: string;
+  /** Target audience / persona. */
+  audience: string;
+  /** Broad topic area to explore. */
+  topic_area: string;
+  /** Hard constraints the produced content must respect. */
+  constraints: Record<string, unknown>;
+}
+
+/** Required fields for a valid Content Initiative. */
+const INITIATIVE_REQUIRED: Array<keyof ContentInitiative> = [
+  'initiative_id',
+  'objective',
+  'audience',
+  'topic_area',
+];
+
+/** Validate an unknown value as a Content Initiative. Returns null if invalid. */
+export function parseContentInitiative(value: unknown): ContentInitiative | null {
+  if (!value || typeof value !== 'object') return null;
+  const rec = value as Record<string, unknown>;
+  const initiative: ContentInitiative = {
+    initiative_id: typeof rec.initiative_id === 'string' ? rec.initiative_id : '',
+    objective: typeof rec.objective === 'string' ? rec.objective : '',
+    audience: typeof rec.audience === 'string' ? rec.audience : '',
+    topic_area: typeof rec.topic_area === 'string' ? rec.topic_area : '',
+    constraints:
+      rec.constraints && typeof rec.constraints === 'object'
+        ? (rec.constraints as Record<string, unknown>)
+        : {},
+  };
+  const missing = INITIATIVE_REQUIRED.filter((f) => !initiative[f]);
+  return missing.length > 0 ? null : initiative;
+}
+
+/** Render a Content Initiative compactly for prompt injection. */
+export function initiativeToPrompt(initiative: ContentInitiative): string {
+  const lines = [
+    `Objective: ${initiative.objective}`,
+    `Audience: ${initiative.audience}`,
+    `Topic area: ${initiative.topic_area}`,
+  ];
+  if (initiative.constraints && Object.keys(initiative.constraints).length > 0) {
+    lines.push(`Constraints: ${JSON.stringify(initiative.constraints)}`);
+  }
+  return lines.join('\n');
+}

@@ -15,6 +15,7 @@ export const COMPLETION_QUEUE = 'completion-queue';
 // workers use the canonical capability names (voice:tts, subtitle:generate,
 // video:compose) resolved via ModelGate.
 export const CAPABILITY_QUEUE: Record<string, string> = {
+  'content:brief': 'planner-queue',
   'research:mock': 'research-queue',
   'text-synthesis:script': 'script-queue',
   'speech-synthesis:voice': 'voice-queue',

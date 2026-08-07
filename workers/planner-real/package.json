@@ -1,0 +1,29 @@
+{
+  "name": "@fyi/worker-planner-real",
+  "version": "1.0.0",
+  "description": "FYI Studio real Planner worker (Phase 2.2) — Content Initiative -> Content Brief",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@fyi/contracts": "workspace:1.1.0",
+    "@fyi/utils": "workspace:1.0.0",
+    "@fyi/platform": "workspace:1.0.0",
+    "@fyi/ai": "workspace:1.0.0",
+    "bullmq": "^5.34.0",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.4.0"
+  }
+}
