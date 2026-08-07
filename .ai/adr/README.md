@@ -19,6 +19,7 @@ related_documents:
   - "ADR-0009-platform-analytics-ingestion.md"
   - "ADR-0010-hitl-revise-approve.md"
   - "ADR-0011-capability-only-worker-invariant.md"
+  - "ADR-0012-media-engine-unified-lifecycle.md"
 ---
 
 # Architecture Decision Records (ADR) Index
@@ -42,6 +43,7 @@ related_documents:
 | [ADR-0009](./ADR-0009-platform-analytics-ingestion.md) | Platform Analytics Ingestion & YouTube Revenue | Accepted | 2026-08-06 | — |
 | [ADR-0010](./ADR-0010-hitl-revise-approve.md) | HITL Revise/Approve (Dashboard Write) | Accepted | 2026-08-06 | — |
 | [ADR-0011](./ADR-0011-capability-only-worker-invariant.md) | Capability-Only Worker Invariant (Workers Speak Only to Capabilities) | Accepted | 2026-08-07 | — |
+| [ADR-0012](./ADR-0012-media-engine-unified-lifecycle.md) | MediaEngine — Unified Engine Lifecycle (Standardize the Process, Not the Data) | Accepted | 2026-08-07 | — |
 
 ---
 
