@@ -121,8 +121,10 @@ export function renderSettingsPage(
       <p class="muted">Kelola akun social yang terhubung. Setiap akun divalidasi formatnya agar agent AI tidak salah posting. Penjadwalan publish ada di halaman <a href="/jobs">/jobs</a> (kalender).</p>
 
       <div class="social-toolbar">
+        <a href="/api/social/youtube/connect?tenant_id=demo" class="btn" id="connect-youtube-btn">🔗 Connect YouTube (OAuth)</a>
         <button type="button" class="btn" id="add-account-btn">+ Tambah Akun Baru</button>
       </div>
+      <div id="oauth-status" class="muted" style="margin-top:8px;"></div>
 
       <h4>Daftar Channel / Akun</h4>
       <table class="telemetry-table social-table">

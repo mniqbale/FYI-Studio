@@ -41,6 +41,24 @@ export type { SchedulePublishInput, ScheduledPublishView, ScheduledPublishStatus
 export { createSecretStore, storeSecret, resolveToken } from './secret.js';
 export type { SecretStore } from './secret.js';
 
+// YouTube OAuth (workstream 1)
+export {
+  loadOAuthConfig,
+  buildAuthUrl,
+  exchangeCode,
+  refreshAccessToken,
+  fetchChannelInfo,
+  YOUTUBE_SCOPES,
+} from './oauth/youtube.js';
+export type { OAuthConfig, TokenResponse, ChannelInfo } from './oauth/youtube.js';
+export {
+  encryptTokenBundle,
+  decryptTokenBundle,
+  persistOAuthAccount,
+  readOAuthToken,
+} from './oauth/store.js';
+export type { OAuthTokenBundle } from './oauth/store.js';
+
 // Publish execution + write-back + retry
 export {
   executePublish,

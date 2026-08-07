@@ -6,6 +6,7 @@ import { tenantsRoutes } from './tenants.js';
 import { analyticsRoutes } from './analytics.js';
 import { settingsRoutes } from './settings.js';
 import { socialRoutes } from './social.js';
+import { youtubeOAuthRoutes } from './youtube-oauth.js';
 
 export async function registerRoutes(app: FastifyInstance): Promise<void> {
   await Promise.all([
@@ -15,5 +16,6 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
     analyticsRoutes(app),
     settingsRoutes(app),
     socialRoutes(app),
+    youtubeOAuthRoutes(app),
   ]);
 }

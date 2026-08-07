@@ -3,6 +3,7 @@
 import Fastify, { type FastifyInstance } from 'fastify';
 import fastifyStatic from '@fastify/static';
 import fastifyFormBody from '@fastify/formbody';
+import fastifyCookie from '@fastify/cookie';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEnv } from './utils/env.js';
@@ -13,6 +14,7 @@ import { registerRoutes } from './routes/index.js';
 import { mediaRoutes } from './routes/media.js';
 import { authRoutes } from './routes/auth.js';
 import { authPreHandler, isAuthEnabled } from './utils/auth.js';
+import { youtubeOAuthRoutes } from './routes/youtube-oauth.js';
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -23,6 +25,8 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   // Parse application/x-www-form-urlencoded POST bodies (for Settings forms).
   await app.register(fastifyFormBody);
+  // Cookie parsing/setting (for OAuth CSRF state + auth session cookie).
+  await app.register(fastifyCookie);
 
   // Opt-in HTTP auth gate. When DASHBOARD_AUTH_TOKEN is set, every route except
   // /health, /assets/*, and the login page requires a valid token (query/header)

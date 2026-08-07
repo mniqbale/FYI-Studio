@@ -44,6 +44,20 @@ async function disconnect(id) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Show OAuth result from the callback redirect (?oauth=success|error).
+  const params = new URLSearchParams(window.location.search);
+  const oauth = params.get('oauth');
+  const statusEl = document.getElementById('oauth-status');
+  if (statusEl && oauth) {
+    if (oauth === 'success') {
+      const channel = params.get('channel') ?? '';
+      statusEl.innerHTML = `<span class="badge ok">✅ YouTube terhubung: ${esc(channel)}</span>`;
+    } else {
+      const reason = params.get('reason') ?? 'unknown';
+      statusEl.innerHTML = `<span class="badge off">⚠️ OAuth gagal: ${esc(reason)}</span>`;
+    }
+  }
+
   const addBtn = document.getElementById('add-account-btn');
   const modal = document.getElementById('add-account-modal');
   const closeBtn = document.getElementById('close-modal');
