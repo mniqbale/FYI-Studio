@@ -1,13 +1,24 @@
+// Real video worker — Capability-Only (ADR-0011, third implementation).
+//
+// Mirrors the voice/subtitle workers: it does NOT know any vendor/engine.
+//   1. resolves "video:compose" via ModelGate → { provider, model }
+//   2. asks the VideoEngine adapter layer (@fyi/media) for the matching engine
+//   3. delegates video composition to that engine
+//
+// Stress test for a future MediaEngine: video has a MULTI-ASSET payload
+// (audio + subtitles + title + resolution), unlike voice/subtitle (single text).
+
 import { Worker, Queue, Job } from 'bullmq';
 import { type TaskEnvelope, type WorkerResponse, WorkerStatus } from '@fyi/contracts';
 import { createRedisConnection, createTaskLogger } from '@fyi/utils';
-import { composeVideo, toReference } from '@fyi/media';
+import { seedRegistries, ModelGate, loadModelPolicy } from '@fyi/platform';
+import { getVideoEngine, toReference } from '@fyi/media';
 
 const QUEUE_NAME = 'video-real-queue';
 const COMPLETION_QUEUE = 'completion-queue';
 const WORKER_ID = 'real-video-v1';
 const WORKER_VERSION = '1.0.0';
-const CAPABILITY = 'video:compose:real';
+const CAPABILITY = 'video:compose';
 
 async function processTask(job: Job<TaskEnvelope>): Promise<WorkerResponse> {
   const envelope = job.data;
@@ -18,17 +29,41 @@ async function processTask(job: Job<TaskEnvelope>): Promise<WorkerResponse> {
   taskLog.info({ worker_id: WORKER_ID, capability: envelope.capability, attempt: envelope.attempt }, 'Real video worker started');
 
   try {
-    // Paths come from previous steps' new_references (file paths) via references or payload.
+    // Multi-asset input comes from prior steps' new_references or payload.
     const narration_wav = (envelope.payload?.narration_wav as string | undefined) ?? (envelope.references?.voice_output as string | undefined);
     const subtitles_srt = (envelope.payload?.subtitles_srt as string | undefined) ?? (envelope.references?.subtitles as string | undefined);
     const title = envelope.payload?.title as string | undefined;
+    const resolution = envelope.payload?.resolution as string | undefined;
 
     if (!narration_wav || !subtitles_srt) {
       throw new Error('Real video worker: missing narration_wav and/or subtitles_srt (from references or payload)');
     }
 
-    const composed = await composeVideo({ execution_id: envelope.execution_id, narration_wav, subtitles_srt, title });
+    // 1. Resolve the capability to an engine identity via ModelGate (ADR-0011).
+    const gate = new ModelGate(loadModelPolicy());
+    const resolved = await gate.resolve(CAPABILITY, { scope: envelope.tenant_id });
+    if (!resolved.ok) {
+      taskLog.warn({ error: resolved.error?.message }, 'ModelGate could not resolve video:compose; falling back to default engine');
+    }
+    const provider = resolved.model?.provider;
+    const model = resolved.model?.model;
+
+    // 2. Get the engine adapter (video-engine.ts is the only vendor-aware layer).
+    const engine = getVideoEngine(provider, model);
+
+    // 3. Delegate video composition to the adapter.
+    const composed = await engine.compose(envelope.execution_id, {
+      narration_wav,
+      subtitles_srt,
+      title,
+      resolution,
+    });
     const finishedAt = new Date().toISOString();
+
+    taskLog.info(
+      { worker_id: WORKER_ID, engine: engine.provider, model: engine.model, video: composed.video_path },
+      'Video engine composed MP4',
+    );
 
     const response: WorkerResponse = {
       contract_version: '1.1',
@@ -42,11 +77,13 @@ async function processTask(job: Job<TaskEnvelope>): Promise<WorkerResponse> {
         duration_seconds: composed.duration_seconds,
         resolution: composed.resolution,
         format: composed.format,
+        provider: composed.provider,
+        model: composed.model,
       },
       new_references: { video: toReference(composed.video_path) },
       usage: {
         seconds: composed.duration_seconds,
-        cost_estimate: 0,
+        cost_estimate: composed.cost_estimate ?? 0,
       },
       performance: { duration_ms: Date.now() - startTime, started_at: startedAt, finished_at: finishedAt },
     };
@@ -91,5 +128,8 @@ async function shutdown(signal: string): Promise<void> {
 }
 process.on('SIGINT', () => void shutdown('SIGINT'));
 process.on('SIGTERM', () => void shutdown('SIGTERM'));
+
+// Seed registries on startup so ModelGate has data.
+void seedRegistries().catch((e) => createTaskLogger({ job_id: 'none', execution_id: 'none' }).error({ error_message: e.message }, 'Registry seed failed'));
 
 createTaskLogger({ job_id: 'none', execution_id: 'none' }).info({ queue: QUEUE_NAME, capability: CAPABILITY }, 'Real video worker started, listening');

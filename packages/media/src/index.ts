@@ -20,5 +20,12 @@ export {
   type SubtitleEngine,
   type SubtitleEngineResult,
 } from './subtitle-engine.js';
+export {
+  getVideoEngine,
+  listVideoEngines,
+  type VideoEngine,
+  type VideoEngineInput,
+  type VideoEngineResult,
+} from './video-engine.js';
 export { buildSrt, estimateDuration, generateSubtitles } from './subtitle.js';
 export { composeVideo, type ComposeInput, type ComposeResult } from './video.js';
