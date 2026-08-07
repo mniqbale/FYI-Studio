@@ -1,72 +1,73 @@
-// VideoEngine adapter layer (ADR-0011 — Capability-Only Worker Invariant).
+// VideoEngine — compose adapter layer (ADR-0011 + ADR-0012).
 //
-// THIRD reference implementation of the media-engine pattern, and the true
-// stress test: unlike voice/subtitle (which both take a single text input),
-// video takes a MULTI-ASSET payload (audio + subtitles + title + resolution).
-// This deliberately exercises whether a generic MediaEngine abstraction would
-// feel natural for a multi-asset engine — or force exceptions. No refactor is
-// done here; this is a parallel implementation for the Rule of Three.
+// A MediaEngine implementation for video (multi-asset → MP4). Per ADR-0012,
+// this is the ONLY vendor-aware layer in the video path; the worker is
+// capability-only and delegates the whole lifecycle to runMediaEngine.
+// Video has a MULTI-ASSET input — the anti-leaky-abstraction stress case —
+// kept fully typed here, NOT flattened into a shared payload.
 
-import { composeVideo, type ComposeInput, type ComposeResult } from './video.js';
+import { composeVideo, type ComposeResult } from './video.js';
+import type { MediaEngine, EngineContext } from './media-engine.js';
 
-/** Multi-asset input for a video compose engine (differs from voice/subtitle). */
+/** Video engine-specific MULTI-ASSET input (NOT standardized by MediaEngine). */
 export interface VideoEngineInput {
-  narration_wav: string; // reference to prior step's audio
-  subtitles_srt: string; // reference to prior step's SRT
+  narration_wav: string;
+  subtitles_srt: string;
   title?: string;
   resolution?: string;
   duration_seconds?: number;
 }
 
-/** Uniform result of any video compose engine. */
-export interface VideoEngineResult {
+/** Video engine-specific metadata (NOT standardized by MediaEngine). */
+export interface VideoEngineMeta {
   video_path: string;
   duration_seconds: number;
   resolution: string;
   format: 'mp4';
+}
+
+/** Backward-compatible result shape (kept for existing tests/callers). */
+export interface VideoEngineResult extends VideoEngineMeta {
   provider: string;
   model: string;
   cost_estimate: number;
 }
 
-export interface VideoEngine {
-  readonly provider: string;
-  readonly model: string;
-  /** Compose a video from audio + subtitles into the execution media dir. */
-  compose(execution_id: string, input: VideoEngineInput): Promise<VideoEngineResult>;
-}
-
-/** Offline ffmpeg composer. Default fallback engine. */
-const ffmpegVideoEngine: VideoEngine = {
+/** ffmpeg compose engine (offline, free, default). */
+const ffmpegVideoEngine: MediaEngine<VideoEngineInput, VideoEngineMeta> = {
   provider: 'local',
   model: 'ffmpeg',
-  async compose(execution_id, input) {
+  async run(ctx, input) {
     const r: ComposeResult = await composeVideo({
-      execution_id,
+      execution_id: ctx.execution_id,
       narration_wav: input.narration_wav,
       subtitles_srt: input.subtitles_srt,
       title: input.title,
       resolution: input.resolution,
       duration_seconds: input.duration_seconds,
     });
-    return { ...r, provider: 'local', model: 'ffmpeg', cost_estimate: 0 };
+    return {
+      refs: { video: r.video_path },
+      cost_estimate: 0,
+      metadata: { video_path: r.video_path, duration_seconds: r.duration_seconds, resolution: r.resolution, format: r.format },
+    };
   },
 };
 
-const ENGINES: VideoEngine[] = [ffmpegVideoEngine];
+const ENGINES: MediaEngine<VideoEngineInput, VideoEngineMeta>[] = [ffmpegVideoEngine];
 
-/**
- * Select the video engine adapter for a resolved { provider, model }.
- * Falls back to the local ffmpeg engine when unknown (worker stays
- * capability-only).
- */
-export function getVideoEngine(provider: string | undefined, model: string | undefined): VideoEngine {
+/** Select the video engine for a resolved { provider, model }; default local ffmpeg. */
+export function getVideoEngine(
+  provider: string | undefined,
+  model: string | undefined,
+): MediaEngine<VideoEngineInput, VideoEngineMeta> {
   if (!provider) return ffmpegVideoEngine;
-  const engine = ENGINES.find((e) => e.provider === provider && (model === undefined || e.model === model));
-  return engine ?? ffmpegVideoEngine;
+  return ENGINES.find((e) => e.provider === provider && (model === undefined || e.model === model)) ?? ffmpegVideoEngine;
 }
 
 /** List all registered video engines. */
 export function listVideoEngines(): Array<{ provider: string; model: string }> {
   return ENGINES.map((e) => ({ provider: e.provider, model: e.model }));
 }
+
+export type { EngineContext };

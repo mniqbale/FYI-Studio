@@ -9,7 +9,7 @@ import { Worker, Queue, Job } from 'bullmq';
 import { type TaskEnvelope, type WorkerResponse, WorkerStatus } from '@fyi/contracts';
 import { createRedisConnection, createTaskLogger } from '@fyi/utils';
 import { seedRegistries, ModelGate, loadModelPolicy } from '@fyi/platform';
-import { getSubtitleEngine, toReference } from '@fyi/media';
+import { getSubtitleEngine, runMediaEngine } from '@fyi/media';
 
 const QUEUE_NAME = 'subtitle-real-queue';
 const COMPLETION_QUEUE = 'completion-queue';
@@ -20,79 +20,79 @@ const CAPABILITY = 'subtitle:generate';
 async function processTask(job: Job<TaskEnvelope>): Promise<WorkerResponse> {
   const envelope = job.data;
   const taskLog = createTaskLogger({ job_id: envelope.job_id, execution_id: envelope.execution_id, step_id: envelope.step_id });
-  const startTime = Date.now();
-  const startedAt = new Date().toISOString();
 
   taskLog.info({ worker_id: WORKER_ID, capability: envelope.capability, attempt: envelope.attempt }, 'Real subtitle worker started');
 
-  try {
-    const narration = (envelope.payload?.narration as string | undefined) ?? (envelope.payload?.script as string | undefined);
-    if (!narration || !narration.trim()) {
-      throw new Error('Real subtitle worker: no narration or script text provided in payload');
-    }
-
-    // 1. Resolve the capability to an engine identity via ModelGate (ADR-0011).
-    const gate = new ModelGate(loadModelPolicy());
-    const resolved = await gate.resolve(CAPABILITY, { scope: envelope.tenant_id });
-    if (!resolved.ok) {
-      taskLog.warn({ error: resolved.error?.message }, 'ModelGate could not resolve subtitle:generate; falling back to default engine');
-    }
-    const provider = resolved.model?.provider;
-    const model = resolved.model?.model;
-
-    // 2. Get the engine adapter (subtitle-engine.ts is the only vendor-aware layer).
-    const engine = getSubtitleEngine(provider, model);
-
-    // 3. Delegate subtitle generation to the adapter.
-    const subs = await engine.generate(envelope.execution_id, narration);
-    const finishedAt = new Date().toISOString();
-
-    taskLog.info(
-      { worker_id: WORKER_ID, engine: engine.provider, model: engine.model, srt: subs.srt_path },
-      'Subtitle engine generated SRT',
-    );
-
-    const response: WorkerResponse = {
-      contract_version: '1.1',
-      job_id: envelope.job_id,
-      execution_id: envelope.execution_id,
-      worker_id: WORKER_ID,
-      worker_version: WORKER_VERSION,
-      status: WorkerStatus.SUCCESS,
-      output: {
-        srt_path: subs.srt_path,
-        cues: subs.cues,
-        total_duration: subs.total_duration,
-        subtitle_text: subs.subtitle_text,
-        provider: subs.provider,
-        model: subs.model,
-      },
-      new_references: { subtitles: toReference(subs.srt_path) },
-      usage: {
-        seconds: Math.round(subs.total_duration),
-        cost_estimate: subs.cost_estimate ?? 0,
-      },
-      performance: { duration_ms: Date.now() - startTime, started_at: startedAt, finished_at: finishedAt },
-    };
-    taskLog.info({ worker_id: WORKER_ID, duration_ms: response.performance.duration_ms, status: response.status }, 'Real subtitle worker completed');
-    return response;
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    taskLog.error({ worker_id: WORKER_ID, error_message: msg }, 'Real subtitle worker failed');
-    return {
-      contract_version: '1.1',
-      job_id: envelope.job_id,
-      execution_id: envelope.execution_id,
-      worker_id: WORKER_ID,
-      worker_version: WORKER_VERSION,
-      status: WorkerStatus.FAILURE,
-      output: {},
-      new_references: {},
-      usage: { cost_estimate: 0 },
-      performance: { duration_ms: Date.now() - startTime, started_at: startedAt, finished_at: new Date().toISOString() },
-      error: { code: 'MEDIA_ERROR', message: msg, retryable: false },
-    };
+  // 1. Resolve the capability to an engine identity via ModelGate (ADR-0011).
+  const gate = new ModelGate(loadModelPolicy());
+  const resolved = await gate.resolve(CAPABILITY, { scope: envelope.tenant_id });
+  if (!resolved.ok) {
+    taskLog.warn({ error: resolved.error?.message }, 'ModelGate could not resolve subtitle:generate; falling back to default engine');
   }
+
+  // 2. Select the engine adapter + build its typed input (worker stays capability-only).
+  const engine = getSubtitleEngine(resolved.model?.provider, resolved.model?.model);
+  const narration = (envelope.payload?.narration as string | undefined) ?? (envelope.payload?.script as string | undefined);
+  if (!narration || !narration.trim()) {
+    return failure(envelope, taskLog, 'Real subtitle worker: no narration or script text provided in payload');
+  }
+
+  // 3. Delegate the whole lifecycle to the shared runner (ADR-0012).
+  const outcome = await runMediaEngine(engine, { execution_id: envelope.execution_id, job_id: envelope.job_id, tenant_id: envelope.tenant_id }, {
+    text: narration,
+    language: typeof envelope.payload?.language === 'string' ? envelope.payload.language : undefined,
+  });
+
+  // 4. Surface engine-specific metadata as output (NOT standardized by MediaEngine).
+  const meta = (outcome.metadata ?? {}) as import('@fyi/media').SubtitleEngineMeta;
+  if (outcome.error) {
+    taskLog.error({ worker_id: WORKER_ID, error_message: outcome.error.message }, 'Real subtitle worker failed');
+    return failure(envelope, taskLog, outcome.error.message);
+  }
+
+  taskLog.info({ worker_id: WORKER_ID, engine: engine.provider, model: engine.model, srt: meta.srt_path }, 'Subtitle engine generated SRT');
+
+  const response: WorkerResponse = {
+    contract_version: '1.1',
+    job_id: envelope.job_id,
+    execution_id: envelope.execution_id,
+    worker_id: WORKER_ID,
+    worker_version: WORKER_VERSION,
+    status: WorkerStatus.SUCCESS,
+    output: {
+      srt_path: meta.srt_path,
+      cues: meta.cues,
+      total_duration: meta.total_duration,
+      subtitle_text: meta.subtitle_text,
+      provider: engine.provider,
+      model: engine.model,
+    },
+    new_references: outcome.refs,
+    usage: {
+      seconds: meta.total_duration as number,
+      cost_estimate: outcome.cost_estimate ?? 0,
+    },
+    performance: outcome.telemetry,
+  };
+  taskLog.info({ worker_id: WORKER_ID, duration_ms: response.performance.duration_ms, status: response.status }, 'Real subtitle worker completed');
+  return response;
+}
+
+function failure(envelope: TaskEnvelope, taskLog: ReturnType<typeof createTaskLogger>, message: string): WorkerResponse {
+  taskLog.error({ worker_id: WORKER_ID, error_message: message }, 'Real subtitle worker failed');
+  return {
+    contract_version: '1.1',
+    job_id: envelope.job_id,
+    execution_id: envelope.execution_id,
+    worker_id: WORKER_ID,
+    worker_version: WORKER_VERSION,
+    status: WorkerStatus.FAILURE,
+    output: {},
+    new_references: {},
+    usage: { cost_estimate: 0 },
+    performance: { duration_ms: 0, started_at: new Date().toISOString(), finished_at: new Date().toISOString() },
+    error: { code: 'MEDIA_ERROR', message, retryable: false },
+  };
 }
 
 const completionQueue = new Queue(COMPLETION_QUEUE, { connection: createRedisConnection() });

@@ -12,7 +12,7 @@ import { Worker, Queue, Job } from 'bullmq';
 import { type TaskEnvelope, type WorkerResponse, WorkerStatus } from '@fyi/contracts';
 import { createRedisConnection, createTaskLogger } from '@fyi/utils';
 import { seedRegistries, ModelGate, loadModelPolicy } from '@fyi/platform';
-import { getVoiceEngine, toReference } from '@fyi/media';
+import { getVoiceEngine, runMediaEngine } from '@fyi/media';
 
 const QUEUE_NAME = 'voice-real-queue';
 const COMPLETION_QUEUE = 'completion-queue';
@@ -23,80 +23,79 @@ const CAPABILITY = 'voice:tts';
 async function processTask(job: Job<TaskEnvelope>): Promise<WorkerResponse> {
   const envelope = job.data;
   const taskLog = createTaskLogger({ job_id: envelope.job_id, execution_id: envelope.execution_id, step_id: envelope.step_id });
-  const startTime = Date.now();
-  const startedAt = new Date().toISOString();
 
   taskLog.info({ worker_id: WORKER_ID, capability: envelope.capability, attempt: envelope.attempt }, 'Real voice worker started');
 
-  try {
-    const narration = (envelope.payload?.narration as string | undefined) ?? (envelope.payload?.script as string | undefined);
-    if (!narration || !narration.trim()) {
-      throw new Error('Real voice worker: no narration or script text provided in payload');
-    }
-
-    // 1. Resolve the capability to an engine identity via ModelGate (ADR-0011).
-    const gate = new ModelGate(loadModelPolicy());
-    const resolved = await gate.resolve(CAPABILITY, { scope: envelope.tenant_id });
-    if (!resolved.ok) {
-      taskLog.warn({ error: resolved.error?.message }, 'ModelGate could not resolve voice:tts; falling back to default engine');
-    }
-    const provider = resolved.model?.provider;
-    const model = resolved.model?.model;
-
-    // 2. Get the engine adapter (voice-engine.ts is the only vendor-aware layer).
-    const engine = getVoiceEngine(provider, model);
-
-    // 3. Delegate synthesis to the adapter.
-    const tts = await engine.synthesize(envelope.execution_id, narration, {
-      voice: typeof envelope.payload?.voice === 'string' ? envelope.payload.voice : undefined,
-    });
-    const finishedAt = new Date().toISOString();
-
-    taskLog.info(
-      { worker_id: WORKER_ID, engine: engine.provider, model: engine.model, audio: tts.audio_path },
-      'Voice engine synthesized audio',
-    );
-
-    const response: WorkerResponse = {
-      contract_version: '1.1',
-      job_id: envelope.job_id,
-      execution_id: envelope.execution_id,
-      worker_id: WORKER_ID,
-      worker_version: WORKER_VERSION,
-      status: WorkerStatus.SUCCESS,
-      output: {
-        audio_path: tts.audio_path,
-        duration_seconds: tts.duration_seconds,
-        voice_id: tts.voice_id,
-        provider: tts.provider,
-        model: tts.model,
-      },
-      new_references: { voice_output: toReference(tts.audio_path) },
-      usage: {
-        seconds: tts.duration_seconds,
-        cost_estimate: tts.cost_estimate ?? 0,
-      },
-      performance: { duration_ms: Date.now() - startTime, started_at: startedAt, finished_at: finishedAt },
-    };
-    taskLog.info({ worker_id: WORKER_ID, duration_ms: response.performance.duration_ms, status: response.status }, 'Real voice worker completed');
-    return response;
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    taskLog.error({ worker_id: WORKER_ID, error_message: msg }, 'Real voice worker failed');
-    return {
-      contract_version: '1.1',
-      job_id: envelope.job_id,
-      execution_id: envelope.execution_id,
-      worker_id: WORKER_ID,
-      worker_version: WORKER_VERSION,
-      status: WorkerStatus.FAILURE,
-      output: {},
-      new_references: {},
-      usage: { cost_estimate: 0 },
-      performance: { duration_ms: Date.now() - startTime, started_at: startedAt, finished_at: new Date().toISOString() },
-      error: { code: 'MEDIA_ERROR', message: msg, retryable: false },
-    };
+  // 1. Resolve the capability to an engine identity via ModelGate (ADR-0011).
+  const gate = new ModelGate(loadModelPolicy());
+  const resolved = await gate.resolve(CAPABILITY, { scope: envelope.tenant_id });
+  if (!resolved.ok) {
+    taskLog.warn({ error: resolved.error?.message }, 'ModelGate could not resolve voice:tts; falling back to default engine');
   }
+
+  // 2. Select the engine adapter + build its typed input (worker stays capability-only).
+  const engine = getVoiceEngine(resolved.model?.provider, resolved.model?.model);
+  const narration = (envelope.payload?.narration as string | undefined) ?? (envelope.payload?.script as string | undefined);
+  if (!narration || !narration.trim()) {
+    return failure(envelope, taskLog, 'Real voice worker: no narration or script text provided in payload');
+  }
+
+  // 3. Delegate the whole lifecycle to the shared runner (ADR-0012).
+  const outcome = await runMediaEngine(engine, { execution_id: envelope.execution_id, job_id: envelope.job_id, tenant_id: envelope.tenant_id }, {
+    text: narration,
+    voice: typeof envelope.payload?.voice === 'string' ? envelope.payload.voice : undefined,
+  });
+
+  // 4. Surface engine-specific metadata as output (NOT standardized by MediaEngine).
+  const meta = (outcome.metadata ?? {}) as import('@fyi/media').VoiceEngineMeta;
+  if (outcome.error) {
+    taskLog.error({ worker_id: WORKER_ID, error_message: outcome.error.message }, 'Real voice worker failed');
+    return failure(envelope, taskLog, outcome.error.message);
+  }
+
+  const audioPath = meta.audio_path as string;
+  taskLog.info({ worker_id: WORKER_ID, engine: engine.provider, model: engine.model, audio: audioPath }, 'Voice engine synthesized audio');
+
+  const response: WorkerResponse = {
+    contract_version: '1.1',
+    job_id: envelope.job_id,
+    execution_id: envelope.execution_id,
+    worker_id: WORKER_ID,
+    worker_version: WORKER_VERSION,
+    status: WorkerStatus.SUCCESS,
+    output: {
+      audio_path: audioPath,
+      duration_seconds: meta.duration_seconds,
+      voice_id: meta.voice_id,
+      provider: engine.provider,
+      model: engine.model,
+    },
+    new_references: outcome.refs,
+    usage: {
+      seconds: meta.duration_seconds as number,
+      cost_estimate: outcome.cost_estimate ?? 0,
+    },
+    performance: outcome.telemetry,
+  };
+  taskLog.info({ worker_id: WORKER_ID, duration_ms: response.performance.duration_ms, status: response.status }, 'Real voice worker completed');
+  return response;
+}
+
+function failure(envelope: TaskEnvelope, taskLog: ReturnType<typeof createTaskLogger>, message: string): WorkerResponse {
+  taskLog.error({ worker_id: WORKER_ID, error_message: message }, 'Real voice worker failed');
+  return {
+    contract_version: '1.1',
+    job_id: envelope.job_id,
+    execution_id: envelope.execution_id,
+    worker_id: WORKER_ID,
+    worker_version: WORKER_VERSION,
+    status: WorkerStatus.FAILURE,
+    output: {},
+    new_references: {},
+    usage: { cost_estimate: 0 },
+    performance: { duration_ms: 0, started_at: new Date().toISOString(), finished_at: new Date().toISOString() },
+    error: { code: 'MEDIA_ERROR', message, retryable: false },
+  };
 }
 
 const completionQueue = new Queue(COMPLETION_QUEUE, { connection: createRedisConnection() });

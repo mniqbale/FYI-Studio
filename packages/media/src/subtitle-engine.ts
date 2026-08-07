@@ -1,68 +1,65 @@
-// SubtitleEngine adapter layer (ADR-0011 — Capability-Only Worker Invariant).
+// SubtitleEngine — ASR/caption adapter layer (ADR-0011 + ADR-0012).
 //
-// Second reference implementation of the media-engine pattern, mirroring
-// VoiceEngine (voice-engine.ts) EXACTLY in shape. Per the Rule of Three, this
-// exists alongside VoiceEngine as a real second implementation so we can later
-// compare contracts and extract a generic MediaEngine only if ~identical.
-//
-// Like voice, this is the ONLY place in the subtitle path that knows a
-// vendor/engine identity. A worker resolves "subtitle:generate" via ModelGate
-// to get { provider, model }, then asks this factory for the matching adapter.
+// A MediaEngine implementation for subtitle (text → SRT). Per ADR-0012, this is
+// the ONLY vendor-aware layer in the subtitle path; the worker is capability-only
+// and delegates the whole lifecycle to runMediaEngine. Engine-specific input
+// ({ language }) and metadata ({ cues, total_duration, subtitle_text }) stay
+// typed here — NOT forced into a shared payload (anti-leaky-abstraction).
 
 import { generateSubtitles } from './subtitle.js';
 import { readTextAsset } from './data-plane.js';
+import type { MediaEngine, EngineContext } from './media-engine.js';
 
-/** Uniform result of any subtitle engine. Mirrors VoiceEngineResult shape. */
-export interface SubtitleEngineResult {
+/** Subtitle engine-specific input (NOT standardized by MediaEngine). */
+export interface SubtitleEngineInput {
+  text: string;
+  language?: string;
+}
+
+/** Subtitle engine-specific metadata (NOT standardized by MediaEngine). */
+export interface SubtitleEngineMeta {
   srt_path: string;
   cues: number;
   total_duration: number;
   subtitle_text: string;
+}
+
+/** Backward-compatible result shape (kept for existing tests/callers). */
+export interface SubtitleEngineResult extends SubtitleEngineMeta {
   provider: string;
   model: string;
   cost_estimate: number;
 }
 
-export interface SubtitleEngine {
-  readonly provider: string;
-  readonly model: string;
-  /** Generate an SRT subtitle file from narration text into the execution media dir. */
-  generate(execution_id: string, text: string, opts?: { language?: string }): Promise<SubtitleEngineResult>;
-}
-
-/** Offline heuristic subtitle generator (word-count cues). Default fallback engine. */
-const heuristicSubtitleEngine: SubtitleEngine = {
+/** Heuristic subtitle engine: word-count cues (offline, free, default). */
+const heuristicSubtitleEngine: MediaEngine<SubtitleEngineInput, SubtitleEngineMeta> = {
   provider: 'local',
   model: 'heuristic',
-  async generate(execution_id, text, opts) {
-    const subs = generateSubtitles(execution_id, text);
+  async run(ctx, input) {
+    const subs = generateSubtitles(ctx.execution_id, input.text);
     const subtitle_text = readTextAsset(subs.srt_path) ?? '';
     return {
-      srt_path: subs.srt_path,
-      cues: subs.cues,
-      total_duration: subs.total_duration,
-      subtitle_text,
-      provider: 'local',
-      model: 'heuristic',
+      refs: { subtitles: subs.srt_path },
       cost_estimate: 0,
+      metadata: { srt_path: subs.srt_path, cues: subs.cues, total_duration: subs.total_duration, subtitle_text },
     };
   },
 };
 
-const ENGINES: SubtitleEngine[] = [heuristicSubtitleEngine];
+const ENGINES: MediaEngine<SubtitleEngineInput, SubtitleEngineMeta>[] = [heuristicSubtitleEngine];
 
-/**
- * Select the subtitle engine adapter for a resolved { provider, model }.
- * Falls back to the local heuristic engine when unknown (worker stays
- * capability-only).
- */
-export function getSubtitleEngine(provider: string | undefined, model: string | undefined): SubtitleEngine {
+/** Select the subtitle engine for a resolved { provider, model }; default local heuristic. */
+export function getSubtitleEngine(
+  provider: string | undefined,
+  model: string | undefined,
+): MediaEngine<SubtitleEngineInput, SubtitleEngineMeta> {
   if (!provider) return heuristicSubtitleEngine;
-  const engine = ENGINES.find((e) => e.provider === provider && (model === undefined || e.model === model));
-  return engine ?? heuristicSubtitleEngine;
+  return ENGINES.find((e) => e.provider === provider && (model === undefined || e.model === model)) ?? heuristicSubtitleEngine;
 }
 
 /** List all registered subtitle engines. */
 export function listSubtitleEngines(): Array<{ provider: string; model: string }> {
   return ENGINES.map((e) => ({ provider: e.provider, model: e.model }));
 }
+
+export type { EngineContext };

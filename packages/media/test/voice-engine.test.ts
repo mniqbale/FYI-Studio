@@ -1,10 +1,8 @@
-// Unit tests for the VoiceEngine adapter layer (ADR-0011 reference impl).
-// Verifies that a worker picks the right engine by resolved { provider, model }
-// WITHOUT the worker knowing the vendor — the factory is the only vendor-aware
-// layer. No real synthesis/network here (mocked); just adapter selection.
+// Unit tests for the VoiceEngine adapter layer (ADR-0011 + ADR-0012).
+// Verifies engine selection by resolved { provider, model } and that the
+// engine implements the unified MediaEngine lifecycle (run → refs/cost/metadata).
 import { describe, it, expect, vi } from 'vitest';
 
-// Mock the underlying synthesis modules so no real espeak/network runs.
 vi.mock('../src/tts.js', () => ({
   synthesizeSpeech: vi.fn().mockResolvedValue({
     audio_path: '/tmp/fyi-studio/x/narration.wav',
@@ -24,41 +22,39 @@ vi.mock('../src/tts-replicate.js', () => ({
 }));
 
 import { getVoiceEngine, listVoiceEngines } from '../src/voice-engine.js';
+import { runMediaEngine } from '../src/media-engine.js';
 
-describe('VoiceEngine adapter selection (ADR-0011)', () => {
-  it('resolves espeak-ng when provider/model is espeak-ng', async () => {
+describe('VoiceEngine (MediaEngine lifecycle) selection', () => {
+  it('resolves espeak-ng and runs through the shared lifecycle', async () => {
     const engine = getVoiceEngine('espeak-ng', 'espeak-ng');
     expect(engine.provider).toBe('espeak-ng');
-    const r = await engine.synthesize('exec-1', 'hello');
-    expect(r.provider).toBe('espeak-ng');
-    expect(r.cost_estimate).toBe(0);
-    expect(r.audio_path).toContain('narration.wav');
+    const outcome = await runMediaEngine(engine, { execution_id: 'exec-1' }, { text: 'hello' });
+    expect(outcome.error).toBeUndefined();
+    expect(outcome.refs.voice_output).toContain('narration.wav');
+    expect(outcome.cost_estimate).toBe(0);
+    expect(outcome.metadata?.audio_path).toContain('narration.wav');
+    expect(outcome.telemetry.duration_ms).toBeGreaterThanOrEqual(0);
   });
 
-  it('resolves replicate/kokoro-82m for a cloud voice engine', async () => {
+  it('resolves replicate/kokoro-82m with real cost', async () => {
     const engine = getVoiceEngine('replicate', 'kokoro-82m');
-    expect(engine.provider).toBe('replicate');
     expect(engine.model).toBe('kokoro-82m');
-    const r = await engine.synthesize('exec-1', 'hello', { voice: 'af_bella' });
-    expect(r.provider).toBe('replicate');
-    expect(r.model).toBe('kokoro-82m');
-    expect(r.cost_estimate).toBeGreaterThan(0);
-    expect(r.audio_path).toContain('narration.mp3');
+    const outcome = await runMediaEngine(engine, { execution_id: 'exec-1' }, { text: 'hello', voice: 'af_bella' });
+    expect(outcome.error).toBeUndefined();
+    expect(outcome.refs.voice_output).toContain('narration.mp3');
+    expect(outcome.cost_estimate).toBeGreaterThan(0);
   });
 
-  it('falls back to espeak-ng for an unknown resolved engine (worker stays capability-only)', async () => {
-    const engine = getVoiceEngine('some-future-vendor', 'some-model');
-    expect(engine.provider).toBe('espeak-ng');
+  it('falls back to espeak-ng for an unknown resolved engine', () => {
+    expect(getVoiceEngine('some-future-vendor', 'm').provider).toBe('espeak-ng');
   });
 
-  it('falls back to espeak-ng when no provider resolved (ModelGate failure)', async () => {
-    const engine = getVoiceEngine(undefined, undefined);
-    expect(engine.provider).toBe('espeak-ng');
+  it('falls back to espeak-ng when no provider resolved', () => {
+    expect(getVoiceEngine(undefined, undefined).provider).toBe('espeak-ng');
   });
 
   it('lists registered voice engines', () => {
-    const list = listVoiceEngines();
-    expect(list).toContainEqual({ provider: 'espeak-ng', model: 'espeak-ng' });
-    expect(list).toContainEqual({ provider: 'replicate', model: 'kokoro-82m' });
+    expect(listVoiceEngines()).toContainEqual({ provider: 'espeak-ng', model: 'espeak-ng' });
+    expect(listVoiceEngines()).toContainEqual({ provider: 'replicate', model: 'kokoro-82m' });
   });
 });

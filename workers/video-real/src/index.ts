@@ -12,7 +12,7 @@ import { Worker, Queue, Job } from 'bullmq';
 import { type TaskEnvelope, type WorkerResponse, WorkerStatus } from '@fyi/contracts';
 import { createRedisConnection, createTaskLogger } from '@fyi/utils';
 import { seedRegistries, ModelGate, loadModelPolicy } from '@fyi/platform';
-import { getVideoEngine, toReference } from '@fyi/media';
+import { getVideoEngine, runMediaEngine } from '@fyi/media';
 
 const QUEUE_NAME = 'video-real-queue';
 const COMPLETION_QUEUE = 'completion-queue';
@@ -23,89 +23,84 @@ const CAPABILITY = 'video:compose';
 async function processTask(job: Job<TaskEnvelope>): Promise<WorkerResponse> {
   const envelope = job.data;
   const taskLog = createTaskLogger({ job_id: envelope.job_id, execution_id: envelope.execution_id, step_id: envelope.step_id });
-  const startTime = Date.now();
-  const startedAt = new Date().toISOString();
 
   taskLog.info({ worker_id: WORKER_ID, capability: envelope.capability, attempt: envelope.attempt }, 'Real video worker started');
 
-  try {
-    // Multi-asset input comes from prior steps' new_references or payload.
-    const narration_wav = (envelope.payload?.narration_wav as string | undefined) ?? (envelope.references?.voice_output as string | undefined);
-    const subtitles_srt = (envelope.payload?.subtitles_srt as string | undefined) ?? (envelope.references?.subtitles as string | undefined);
-    const title = envelope.payload?.title as string | undefined;
-    const resolution = envelope.payload?.resolution as string | undefined;
-
-    if (!narration_wav || !subtitles_srt) {
-      throw new Error('Real video worker: missing narration_wav and/or subtitles_srt (from references or payload)');
-    }
-
-    // 1. Resolve the capability to an engine identity via ModelGate (ADR-0011).
-    const gate = new ModelGate(loadModelPolicy());
-    const resolved = await gate.resolve(CAPABILITY, { scope: envelope.tenant_id });
-    if (!resolved.ok) {
-      taskLog.warn({ error: resolved.error?.message }, 'ModelGate could not resolve video:compose; falling back to default engine');
-    }
-    const provider = resolved.model?.provider;
-    const model = resolved.model?.model;
-
-    // 2. Get the engine adapter (video-engine.ts is the only vendor-aware layer).
-    const engine = getVideoEngine(provider, model);
-
-    // 3. Delegate video composition to the adapter.
-    const composed = await engine.compose(envelope.execution_id, {
-      narration_wav,
-      subtitles_srt,
-      title,
-      resolution,
-    });
-    const finishedAt = new Date().toISOString();
-
-    taskLog.info(
-      { worker_id: WORKER_ID, engine: engine.provider, model: engine.model, video: composed.video_path },
-      'Video engine composed MP4',
-    );
-
-    const response: WorkerResponse = {
-      contract_version: '1.1',
-      job_id: envelope.job_id,
-      execution_id: envelope.execution_id,
-      worker_id: WORKER_ID,
-      worker_version: WORKER_VERSION,
-      status: WorkerStatus.SUCCESS,
-      output: {
-        video_path: composed.video_path,
-        duration_seconds: composed.duration_seconds,
-        resolution: composed.resolution,
-        format: composed.format,
-        provider: composed.provider,
-        model: composed.model,
-      },
-      new_references: { video: toReference(composed.video_path) },
-      usage: {
-        seconds: composed.duration_seconds,
-        cost_estimate: composed.cost_estimate ?? 0,
-      },
-      performance: { duration_ms: Date.now() - startTime, started_at: startedAt, finished_at: finishedAt },
-    };
-    taskLog.info({ worker_id: WORKER_ID, duration_ms: response.performance.duration_ms, status: response.status }, 'Real video worker completed');
-    return response;
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    taskLog.error({ worker_id: WORKER_ID, error_message: msg }, 'Real video worker failed');
-    return {
-      contract_version: '1.1',
-      job_id: envelope.job_id,
-      execution_id: envelope.execution_id,
-      worker_id: WORKER_ID,
-      worker_version: WORKER_VERSION,
-      status: WorkerStatus.FAILURE,
-      output: {},
-      new_references: {},
-      usage: { cost_estimate: 0 },
-      performance: { duration_ms: Date.now() - startTime, started_at: startedAt, finished_at: new Date().toISOString() },
-      error: { code: 'MEDIA_ERROR', message: msg, retryable: false },
-    };
+  // Multi-asset input comes from prior steps' new_references or payload.
+  const narration_wav = (envelope.payload?.narration_wav as string | undefined) ?? (envelope.references?.voice_output as string | undefined);
+  const subtitles_srt = (envelope.payload?.subtitles_srt as string | undefined) ?? (envelope.references?.subtitles as string | undefined);
+  if (!narration_wav || !subtitles_srt) {
+    return failure(envelope, taskLog, 'Real video worker: missing narration_wav and/or subtitles_srt (from references or payload)');
   }
+
+  // 1. Resolve the capability to an engine identity via ModelGate (ADR-0011).
+  const gate = new ModelGate(loadModelPolicy());
+  const resolved = await gate.resolve(CAPABILITY, { scope: envelope.tenant_id });
+  if (!resolved.ok) {
+    taskLog.warn({ error: resolved.error?.message }, 'ModelGate could not resolve video:compose; falling back to default engine');
+  }
+
+  // 2. Select the engine adapter + build its typed MULTI-ASSET input.
+  const engine = getVideoEngine(resolved.model?.provider, resolved.model?.model);
+
+  // 3. Delegate the whole lifecycle to the shared runner (ADR-0012).
+  const outcome = await runMediaEngine(engine, { execution_id: envelope.execution_id, job_id: envelope.job_id, tenant_id: envelope.tenant_id }, {
+    narration_wav,
+    subtitles_srt,
+    title: envelope.payload?.title as string | undefined,
+    resolution: envelope.payload?.resolution as string | undefined,
+  });
+
+  // 4. Surface engine-specific metadata as output (NOT standardized by MediaEngine).
+  const meta = (outcome.metadata ?? {}) as import('@fyi/media').VideoEngineMeta;
+  if (outcome.error) {
+    taskLog.error({ worker_id: WORKER_ID, error_message: outcome.error.message }, 'Real video worker failed');
+    return failure(envelope, taskLog, outcome.error.message);
+  }
+
+  taskLog.info({ worker_id: WORKER_ID, engine: engine.provider, model: engine.model, video: meta.video_path }, 'Video engine composed MP4');
+
+  const response: WorkerResponse = {
+    contract_version: '1.1',
+    job_id: envelope.job_id,
+    execution_id: envelope.execution_id,
+    worker_id: WORKER_ID,
+    worker_version: WORKER_VERSION,
+    status: WorkerStatus.SUCCESS,
+    output: {
+      video_path: meta.video_path,
+      duration_seconds: meta.duration_seconds,
+      resolution: meta.resolution,
+      format: meta.format,
+      provider: engine.provider,
+      model: engine.model,
+    },
+    new_references: outcome.refs,
+    usage: {
+      seconds: meta.duration_seconds as number,
+      cost_estimate: outcome.cost_estimate ?? 0,
+    },
+    performance: outcome.telemetry,
+  };
+  taskLog.info({ worker_id: WORKER_ID, duration_ms: response.performance.duration_ms, status: response.status }, 'Real video worker completed');
+  return response;
+}
+
+function failure(envelope: TaskEnvelope, taskLog: ReturnType<typeof createTaskLogger>, message: string): WorkerResponse {
+  taskLog.error({ worker_id: WORKER_ID, error_message: message }, 'Real video worker failed');
+  return {
+    contract_version: '1.1',
+    job_id: envelope.job_id,
+    execution_id: envelope.execution_id,
+    worker_id: WORKER_ID,
+    worker_version: WORKER_VERSION,
+    status: WorkerStatus.FAILURE,
+    output: {},
+    new_references: {},
+    usage: { cost_estimate: 0 },
+    performance: { duration_ms: 0, started_at: new Date().toISOString(), finished_at: new Date().toISOString() },
+    error: { code: 'MEDIA_ERROR', message, retryable: false },
+  };
 }
 
 const completionQueue = new Queue(COMPLETION_QUEUE, { connection: createRedisConnection() });
