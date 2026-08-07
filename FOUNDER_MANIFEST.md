@@ -168,6 +168,29 @@ Dashboard boleh menulis *hanya* lewat alur HITL yang di-scope.
 
 ---
 
+## 9a. Hierarchy of Authority (Order of Precedence)
+
+FYI Studio memiliki beberapa dokumen konstitusi. Ketika terjadi konflik,
+dokumen dengan **level lebih tinggi** menjadi acuan.
+
+| Level | Dokumen | Peran | Kestabilan |
+|-------|---------|-------|------------|
+| **1 (Tertinggi)** | `FOUNDER_MANIFEST.md` | Filosofi & North Star | Tidak mudah berubah |
+| **2** | `PRODUCT_CONSTITUTION.md` | Evolusi produk & Business Architecture | Berubah per milestone |
+| **3** | `SYSTEM.md` | Aturan operasional AI Agent | Berubah via ADR |
+| **4** | `.ai/adr/*` (ADR) | Keputusan arsitektur spesifik | Immutable |
+| **5** | `roadmap.md` / `current-state.md` / `project-memory.md` | Status implementasi | Selalu bisa berubah |
+
+**Aturan:**
+- Konflik antara dua dokumen → dokumen level lebih rendah **menyesuaikan** ke
+  level lebih tinggi.
+- Perubahan level 1–3 harus **disetujui Founder** dan dicatat (ADR untuk
+  arsitektur; ADP untuk keputusan produk yang belum final).
+- Dokumen level 5 (status) **tidak pernah** menjadi otoritas — ia hanya
+  merekam kondisi terkini.
+
+---
+
 ## 10. Ringkasan Keputusan Utama
 
 | # | Keputusan | Alasan | Referensi |

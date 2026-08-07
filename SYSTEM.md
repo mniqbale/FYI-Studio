@@ -65,12 +65,18 @@ related_sprint: "Sprint-001"
 
 ## Governance Rules
 
-### Constitution (`.ai/constitution.md`)
+### Constitution
+Konstitusi FYI Studio tersebar di beberapa dokumen dengan **hierarki otoritas**
+(didefinisikan di `FOUNDER_MANIFEST.md` §9a). Ringkasan aturan inti:
+
 - **Documentation First, Code Second**
 - **Every architectural change requires an ADR**
 - **Contracts are frozen** — changes require ADR + rebuild all consumers
 - **ADRs are immutable** — never modify, create new
 - **Engineering Standards are mandatory** — PR checklist enforced
+
+> Referensi lengkap hierarki: [FOUNDER_MANIFEST.md](FOUNDER_MANIFEST.md) §9a
+> "Hierarchy of Authority".
 
 ### AI Working Lifecycle (Per Constitution)
 ```

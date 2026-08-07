@@ -73,7 +73,7 @@ fyi-studio/
 
 ## Governance
 
-- **Constitution:** [`.ai/constitution.md`](.ai/constitution.md) (Concept-Constitution.md)
+- **Constitution:** [FOUNDER_MANIFEST.md](FOUNDER_MANIFEST.md) (filosofi & north star) + [PRODUCT_CONSTITUTION.md](PRODUCT_CONSTITUTION.md) (evolusi produk) + [SYSTEM.md](SYSTEM.md) (aturan operasional). Hierarki otoritas: FOUNDER_MANIFEST §9a.
 - **Documentation First** — No implementation without approved docs
 - **Contracts Frozen** — v1.1 changes require ADR + all consumers rebuilt
 - **ADR Required** — Every architecture change needs an ADR
