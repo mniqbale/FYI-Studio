@@ -1,7 +1,7 @@
 import { Worker, Queue, Job } from 'bullmq';
 import { type TaskEnvelope, type WorkerResponse, WorkerStatus } from '@fyi/contracts';
 import { createRedisConnection, createTaskLogger } from '@fyi/utils';
-import { seedRegistries, ModelGate, loadModelPolicy } from '@fyi/platform';
+import { seedRegistries, ModelGate, loadModelPolicy, parseContentBrief, briefToPrompt } from '@fyi/platform';
 import { AiClient } from '@fyi/ai';
 import { assembleContext, type AssembledContext } from '@fyi/knowledge';
 
@@ -15,11 +15,17 @@ const aiClient = new AiClient();
 
 /**
  * Build a compact script system prompt injecting tenant context
- * (brand voice, style guide, constraints, forbidden terms, verified facts, memory).
+ * (brand voice, style guide, constraints, forbidden terms, verified facts, memory)
+ * plus the Content Brief that governs this piece of content.
  */
-function buildScriptSystemPrompt(ctx: AssembledContext): string {
+function buildScriptSystemPrompt(ctx: AssembledContext, briefText: string): string {
   const lines: string[] = [
-    'You are the FYI Studio Script Worker. Write a video script based on the research brief.',
+    'You are the FYI Studio Script Worker. Write a video script based on the research brief and the Content Brief below.',
+    '',
+    'CONTENT BRIEF (the contract for this content):',
+    briefText,
+    '',
+    'Keep the script aligned with the brief: objective, audience, angle, success metric, and distribution target.',
   ];
   if (ctx.brand_voice) lines.push(`Follow the brand voice: ${ctx.brand_voice}`);
   if (ctx.language) lines.push(`Write in this language: ${ctx.language}`);
@@ -40,6 +46,8 @@ function buildScriptSystemPrompt(ctx: AssembledContext): string {
 
 async function buildOutput(envelope: TaskEnvelope): Promise<Record<string, unknown>> {
   const researchBrief = (envelope.payload?.research_brief as string) ?? 'no research brief provided';
+  const brief = parseContentBrief(envelope.payload?.content_brief);
+  const briefText = brief ? briefToPrompt(brief) : 'no content brief provided';
 
   // Assemble tenant context (knowledge + memory) for prompt injection.
   const ctx = await assembleContext(envelope.tenant_id);
@@ -51,7 +59,7 @@ async function buildOutput(envelope: TaskEnvelope): Promise<Record<string, unkno
   }
   const { provider, model } = resolved.model!;
 
-  const system = buildScriptSystemPrompt(ctx);
+  const system = buildScriptSystemPrompt(ctx, briefText);
 
   const result = await aiClient.complete({
     provider,
@@ -79,6 +87,8 @@ async function buildOutput(envelope: TaskEnvelope): Promise<Record<string, unkno
     scenes: parsed.scenes ?? [],
     hook: parsed.hook ?? '',
     narration: parsed.narration ?? '',
+    // Carry the Content Brief forward so downstream workers consume the same artifact.
+    content_brief: brief ?? undefined,
     _usage: { tokens_in: result.tokens_in, tokens_out: result.tokens_out },
   };
 }

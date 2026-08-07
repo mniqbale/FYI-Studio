@@ -32,3 +32,9 @@ export {
 export { seedRegistries, disconnectDb } from './seed.js';
 export { hasSecret, resolveSecret, secretRef, loadEnvIfPresent, encryptSecret, decryptSecret, isEncryptedRef } from './secrets.js';
 export { validateProviderKey, type KeyValidationResult } from './validate-provider-key.js';
+export {
+  parseContentBrief,
+  briefToPrompt,
+  type ContentBrief,
+  type ParsedContentBrief,
+} from './content-brief.js';

@@ -1,7 +1,7 @@
 import { Worker, Queue, Job } from 'bullmq';
 import { type TaskEnvelope, type WorkerResponse, WorkerStatus } from '@fyi/contracts';
 import { createRedisConnection, createTaskLogger } from '@fyi/utils';
-import { seedRegistries, ModelGate, loadModelPolicy } from '@fyi/platform';
+import { seedRegistries, ModelGate, loadModelPolicy, parseContentBrief, briefToPrompt } from '@fyi/platform';
 import { AiClient } from '@fyi/ai';
 import { assembleContext, type AssembledContext } from '@fyi/knowledge';
 
@@ -15,11 +15,17 @@ const aiClient = new AiClient();
 
 /**
  * Build a compact research system prompt injecting tenant context
- * (brand voice, style guide, constraints, forbidden terms, verified facts, memory).
+ * (brand voice, style guide, constraints, forbidden terms, verified facts, memory)
+ * and the Content Brief (the primary input driving research).
  */
-function buildResearchSystemPrompt(topic: string, ctx: AssembledContext): string {
+function buildResearchSystemPrompt(ctx: AssembledContext, briefText: string): string {
   const lines: string[] = [
-    `You are the FYI Studio Research Worker. Produce a research brief for a video on: ${topic}`,
+    'You are the FYI Studio Research Worker. Produce a research brief for the content described in the Content Brief below.',
+    '',
+    'CONTENT BRIEF (the contract for this content):',
+    briefText,
+    '',
+    'Research the topic grounded in this brief. Align the research with the objective, audience, angle, and success metric stated.',
   ];
   if (ctx.brand_voice) lines.push(`Follow the brand voice: ${ctx.brand_voice}`);
   if (ctx.language) lines.push(`Write in this language: ${ctx.language}`);
@@ -39,7 +45,11 @@ function buildResearchSystemPrompt(topic: string, ctx: AssembledContext): string
 }
 
 async function buildOutput(envelope: TaskEnvelope): Promise<Record<string, unknown>> {
-  const topic = (envelope.payload?.topic as string) ?? 'unknown topic';
+  // Primary input: a Content Brief (manual in Phase 2.1). Fall back to a plain
+  // topic string for backward compatibility with existing jobs.
+  const brief = parseContentBrief(envelope.payload?.content_brief);
+  const topic = brief?.topic ?? ((envelope.payload?.topic as string) ?? 'unknown topic');
+  const briefText = brief ? briefToPrompt(brief) : `Topic: ${topic}`;
 
   // Assemble tenant context (knowledge + memory) for prompt injection.
   const ctx = await assembleContext(envelope.tenant_id);
@@ -51,7 +61,7 @@ async function buildOutput(envelope: TaskEnvelope): Promise<Record<string, unkno
   }
   const { provider, model } = resolved.model!;
 
-  const system = buildResearchSystemPrompt(topic, ctx);
+  const system = buildResearchSystemPrompt(ctx, briefText);
 
   const result = await aiClient.complete({
     provider,
@@ -81,6 +91,8 @@ async function buildOutput(envelope: TaskEnvelope): Promise<Record<string, unkno
     sources: parsed.sources ?? [],
     key_findings: parsed.key_findings ?? [],
     summary: parsed.summary ?? '',
+    // Carry the Content Brief forward so downstream workers consume the same artifact.
+    content_brief: brief ?? undefined,
     _usage: { tokens_in: result.tokens_in, tokens_out: result.tokens_out },
   };
 }
