@@ -191,7 +191,7 @@ model SocialAccount {
   platform      String   @db.VarChar(50) // 'youtube' | 'facebook' | 'instagram' | 'tiktok'
   display_name  String   @db.VarChar(255)
   account_ref   String   @db.VarChar(255) // platform channel/account id
-  token_ref     String   @db.VarChar(255) // OAuth credential reference (never the token)
+  token_ref     String   @db.Text // encrypted OAuth bundle (AES-256-GCM + base64url can exceed 255 chars)
   enabled       Boolean  @default(true)
   connected_at  DateTime @default(now()) @db.Timestamptz(6)
   last_sync_at  DateTime? @db.Timestamptz(6)
