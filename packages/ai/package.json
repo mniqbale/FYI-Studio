@@ -19,6 +19,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@fyi/platform": "workspace:1.0.0",
     "@fyi/utils": "workspace:1.0.0"
   },
   "devDependencies": {

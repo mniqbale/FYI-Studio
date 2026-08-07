@@ -41,3 +41,16 @@ export function getProvider(id: string): ProviderDefinition | undefined {
 export function listProviderIds(): string[] {
   return PROVIDER_CATALOG.map((p) => p.id);
 }
+
+/**
+ * Resolve a provider's base URL — the SINGLE source of truth for base URLs.
+ * Allows an env override (`<PROVIDER>_BASE_URL`) so deployments/tenants can
+ * point a provider at a different endpoint without changing the registry.
+ * Falls back to the registry's static base_url.
+ */
+export function getProviderBaseUrl(provider: string): string | undefined {
+  const envName = `${provider.toUpperCase().replace(/[^A-Z0-9]/g, '_')}_BASE_URL`;
+  const envOverride = process.env[envName];
+  if (envOverride) return envOverride;
+  return getProvider(provider)?.base_url;
+}

@@ -4,6 +4,7 @@
 
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { getProviderBaseUrl } from '@fyi/platform';
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -33,17 +34,6 @@ export class AiClientError extends Error {
     this.retryable = retryable;
   }
 }
-
-// Base URLs per provider.
-const BASE_URL: Record<string, string> = {
-  openai: 'https://api.openai.com/v1',
-  openrouter: 'https://openrouter.ai/api/v1',
-  groq: 'https://api.groq.com/openai/v1',
-  together: 'https://api.together.xyz/v1',
-  ollama: 'http://localhost:11434/v1',
-  anthropic: 'https://api.anthropic.com/v1',
-  gemini: 'https://generativelanguage.googleapis.com/v1beta',
-};
 
 // ---- minimal env/secret helpers (self-contained, no @fyi/platform dep) ----
 function envVarName(provider: string): string {
@@ -82,14 +72,11 @@ loadEnvIfPresent();
 
 export class AiClient {
   /**
-   * Resolve the base URL for a provider. Ollama supports a cloud override via
-   * OLLAMA_BASE_URL (defaults to localhost). All others use the static map.
+   * Resolve the base URL for a provider from the single source of truth
+   * (@fyi/platform provider-registry, which honors `<PROVIDER>_BASE_URL` env).
    */
   private resolveBaseUrl(provider: string): string | undefined {
-    if (provider === 'ollama' && process.env.OLLAMA_BASE_URL) {
-      return process.env.OLLAMA_BASE_URL;
-    }
-    return BASE_URL[provider];
+    return getProviderBaseUrl(provider);
   }
 
   async complete(req: AiRequest): Promise<AiResult> {

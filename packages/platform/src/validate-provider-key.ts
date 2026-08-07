@@ -2,8 +2,11 @@
 // call to each provider's API to confirm the key actually works, so the user
 // sees an inline status (valid / invalid / unreachable) instead of a generic
 // error page. Never logs or persists the key.
+//
+// Base URLs come from the single source of truth (@fyi/platform
+// provider-registry via getProviderBaseUrl, which honors <PROVIDER>_BASE_URL).
 
-import { getProvider } from './provider-registry.js';
+import { getProvider, getProviderBaseUrl } from './provider-registry.js';
 
 export interface KeyValidationResult {
   provider: string;
@@ -14,18 +17,18 @@ export interface KeyValidationResult {
   status?: number;
 }
 
-/** Base URLs for validation calls (informational; real calls happen in workers). */
-const VALIDATION_ENDPOINTS: Record<string, { url: string; method: 'GET' | 'POST'; headers?: Record<string, string> }> = {
-  openai: { url: 'https://api.openai.com/v1/models', method: 'GET', headers: { Authorization: 'Bearer {KEY}' } },
-  anthropic: { url: 'https://api.anthropic.com/v1/models', method: 'GET', headers: { 'x-api-key': '{KEY}', 'anthropic-version': '2023-06-01' } },
-  gemini: { url: 'https://generativelanguage.googleapis.com/v1beta/models?key={KEY}', method: 'GET' },
-  openrouter: { url: 'https://openrouter.ai/api/v1/models', method: 'GET', headers: { Authorization: 'Bearer {KEY}' } },
-  groq: { url: 'https://api.groq.com/openai/v1/models', method: 'GET', headers: { Authorization: 'Bearer {KEY}' } },
-  ollama: { url: 'https://ollama.com/v1/models', method: 'GET', headers: { Authorization: 'Bearer {KEY}' } },
-  replicate: { url: 'https://api.replicate.com/v1/models', method: 'GET', headers: { Authorization: 'Bearer {KEY}' } },
-  together: { url: 'https://api.together.xyz/v1/models', method: 'GET', headers: { Authorization: 'Bearer {KEY}' } },
-  azure: { url: 'https://api.openai.com/v1/models', method: 'GET', headers: { Authorization: 'Bearer {KEY}' } },
-  vertex: { url: 'https://generativelanguage.googleapis.com/v1beta/models?key={KEY}', method: 'GET' },
+/** Per-provider validation call shape (path + auth header template). */
+const VALIDATION_SPEC: Record<string, { path: string; auth: 'bearer' | 'x-api-key' | 'query' }> = {
+  openai: { path: '/models', auth: 'bearer' },
+  anthropic: { path: '/models', auth: 'x-api-key' },
+  gemini: { path: '/models', auth: 'query' },
+  openrouter: { path: '/models', auth: 'bearer' },
+  groq: { path: '/models', auth: 'bearer' },
+  ollama: { path: '/models', auth: 'bearer' },
+  replicate: { path: '/models', auth: 'bearer' },
+  together: { path: '/models', auth: 'bearer' },
+  azure: { path: '/models', auth: 'bearer' },
+  vertex: { path: '/models', auth: 'query' },
 };
 
 /**
@@ -38,16 +41,23 @@ export async function validateProviderKey(provider: string, apiKey: string): Pro
   if (!def) return { provider, valid: false, reason: `Unknown provider: ${provider}` };
   if (!apiKey || !apiKey.trim()) return { provider, valid: false, reason: 'API key is empty' };
 
-  const endpoint = VALIDATION_ENDPOINTS[provider];
-  if (!endpoint) return { provider, valid: false, reason: 'No validation endpoint for this provider' };
+  const spec = VALIDATION_SPEC[provider];
+  if (!spec) return { provider, valid: false, reason: 'No validation endpoint for this provider' };
+
+  const base = getProviderBaseUrl(provider);
+  if (!base) return { provider, valid: false, reason: `No base URL for provider: ${provider}` };
 
   try {
-    const url = endpoint.url.replace('{KEY}', encodeURIComponent(apiKey.trim()));
-    const headers: Record<string, string> = {};
-    for (const [k, v] of Object.entries(endpoint.headers ?? {})) {
-      headers[k] = v.replace('{KEY}', apiKey.trim());
+    let url = `${base.replace(/\/$/, '')}${spec.path}`;
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (spec.auth === 'bearer') headers.Authorization = `Bearer ${apiKey.trim()}`;
+    if (spec.auth === 'x-api-key') {
+      headers['x-api-key'] = apiKey.trim();
+      headers['anthropic-version'] = '2023-06-01';
     }
-    const res = await fetch(url, { method: endpoint.method, headers, signal: AbortSignal.timeout(8000) });
+    if (spec.auth === 'query') url = `${url}?key=${encodeURIComponent(apiKey.trim())}`;
+
+    const res = await fetch(url, { method: 'GET', headers, signal: AbortSignal.timeout(8000) });
     if (res.ok) return { provider, valid: true, reason: 'API key valid', status: res.status };
     if (res.status === 401 || res.status === 403) {
       return { provider, valid: false, reason: 'API key invalid (401/403 — unauthorized)', status: res.status };

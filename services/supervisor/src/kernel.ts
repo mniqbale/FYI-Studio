@@ -21,7 +21,7 @@ import { type Queue } from 'bullmq';
 import { createWorkerQueue } from './queue-handler.js';
 import {
   CAPABILITY_QUEUE,
-  CAPABILITY_POLICY,
+  resolvePolicy,
   DEFAULT_TENANT_CONTEXT,
 } from './config.js';
 
@@ -119,7 +119,7 @@ export class SupervisorKernel {
 
     const executionId = `${jobId}-${step.id}-${Date.now()}`;
     const payload = resolveInputMapping(step.input_mapping, artifacts);
-    const policy = CAPABILITY_POLICY[step.capability] ?? { provider: 'mock', model: 'mock-model' };
+    const policy = resolvePolicy(step.capability);
 
     // Multi-Tenant (Milestone 6): enforce tenant enabled + cost quota before dispatch.
     const enabled = await tenantEnabled(tenantId);

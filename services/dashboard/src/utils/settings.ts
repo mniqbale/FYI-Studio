@@ -25,6 +25,7 @@ import {
   setProviderApiKey,
   deleteProviderApiKey,
   validateProviderKey,
+  getProviderBaseUrl,
 } from '@fyi/platform';
 import {
   upsertTenantKnowledge,
@@ -111,7 +112,7 @@ const DISCOVERY_TTL_MS = 60_000;
 
 async function discoverProviderModelsUncached(provider: string): Promise<Array<{ provider: string; model: string }>> {
   try {
-    const base = process.env[`${provider.toUpperCase()}_BASE_URL`] ?? PROVIDER_BASE_URLS[provider];
+    const base = getProviderBaseUrl(provider);
     if (!base) return [];
     const url = `${base.replace(/\/$/, '')}/models`;
 
@@ -144,20 +145,6 @@ async function discoverProviderModelsUncached(provider: string): Promise<Array<{
     return [];
   }
 }
-
-/** Base URLs for model discovery per provider (informational). */
-const PROVIDER_BASE_URLS: Record<string, string> = {
-  openai: 'https://api.openai.com/v1',
-  anthropic: 'https://api.anthropic.com/v1',
-  gemini: 'https://generativelanguage.googleapis.com/v1beta',
-  openrouter: 'https://openrouter.ai/api/v1',
-  groq: 'https://api.groq.com/openai/v1',
-  ollama: 'https://ollama.com/v1',
-  replicate: 'https://api.replicate.com/v1',
-  together: 'https://api.together.xyz/v1',
-  azure: 'https://api.openai.com/v1',
-  vertex: 'https://generativelanguage.googleapis.com/v1beta',
-};
 
 /** Read-only snapshot of providers + connections + tenants + model assignments. */
 export async function getSettingsOverview(

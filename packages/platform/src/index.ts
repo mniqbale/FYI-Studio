@@ -1,6 +1,7 @@
 export {
   PROVIDER_CATALOG,
   getProvider,
+  getProviderBaseUrl,
   listProviderIds,
   type ProviderDefinition,
 } from './provider-registry.js';
