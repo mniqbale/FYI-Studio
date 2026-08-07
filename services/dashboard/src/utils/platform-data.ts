@@ -40,6 +40,8 @@ export interface PlatformAnalyticsData {
   totalRevenue: number;
   totalViews: number;
   lastIngestion: IngestionLogItem | null;
+  /** Connected YouTube channel status (workstream 3). */
+  connection: { connected: boolean; channelTitle?: string; accountRef?: string } | null;
 }
 
 export async function getPlatformPerformance(tenantId?: string): Promise<PlatformPerformanceItem[]> {
@@ -92,12 +94,19 @@ export async function getLastIngestion(): Promise<IngestionLogItem | null> {
 }
 
 export async function getPlatformAnalytics(tenantId?: string): Promise<PlatformAnalyticsData> {
-  const [performance, revenue, lastIngestion] = await Promise.all([
+  const [performance, revenue, lastIngestion, account] = await Promise.all([
     getPlatformPerformance(tenantId),
     getPlatformRevenue(tenantId),
     getLastIngestion(),
+    prisma.socialAccount.findFirst({
+      where: { platform: 'youtube', enabled: true },
+      orderBy: { connected_at: 'asc' },
+    }),
   ]);
   const totalRevenue = revenue.reduce((s, r) => s + r.revenue, 0);
   const totalViews = performance.reduce((s, p) => s + p.views, 0);
-  return { performance, revenue, totalRevenue, totalViews, lastIngestion };
+  const connection = account
+    ? { connected: true, channelTitle: account.display_name, accountRef: account.account_ref }
+    : null;
+  return { performance, revenue, totalRevenue, totalViews, lastIngestion, connection };
 }

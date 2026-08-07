@@ -62,11 +62,15 @@ export function renderAnalyticsPage(params: AnalyticsPageParams): string {
       <h3>📊 Platform Analytics (Performa Konten & Revenue)</h3>
       <p class="muted">Data diambil dari tabel lokal via scheduler — Dashboard tidak pernah memanggil API platform saat halaman dibuka (ADR-0009).</p>
       <div class="stats-grid">
+        <div class="stat-card"><span class="stat-value">${platform?.connection?.connected ? '✅' : '—'}</span> YouTube Connected</div>
         <div class="stat-card"><span class="stat-value">${(platform?.totalViews ?? 0).toLocaleString()}</span> Total Views</div>
         <div class="stat-card"><span class="stat-value">$${(platform?.totalRevenue ?? 0).toFixed(4)}</span> Total Revenue</div>
         <div class="stat-card"><span class="stat-value">${(platform?.performance ?? []).length}</span> Videos Tracked</div>
         <div class="stat-card"><span class="stat-value">${platform?.lastIngestion ? esc(platform.lastIngestion.status) : '—'}</span> Last Sync</div>
       </div>
+      ${platform?.connection?.connected
+        ? `<p class="muted">🔗 Channel: <strong>${esc(platform.connection.channelTitle ?? '')}</strong> (<code>${esc(platform.connection.accountRef ?? '')}</code>)</p>`
+        : '<p class="muted">Belum ada channel YouTube terhubung. Klik <a href="/settings#social-section">Connect YouTube (OAuth)</a> di Settings.</p>'}
       <div class="chart-container"><h3>Revenue by Video</h3><canvas id="platform-revenue-chart"></canvas></div>
       <h4>Content Performance</h4>
       <table class="telemetry-table">
