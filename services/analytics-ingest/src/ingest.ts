@@ -53,18 +53,19 @@ export async function runIngestionCycle(): Promise<IngestCycleResult> {
       return { logId: log.id, status: 'skipped_quota', videosFound: 0, metricsUpserted: 0, revenueUpserted: 0, unitsConsumed: 0, unitsRemaining: status.remaining, memoryWritten: 0 };
     }
 
-    // Resolve a real OAuth access token from a connected YouTube social account
-    // (workstream 1) so ingestion uses REAL data, not the mock. Falls back to
-    // the mock client when no connected account / token is available.
-    const account = await prisma.socialAccount.findFirst({
+    // Resolve a real OAuth access token from the FIRST connected YouTube social
+    // account that has an ENCRYPTED token (i.e. a real OAuth connect, not seed).
+    // Falls back to the mock client when no real connected account exists.
+    const accounts = await prisma.socialAccount.findMany({
       where: { platform: 'youtube', enabled: true },
       orderBy: { connected_at: 'asc' },
     });
-    const accessToken = await resolveYoutubeAccessToken(account?.id);
+    const realAccount = accounts.find((a) => a.token_ref.startsWith('enc:'));
+    const accessToken = await resolveYoutubeAccessToken(realAccount?.id);
     const client: YoutubeClient = accessToken
       ? new RealYoutubeClient(accessToken)
       : buildYoutubeClient();
-    const videos = await listPublishedVideos();
+    const videos = await listPublishedVideos(client);
     const period = todayPeriod();
     const snapDate = snapshotDate();
 

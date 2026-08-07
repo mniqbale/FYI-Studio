@@ -30,6 +30,8 @@ export interface VideoRevenue {
 
 /** The client surface used by the ingestion worker. */
 export interface YoutubeClient {
+  /** List videos uploaded by the connected channel (recent first). */
+  listChannelVideos(limit?: number): Promise<string[]>;
   /** Fetch content stats for a video. Returns null when the video is not found. */
   fetchVideoStats(videoId: string, platform?: string): Promise<VideoStats | null>;
   /** Fetch monetization revenue for a video. Returns null when unavailable/ineligible. */
@@ -86,6 +88,19 @@ export class RealYoutubeClient implements YoutubeClient {
     return (await res.json()) as T;
   }
 
+  async listChannelVideos(limit = 50): Promise<string[]> {
+    // Fetch the channel's uploads playlist, then list video ids from it.
+    const channel = await this.get<{ items?: Array<{ contentDetails?: { relatedPlaylists?: { uploads?: string } } }> }>(
+      'https://www.googleapis.com/youtube/v3/channels?part=contentDetails&mine=true',
+    );
+    const uploadsPlaylistId = channel.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+    if (!uploadsPlaylistId) return [];
+    const list = await this.get<{ items?: Array<{ contentDetails?: { videoId?: string } }> }>(
+      `https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&playlistId=${encodeURIComponent(uploadsPlaylistId)}&maxResults=${limit}`,
+    );
+    return (list.items ?? []).map((i) => i.contentDetails?.videoId ?? '').filter(Boolean);
+  }
+
   async fetchVideoStats(videoId: string, platform = 'youtube'): Promise<VideoStats | null> {
     if (platform !== 'youtube') return null;
     const url = `${DATA_API}?part=statistics,contentDetails&id=${encodeURIComponent(videoId)}`;
@@ -130,6 +145,10 @@ function hashSeed(s: string): number {
 }
 
 export class MockYoutubeClient implements YoutubeClient {
+  async listChannelVideos(_limit = 50): Promise<string[]> {
+    return []; // mock has no real channel videos
+  }
+
   async fetchVideoStats(videoId: string, _platform = 'youtube'): Promise<VideoStats | null> {
     const seed = hashSeed(videoId);
     const views = 500 + (seed % 9500);

@@ -4,6 +4,7 @@
 //   2. `jobs.artifacts.published` / `jobs.artifacts.video_id` where the job's step
 //      output carries a video id.
 import { prisma } from './prisma.js';
+import type { YoutubeClient } from './youtube.js';
 
 export interface PublishedVideo {
   tenantId: string;
@@ -19,9 +20,32 @@ interface PlatformResponse {
   url?: string;
 }
 
-/** Collect distinct published videos to ingest. */
-export async function listPublishedVideos(): Promise<PublishedVideo[]> {
+/**
+ * Collect distinct published videos to ingest. When a real YouTube client is
+ * provided, it lists the connected channel's actual uploads (real analytics).
+ * Local scheduled publishes are still merged in (so E2E/mock flows work).
+ */
+export async function listPublishedVideos(client?: YoutubeClient): Promise<PublishedVideo[]> {
   const out = new Map<string, PublishedVideo>();
+
+  // Source 0: real channel uploads (when a real OAuth client is active).
+  if (client) {
+    let channelVideos: string[] = [];
+    try {
+      channelVideos = await client.listChannelVideos(50);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (!msg.includes('not_found')) {
+        // Log but don't fail the whole cycle — fall through to local sources.
+        // eslint-disable-next-line no-console
+        console.warn(`listChannelVideos failed (will fall back to local sources): ${msg}`);
+      }
+    }
+    for (const videoId of channelVideos) {
+      const key = `youtube:${videoId}`;
+      if (!out.has(key)) out.set(key, { tenantId: 'default', videoId, platform: 'youtube', jobId: null });
+    }
+  }
 
   // Source 1: scheduled publishes with a resolved videoId.
   const publishes = await prisma.scheduledPublish.findMany({
