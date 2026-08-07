@@ -6,15 +6,20 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@fyi/publish', () => ({
   readOAuthToken: vi.fn(),
+  getValidAccessToken: vi.fn(),
+  loadOAuthConfig: vi.fn(),
+  refreshAccessToken: vi.fn(),
 }));
 
-import { readOAuthToken } from '@fyi/publish';
+import { readOAuthToken, getValidAccessToken, loadOAuthConfig } from '@fyi/publish';
 import { resolveYoutubeAccessToken, hasYoutubeCredential } from '../src/utils/youtube.js';
 
 describe('resolveYoutubeAccessToken (workstream 2)', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     delete process.env.YOUTUBE_ACCESS_TOKEN;
+    // By default no OAuth config -> resolveYoutubeAccessToken falls back to raw bundle read.
+    vi.mocked(loadOAuthConfig).mockReturnValue(null);
   });
 
   it('returns the access token from a connected social account', async () => {
@@ -27,6 +32,14 @@ describe('resolveYoutubeAccessToken (workstream 2)', () => {
     const token = await resolveYoutubeAccessToken('account-1');
     expect(token).toBe('oauth-at-123');
     expect(readOAuthToken).toHaveBeenCalledWith('account-1');
+  });
+
+  it('uses getValidAccessToken (auto-refresh) when OAuth config is present', async () => {
+    vi.mocked(loadOAuthConfig).mockReturnValue({ clientId: 'cid', clientSecret: 'sec', redirectUri: 'http://x/cb' });
+    vi.mocked(getValidAccessToken).mockResolvedValue('refreshed-at-456');
+    const token = await resolveYoutubeAccessToken('account-1');
+    expect(token).toBe('refreshed-at-456');
+    expect(getValidAccessToken).toHaveBeenCalledWith('account-1', expect.any(Function));
   });
 
   it('returns undefined when no account id and no env token', async () => {

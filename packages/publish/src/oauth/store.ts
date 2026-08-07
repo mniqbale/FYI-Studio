@@ -13,6 +13,8 @@ export interface OAuthTokenBundle {
   refresh_token?: string;
   expires_in: number;
   token_type: string;
+  /** Epoch ms when the access token was issued (set on persist). */
+  issued_at?: number;
 }
 
 /** Encrypt a token bundle into a single `enc:` blob for token_ref. */
@@ -42,7 +44,8 @@ export async function persistOAuthAccount(opts: {
   account_ref: string;
   tokenBundle: OAuthTokenBundle;
 }): Promise<{ id: string; token_ref: string }> {
-  const tokenRef = encryptTokenBundle(opts.tokenBundle);
+  const bundle: OAuthTokenBundle = { ...opts.tokenBundle, issued_at: Date.now() };
+  const tokenRef = encryptTokenBundle(bundle);
   const row = await prisma.socialAccount.create({
     data: {
       tenant_id: opts.tenant_id,
@@ -62,4 +65,42 @@ export async function readOAuthToken(accountId: string): Promise<OAuthTokenBundl
   const row = await prisma.socialAccount.findUnique({ where: { id: accountId } });
   if (!row) return null;
   return decryptTokenBundle(row.token_ref);
+}
+
+/** Whether an access token is still valid (issued_at + expires_in, 60s safety). */
+export function isTokenExpired(bundle: OAuthTokenBundle): boolean {
+  if (!bundle.issued_at) return true; // unknown issued time -> treat as needing refresh
+  const expiresMs = bundle.expires_in * 1000;
+  return Date.now() > bundle.issued_at + expiresMs - 60_000;
+}
+
+/**
+ * Get a valid access token for an account, refreshing it via the refresh token
+ * when expired. Persists the refreshed bundle (encrypted). Returns undefined
+ * when no token or refresh is possible.
+ */
+export async function getValidAccessToken(
+  accountId: string,
+  refresh: (bundle: OAuthTokenBundle) => Promise<OAuthTokenBundle | null>,
+): Promise<string | undefined> {
+  const bundle = await readOAuthToken(accountId);
+  if (!bundle?.access_token) return undefined;
+  if (!isTokenExpired(bundle)) return bundle.access_token;
+
+  // Access token expired — refresh using the refresh token.
+  if (!bundle.refresh_token) return undefined;
+  const refreshed = await refresh(bundle);
+  if (!refreshed?.access_token) return undefined;
+
+  // Persist the refreshed bundle (keep the existing refresh token unless a new one came).
+  const merged: OAuthTokenBundle = {
+    ...refreshed,
+    refresh_token: refreshed.refresh_token ?? bundle.refresh_token,
+    issued_at: Date.now(),
+  };
+  await prisma.socialAccount.update({
+    where: { id: accountId },
+    data: { token_ref: encryptTokenBundle(merged), last_sync_at: new Date() },
+  });
+  return merged.access_token;
 }

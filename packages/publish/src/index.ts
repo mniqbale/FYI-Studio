@@ -56,6 +56,8 @@ export {
   decryptTokenBundle,
   persistOAuthAccount,
   readOAuthToken,
+  getValidAccessToken,
+  isTokenExpired,
 } from './oauth/store.js';
 export type { OAuthTokenBundle } from './oauth/store.js';
 

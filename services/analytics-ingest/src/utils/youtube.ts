@@ -38,12 +38,31 @@ export interface YoutubeClient {
   fetchVideoRevenue(videoId: string, period: string, platform?: string): Promise<VideoRevenue | null>;
 }
 
+import { getValidAccessToken, loadOAuthConfig, refreshAccessToken } from '@fyi/publish';
+
 /**
- * Resolve an OAuth access token for a connected YouTube social account.
- * Returns undefined when no connected account / token is available.
+ * Resolve a valid OAuth access token for a connected YouTube social account,
+ * auto-refreshing when expired via the stored refresh token. Returns undefined
+ * when no connected account / refreshable token is available.
  */
 export async function resolveYoutubeAccessToken(accountId?: string): Promise<string | undefined> {
   if (accountId) {
+    const config = loadOAuthConfig();
+    const refresh = config
+      ? async (bundle: import('@fyi/publish').OAuthTokenBundle) => {
+          if (!bundle.refresh_token) return null;
+          try {
+            return await refreshAccessToken(config, bundle.refresh_token);
+          } catch {
+            return null;
+          }
+        }
+      : undefined;
+    if (refresh) {
+      const token = await getValidAccessToken(accountId, refresh);
+      if (token) return token;
+    }
+    // Fallback: read the raw bundle if refresh unavailable.
     const bundle = await readOAuthToken(accountId);
     if (bundle?.access_token) return bundle.access_token;
   }
