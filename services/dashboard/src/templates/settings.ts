@@ -15,10 +15,20 @@ export function renderSettingsPage(
   const { providers, assignments } = data;
 
   const providerRows = providers
-    .map((p) => `
+    .map((p) => {
+      const usabilityBadge = p.usability
+        ? p.usability.status === 'usable'
+          ? '<span class="badge ok" title="Provider account can run models">✅ usable</span>'
+          : p.usability.status === 'credit_depleted'
+            ? '<span class="badge off" title="' + esc(p.usability.reason) + '">⛔ credit depleted</span>'
+            : p.usability.status === 'invalid_key'
+              ? '<span class="badge off" title="' + esc(p.usability.reason) + '">⛔ invalid key</span>'
+              : `<span class="badge off" title="${esc(p.usability.reason)}">⚠ ${esc(p.usability.status)}</span>`
+        : '';
+      return `
       <tr>
         <td><strong>${esc(p.name)}</strong><br><code>${esc(p.id)}</code></td>
-        <td><span class="badge ${p.connected ? 'ok' : 'off'}">${p.connected ? 'Connected' : 'Disconnected'}</span></td>
+        <td><span class="badge ${p.connected ? 'ok' : 'off'}">${p.connected ? 'Connected' : 'Disconnected'}</span><br>${usabilityBadge}</td>
         <td>${p.requiresApiKey ? (p.keyConfigured ? '✅ configured' : '❌ not set') : 'not required'}</td>
         <td>
           ${p.requiresApiKey ? `
@@ -43,7 +53,8 @@ export function renderSettingsPage(
           </form>
         </td>
       </tr>
-    `)
+    `;
+    })
     .join('');
 
   const assignmentRows = assignments

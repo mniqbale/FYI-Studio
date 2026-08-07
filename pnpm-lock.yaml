@@ -263,6 +263,9 @@ importers:
       '@fyi/publish':
         specifier: workspace:1.0.0
         version: link:../../packages/publish
+      '@fyi/supervisor':
+        specifier: workspace:1.0.0
+        version: link:../supervisor
       '@fyi/utils':
         specifier: workspace:1.0.0
         version: link:../../packages/utils

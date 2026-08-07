@@ -93,7 +93,12 @@ Both are **write operations** that **break the Dashboard's read-only invariant**
 
 ## Status
 
-**Proposed** — pending Founder approval. This is folded into **Milestone 9 / Sprint 8 (Settings AI workspace)** as the Dashboard polish/write surface (see `.ai/planning/sprints/Sprint-008/`), alongside the Dashboard display improvements (Issue 8b).
+**Implemented** (2026-08-07). Approve + Revise shipped end-to-end:
+- `POST /api/jobs/:id/approve` resumes a `WAITING_APPROVAL` job (Supervisor sole writer).
+- `POST /api/jobs/:id/revise` writes edited step input into artifacts + re-runs that step.
+- Dashboard job-detail shows **✅ Approve** + **✏️ Revise Script** buttons for `WAITING_APPROVAL` jobs.
+- State-transition guardrails: approve/revise reject invalid states with structured 409 errors; non-UUID ids handled as not-found.
+- Unit tests (`tests/hitl.test.ts`) cover route wiring + validation + rejection.
 
 ---
 

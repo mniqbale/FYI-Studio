@@ -20,6 +20,7 @@ import {
   seedRegistries,
   upsertTenantPolicy,
   hasSecret,
+  resolveSecret,
   listModels,
   setProviderApiKey,
   deleteProviderApiKey,
@@ -32,6 +33,7 @@ import {
   listTenantKnowledge,
 } from '@fyi/knowledge';
 import { prisma, JobStatus } from '../utils/prisma.js';
+import { checkProviderUsability, type ProviderUsabilityResult } from './provider-usability.js';
 
 export interface ProviderView {
   id: string;
@@ -40,6 +42,8 @@ export interface ProviderView {
   connected: boolean;
   keyConfigured: boolean;
   healthError: string | null;
+  /** Usability probe result (Opsi 4). null when not probed. */
+  usability: ProviderUsabilityResult | null;
 }
 
 export interface CapabilityAssignment {
@@ -153,17 +157,19 @@ export async function getSettingsOverview(tenantId?: string): Promise<SettingsOv
   const policy = loadModelPolicy();
   const connectedSet = new Set(connections.filter((c) => c.status === 'CONNECTED').map((c) => c.provider));
 
-  const providers: ProviderView[] = PROVIDER_CATALOG.map((p) => {
+  const providers: ProviderView[] = [];
+  for (const p of PROVIDER_CATALOG) {
     const conn = connections.find((c) => c.provider === p.id && c.scope === 'default');
-    return {
-      id: p.id,
-      name: p.name,
-      requiresApiKey: p.requires_api_key,
-      connected: connectedSet.has(p.id),
-      keyConfigured: p.requires_api_key ? hasSecret(p.id) : true,
-      healthError: conn?.health_error ?? null,
-    };
-  });
+    const connected = connectedSet.has(p.id);
+    const keyConfigured = p.requires_api_key ? hasSecret(p.id) : true;
+    // Probe usability only for connected providers with a key (Opsi 4).
+    let usability: ProviderUsabilityResult | null = null;
+    if (connected && keyConfigured) {
+      const apiKey = p.requires_api_key ? resolveSecret(p.id, conn?.key_ref) : undefined;
+      usability = await checkProviderUsability(p.id, apiKey, p.base_url);
+    }
+    providers.push({ id: p.id, name: p.name, requiresApiKey: p.requires_api_key, connected, keyConfigured, healthError: conn?.health_error ?? null, usability });
+  }
 
   // Determine the effective scope for assignments: explicit tenant or 'default'.
   const scope = tenantId ?? 'default';

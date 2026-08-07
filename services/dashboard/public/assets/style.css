@@ -228,6 +228,12 @@ body {
 .btn-small { padding: 4px 10px; font-size: 0.8rem; }
 .assign-note { font-size: 0.75rem; color: var(--muted); margin-top: 4px; max-width: 420px; }
 
+/* HITL actions (ADR-0010) */
+.hitl-actions { display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+.btn-ok { background: #16a34a; color: #fff; border: none; }
+.btn-ok:hover { background: #15803d; }
+.revise-textarea { width: 100%; max-width: 560px; min-height: 90px; padding: 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); color: inherit; font: inherit; margin-top: 8px; }
+
 /* Social table + modal (WS-D) */
 .social-toolbar { margin-bottom: 12px; }
 .social-table td { vertical-align: middle; }

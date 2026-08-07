@@ -34,3 +34,4 @@ process.on('SIGINT', () => void shutdown('SIGINT'));
 process.on('SIGTERM', () => void shutdown('SIGTERM'));
 
 export { createSupervisor };
+export { approveJob, reviseStep, type HitlResult } from './hitl.js';
