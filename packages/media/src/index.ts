@@ -38,6 +38,13 @@ export {
   type VideoEngineMeta,
   type VideoEngineResult,
 } from './video-engine.js';
+export {
+  getThumbnailEngine,
+  listThumbnailEngines,
+  type ThumbnailEngineInput,
+  type ThumbnailEngineMeta,
+} from './thumbnail-engine.js';
 export { buildSrt, estimateDuration, generateSubtitles } from './subtitle.js';
 export { composeVideo, type ComposeInput, type ComposeResult } from './video.js';
+export { composeThumbnail, type ThumbnailInput, type ThumbnailResult } from './thumbnail.js';
 export { probeDuration } from './probe.js';

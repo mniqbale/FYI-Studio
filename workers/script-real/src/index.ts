@@ -151,18 +151,22 @@ async function buildOutput(envelope: TaskEnvelope): Promise<Record<string, unkno
   }
 
   if (!parsed) {
-    // Last resort: degrade to raw text (keeps the pipeline alive) but flag it.
-    parsed = { script: result.text, scenes: [], hook: '', narration: result.text, _degraded: true };
+    // Do NOT fabricate content to hide an LLM failure. Surface it as a worker
+    // failure so the Supervisor can retry/backoff and the operator sees the
+    // real problem (structured-output reliability), not a silently-broken script.
+    throw new Error(
+      `Script worker: model returned invalid structured output after retry (no valid JSON with title/hook/script/narration/caption/description).`,
+    );
   }
 
   return {
-    title: typeof parsed.title === 'string' ? parsed.title : '',
-    script: parsed.script ?? result.text,
-    scenes: parsed.scenes ?? [],
-    hook: parsed.hook ?? '',
-    narration: parsed.narration ?? '',
-    caption: typeof parsed.caption === 'string' ? parsed.caption : '',
-    description: typeof parsed.description === 'string' ? parsed.description : '',
+    title: parsed.title,
+    script: parsed.script,
+    scenes: parsed.scenes,
+    hook: parsed.hook,
+    narration: parsed.narration,
+    caption: parsed.caption,
+    description: parsed.description,
     // Source-of-truth target duration (seconds) resolved from Channel DNA.
     target_duration_seconds: ctx.target_duration_seconds,
     // Carry the Content Brief forward so downstream workers consume the same artifact.
@@ -171,24 +175,44 @@ async function buildOutput(envelope: TaskEnvelope): Promise<Record<string, unkno
   };
 }
 
+/** The structured fields the Script worker must produce (schema validation). */
+interface ScriptOutput {
+  title: string;
+  hook: string;
+  script: string;
+  scenes: string[];
+  narration: string;
+  caption: string;
+  description: string;
+}
+
 /**
- * Parse a model response as a script JSON object. Returns the parsed object
- * when it is a valid JSON object with a non-empty `script`/`narration`, or null
- * when the response is prose / invalid JSON. Tolerates markdown fences and
- * JSON wrapped in a little surrounding prose.
+ * Parse a model response as a script JSON object and validate it against the
+ * required schema. Returns a fully-typed ScriptOutput when the response is a
+ * valid JSON object with all required non-empty string fields, or null when the
+ * response is prose / invalid JSON / missing required fields. Tolerates markdown
+ * fences and JSON wrapped in a little surrounding prose.
  */
-function parseScriptJson(text: string): Record<string, unknown> | null {
+function parseScriptJson(text: string): ScriptOutput | null {
   const candidates: string[] = [text.replace(/```json|```/g, '').trim()];
   const embedded = extractJsonObject(text);
   if (embedded) candidates.push(JSON.stringify(embedded));
   for (const candidate of candidates) {
     try {
       const obj = JSON.parse(candidate) as Record<string, unknown>;
-      if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
-        const hasContent = typeof obj.script === 'string' && obj.script.length > 0;
-        const hasNarration = typeof obj.narration === 'string' && obj.narration.length > 0;
-        if (hasContent || hasNarration) return obj;
-      }
+      if (!obj || typeof obj !== 'object' || Array.isArray(obj)) continue;
+      const str = (v: unknown): string | undefined => (typeof v === 'string' ? v : undefined);
+      const title = str(obj.title);
+      const hook = str(obj.hook);
+      const script = str(obj.script);
+      const narration = str(obj.narration);
+      const caption = str(obj.caption);
+      const description = str(obj.description);
+      // Required: title, script, narration must be non-empty. hook/caption/
+      // description may be empty but must be strings (schema-typed).
+      if (!title || !script || !narration) continue;
+      const scenes = Array.isArray(obj.scenes) ? obj.scenes.filter((s): s is string => typeof s === 'string') : [];
+      return { title, hook: hook ?? '', script, scenes, narration, caption: caption ?? '', description: description ?? '' };
     } catch {
       // try next candidate
     }
