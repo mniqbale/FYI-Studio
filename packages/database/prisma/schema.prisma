@@ -214,6 +214,9 @@ model ScheduledPublish {
   scheduled_at      DateTime @db.Timestamptz(6)
   status            String   @default("scheduled") // scheduled | publishing | published | failed
   platform_response Json?    // { videoId, url, error } from the platform
+  // Publish Intent (AC-3): explicit relation Channel -> Brief -> Video -> Account.
+  // { channel_id, content_brief_id, video_artifact, platform, intent: 'publish-ready'|'scheduled' }
+  intent            Json?
   attempts          Int      @default(0)
   created_at        DateTime @default(now()) @db.Timestamptz(6)
   updated_at        DateTime @updatedAt @db.Timestamptz(6)

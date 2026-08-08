@@ -97,6 +97,27 @@ async function main(): Promise<void> {
       },
     });
     console.log(`✅ Business Unit seeded: ${dna.identity.name} (${tenantId})`);
+
+    // AC-1: ensure each Channel has an enabled social account matching its
+    // publishing_strategy so the target is resolvable. Dry-run token (mock).
+    for (const platform of dna.publishing_strategy.platforms) {
+      const existing = await prisma.socialAccount.findFirst({
+        where: { tenant_id: tenantId, platform },
+      });
+      if (!existing) {
+        await prisma.socialAccount.create({
+          data: {
+            tenant_id: tenantId,
+            platform,
+            display_name: `${dna.identity.name} (${platform})`,
+            account_ref: `UC-${tenantId}-${platform}`,
+            token_ref: 'dry-run-mock-token',
+            enabled: true,
+          },
+        });
+        console.log(`   ✅ Social account seeded: ${platform} for ${tenantId}`);
+      }
+    }
   }
   await prisma.$disconnect();
 }

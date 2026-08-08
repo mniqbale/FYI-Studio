@@ -74,3 +74,7 @@ export {
   MAX_ATTEMPTS,
   RETRY_DELAY_MS,
 } from './publish.js';
+
+// Channel-aware publish target resolution (Phase 2.3)
+export { resolvePublishTarget, buildPublishIntent } from './channel-target.js';
+export type { PublishTarget, ChannelPublishingStrategy } from './channel-target.js';

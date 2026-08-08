@@ -3,7 +3,7 @@
 //   scheduled -> publishing -> published | failed (ADR-0008).
 // `attempts` tracks retries; scheduling stores `scheduled_at` in UTC.
 
-import { prisma, type ScheduledPublish } from '@fyi/database';
+import { prisma, Prisma, type ScheduledPublish } from '@fyi/database';
 
 export type ScheduledPublishStatus = 'scheduled' | 'publishing' | 'published' | 'failed' | 'cancelled';
 
@@ -12,6 +12,8 @@ export interface SchedulePublishInput {
   job_id: string;
   social_account_id: string;
   scheduled_at: Date;
+  /** Publish Intent (AC-3): Channel -> Brief -> Video -> Account -> Intent. */
+  intent?: Record<string, unknown>;
 }
 
 export interface ScheduledPublishView {
@@ -22,6 +24,7 @@ export interface ScheduledPublishView {
   scheduled_at: Date;
   status: string;
   platform_response: Record<string, unknown> | null;
+  intent: Record<string, unknown> | null;
   attempts: number;
   created_at: Date;
   updated_at: Date;
@@ -36,6 +39,7 @@ function toView(row: ScheduledPublish): ScheduledPublishView {
     scheduled_at: row.scheduled_at,
     status: row.status,
     platform_response: (row.platform_response as Record<string, unknown> | null) ?? null,
+    intent: (row.intent as Record<string, unknown> | null) ?? null,
     attempts: row.attempts,
     created_at: row.created_at,
     updated_at: row.updated_at,
@@ -65,6 +69,7 @@ export async function schedulePublish(
       scheduled_at: input.scheduled_at,
       status: 'scheduled',
       attempts: 0,
+      intent: (input.intent ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
     },
   });
   return toView(row);
