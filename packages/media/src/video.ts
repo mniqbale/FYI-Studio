@@ -6,6 +6,7 @@ import { promisify } from 'node:util';
 import { join } from 'node:path';
 import { existsSync, statSync } from 'node:fs';
 import { execMediaDir } from './data-plane.js';
+import { probeDuration } from './probe.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -42,7 +43,12 @@ export async function composeVideo(input: ComposeInput): Promise<ComposeResult> 
   if (!existsSync(srt)) throw new Error(`VideoCompose: subtitles not found: ${srt}`);
 
   // Probe narration duration with ffprobe.
-  const duration = await probeDuration(audio);
+  const audioDuration = await probeDuration(audio);
+  // Background loop length: always at least the narration length so `-shortest`
+  // trims the final video to the FULL narration — never truncating the audio.
+  // The target duration is a script-writing guideline (aim), not a hard cap on
+  // the video; if narration exceeds it, the video must still carry all audio.
+  const duration = Math.max(input.duration_seconds && input.duration_seconds > 0 ? input.duration_seconds : audioDuration, audioDuration);
 
   const title = input.title ? `${input.title}` : '';
   const titleFilter = title
@@ -86,25 +92,15 @@ export async function composeVideo(input: ComposeInput): Promise<ComposeResult> 
   const size = statSync(outPath).size;
   if (size === 0) throw new Error('VideoCompose: ffmpeg produced empty output');
 
+  // Report the ACTUAL duration of the composed video (ffprobe on the output),
+  // not the target. `-shortest` trims the video to the narration, so the true
+  // length is the audio length — this keeps video.duration == voice.duration.
+  const actualDuration = Math.round(await probeDuration(outPath, Math.round(audioDuration)));
+
   return {
     video_path: outPath,
-    duration_seconds: Math.round(duration),
+    duration_seconds: actualDuration,
     resolution,
     format: 'mp4',
   };
-}
-
-/** Probe an audio file's duration (seconds) via ffprobe. */
-async function probeDuration(audioPath: string): Promise<number> {
-  try {
-    const { stdout } = await execFileAsync(
-      'ffprobe',
-      ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', audioPath],
-      { maxBuffer: 4 * 1024 * 1024 },
-    );
-    const sec = Number.parseFloat(stdout.trim());
-    return Number.isFinite(sec) && sec > 0 ? sec : 10;
-  } catch {
-    return 10;
-  }
 }

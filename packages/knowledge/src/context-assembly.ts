@@ -46,6 +46,8 @@ export interface AssembledContext {
   content_pillars?: string[];
   visual_identity?: Record<string, unknown>;
   production_preferences?: Record<string, unknown>;
+  /** Resolved numeric target duration (seconds) from production_preferences. */
+  target_duration_seconds?: number;
   publishing_strategy?: Record<string, unknown>;
   success_metrics?: string[];
   guardrails?: string[];
@@ -79,6 +81,25 @@ export async function assembleContext(
   const obj = (v: unknown): Record<string, unknown> | undefined =>
     v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : undefined;
 
+  // Resolve a numeric target duration (seconds) from production_preferences.
+  // Prefers an explicit `duration_seconds`; falls back to parsing a "N-M min"
+  // range to its midpoint. Returns undefined when no numeric target exists.
+  const resolveTargetDuration = (pp: Record<string, unknown> | undefined): number | undefined => {
+    if (!pp) return undefined;
+    const explicit = pp.duration_seconds;
+    if (typeof explicit === 'number' && Number.isFinite(explicit) && explicit > 0) return Math.round(explicit);
+    const range = typeof pp.duration === 'string' ? pp.duration : undefined;
+    if (range) {
+      const m = range.match(/(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)\s*min/i);
+      if (m) {
+        const lo = Number.parseFloat(m[1]);
+        const hi = Number.parseFloat(m[2]);
+        if (Number.isFinite(lo) && Number.isFinite(hi) && hi > 0) return Math.round(((lo + hi) / 2) * 60);
+      }
+    }
+    return undefined;
+  };
+
   return {
     tenant_id,
     brand_voice: opts.includeBrand ? (kb?.brand_voice ?? undefined) : undefined,
@@ -96,6 +117,7 @@ export async function assembleContext(
     content_pillars: strArr(c.content_pillars),
     visual_identity: obj(c.visual_identity),
     production_preferences: obj(c.production_preferences),
+    target_duration_seconds: resolveTargetDuration(obj(c.production_preferences)),
     publishing_strategy: obj(c.publishing_strategy),
     success_metrics: strArr(c.success_metrics),
     guardrails: strArr(c.guardrails),

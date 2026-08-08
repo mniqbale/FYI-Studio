@@ -20,7 +20,7 @@ const CHANNEL_RECIPE: ProductionRecipe = {
     { id: 'script', capability: 'text-synthesis:script:real', worker_label: 'script-worker', requires_approval: false, input_mapping: { content_brief: 'planner.content_brief', research_brief: 'research.research_brief' } },
     { id: 'voice', capability: 'voice:tts', worker_label: 'voice-worker', requires_approval: false, input_mapping: { script: 'script.script' } },
     { id: 'subtitle', capability: 'subtitle:generate', worker_label: 'subtitle-worker', requires_approval: false, input_mapping: { script: 'script.script' } },
-    { id: 'video', capability: 'video:compose', worker_label: 'video-worker', requires_approval: false, input_mapping: { script: 'script.script' } },
+    { id: 'video', capability: 'video:compose', worker_label: 'video-worker', requires_approval: false, input_mapping: { script: 'script.script', title: 'script.title', target_duration_seconds: 'script.target_duration_seconds' } },
   ],
 };
 

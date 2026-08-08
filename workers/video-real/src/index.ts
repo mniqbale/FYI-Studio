@@ -70,8 +70,11 @@ async function processTask(job: Job<TaskEnvelope>): Promise<WorkerResponse> {
   const prodPref = ctx.production_preferences as Record<string, unknown> | undefined;
   const channelResolution = typeof prodPref?.resolution === 'string' ? prodPref.resolution : undefined;
   const resolution = (envelope.payload?.resolution as string | undefined) ?? channelResolution;
+  // Source-of-truth target duration (seconds) from Channel DNA.
+  const channelDuration = ctx.target_duration_seconds;
+  const duration_seconds = (envelope.payload?.target_duration_seconds as number | undefined) ?? channelDuration;
   taskLog.info(
-    { channel: envelope.tenant_id, production_preferences: prodPref ?? null, resolution },
+    { channel: envelope.tenant_id, production_preferences: prodPref ?? null, resolution, target_duration_seconds: duration_seconds },
     'Video worker resolved production preference from Business Unit',
   );
 
@@ -81,6 +84,7 @@ async function processTask(job: Job<TaskEnvelope>): Promise<WorkerResponse> {
     subtitles_srt,
     title: envelope.payload?.title as string | undefined,
     resolution,
+    duration_seconds,
   });
 
   // 4. Surface engine-specific metadata as output (NOT standardized by MediaEngine).

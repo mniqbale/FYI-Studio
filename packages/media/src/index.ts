@@ -40,3 +40,4 @@ export {
 } from './video-engine.js';
 export { buildSrt, estimateDuration, generateSubtitles } from './subtitle.js';
 export { composeVideo, type ComposeInput, type ComposeResult } from './video.js';
+export { probeDuration } from './probe.js';

@@ -47,6 +47,7 @@ function buildScriptSystemPrompt(ctx: AssembledContext, briefText: string): stri
   if (ctx.content_pillars?.length) lines.push(`Channel content pillars: ${ctx.content_pillars.join(', ')}`);
   if (ctx.visual_identity) lines.push(`Channel visual identity: ${JSON.stringify(ctx.visual_identity)}`);
   if (ctx.production_preferences) lines.push(`Channel production preferences: ${JSON.stringify(ctx.production_preferences)}`);
+  if (ctx.target_duration_seconds) lines.push(`Target duration: ${ctx.target_duration_seconds} seconds. Aim the narration to land near this target.`);
   if (ctx.success_metrics?.length) lines.push(`Channel success metrics: ${ctx.success_metrics.join(', ')}`);
   if (ctx.guardrails?.length) lines.push(`Channel guardrails (do not violate): ${ctx.guardrails.join(', ')}`);
   return lines.join('\n');
@@ -76,7 +77,7 @@ async function buildOutput(envelope: TaskEnvelope): Promise<Record<string, unkno
       { role: 'system', content: system },
       {
         role: 'user',
-        content: `Research brief:\n${researchBrief}\n\nReturn JSON with keys: script (string, the full script), scenes (array of strings), hook (string), narration (string). Only valid JSON.`,
+        content: `Research brief:\n${researchBrief}\n\nReturn JSON with keys: title (string, a compelling, non-generic title aligned with the Channel DNA and Content Brief), hook (string, the opening hook), script (string, the full script), scenes (array of strings), narration (string). Only valid JSON.`,
       },
     ],
     temperature: envelope.policy?.temperature,
@@ -91,10 +92,13 @@ async function buildOutput(envelope: TaskEnvelope): Promise<Record<string, unkno
   }
 
   return {
+    title: typeof parsed.title === 'string' ? parsed.title : '',
     script: parsed.script ?? result.text,
     scenes: parsed.scenes ?? [],
     hook: parsed.hook ?? '',
     narration: parsed.narration ?? '',
+    // Source-of-truth target duration (seconds) resolved from Channel DNA.
+    target_duration_seconds: ctx.target_duration_seconds,
     // Carry the Content Brief forward so downstream workers consume the same artifact.
     content_brief: brief ?? undefined,
     _usage: { tokens_in: result.tokens_in, tokens_out: result.tokens_out },
@@ -121,7 +125,7 @@ async function processTask(job: Job<TaskEnvelope>): Promise<WorkerResponse> {
       worker_id: WORKER_ID,
       worker_version: WORKER_VERSION,
       status: WorkerStatus.SUCCESS,
-      output: { script: output.script, scenes: output.scenes, hook: output.hook, narration: output.narration },
+      output: { title: output.title, script: output.script, scenes: output.scenes, hook: output.hook, narration: output.narration, target_duration_seconds: output.target_duration_seconds },
       new_references: {},
       usage: {
         tokens_in: usage.tokens_in,

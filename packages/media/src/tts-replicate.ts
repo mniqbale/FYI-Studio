@@ -8,8 +8,9 @@
 // Reference: https://replicate.com/jaaari/kokoro-82m
 
 import { join } from 'node:path';
-import { writeFile, stat } from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { execMediaDir } from './data-plane.js';
+import { probeDuration } from './probe.js';
 
 export interface ReplicateTtsResult {
   audio_path: string;
@@ -25,12 +26,6 @@ export interface ReplicateTtsResult {
 const REPLICATE_VERSION = 'f559560eb822dc509045f3921a1921234918b91739db4bf3daab2169b71c7a13';
 const BASE = 'https://api.replicate.com/v1';
 const COST_PER_RUN = 0.0023;
-
-/** Estimate WAV duration (bytes / bytes-per-second) for the fallback path. */
-function estimateSeconds(bytes: number, sampleRate = 24000): number {
-  const bytesPerSecond = sampleRate * 2; // 16-bit mono
-  return bytes > 0 ? Math.max(1, Math.round(bytes / bytesPerSecond)) : 1;
-}
 
 /**
  * Synthesize narration text to audio via Replicate Kokoro-82M.
@@ -78,10 +73,11 @@ export async function synthesizeSpeechReplicate(
   const buf = Buffer.from(await audio.arrayBuffer());
   await writeFile(outPath, buf);
 
-  const size = (await stat(outPath)).size;
+  // Report ACTUAL duration via ffprobe (same method as the video engine).
+  const duration_seconds = Math.round(await probeDuration(outPath, 1));
   return {
     audio_path: outPath,
-    duration_seconds: estimateSeconds(size),
+    duration_seconds,
     voice_id: opts.voice ?? 'af_bella',
     provider: 'replicate',
     model: 'kokoro-82m',

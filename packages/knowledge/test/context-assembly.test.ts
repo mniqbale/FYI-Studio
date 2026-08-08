@@ -145,4 +145,41 @@ describe('assembleContext', () => {
     expect(typeof ctx.memory[0]?.created_at).toBe('string');
     expect(ctx.memory[0]?.created_at).toBe('2026-01-02T00:00:00.000Z');
   });
+
+  it('resolves target_duration_seconds from explicit production_preferences.duration_seconds', async () => {
+    getTenantKnowledge.mockResolvedValue({
+      ...cannedKb,
+      constraints: { production_preferences: { format: 'vertical', resolution: '1080x1920', duration: '1-3 min', duration_seconds: 120 } },
+    });
+    listMemory.mockResolvedValue([]);
+
+    const ctx = await assembleContext('tenant-1');
+
+    expect(ctx.target_duration_seconds).toBe(120);
+  });
+
+  it('falls back to parsing a "N-M min" range midpoint when duration_seconds is absent', async () => {
+    getTenantKnowledge.mockResolvedValue({
+      ...cannedKb,
+      constraints: { production_preferences: { format: 'horizontal', resolution: '1920x1080', duration: '8-12 min' } },
+    });
+    listMemory.mockResolvedValue([]);
+
+    const ctx = await assembleContext('tenant-1');
+
+    // (8 + 12) / 2 = 10 min = 600 seconds.
+    expect(ctx.target_duration_seconds).toBe(600);
+  });
+
+  it('leaves target_duration_seconds undefined when no numeric target exists', async () => {
+    getTenantKnowledge.mockResolvedValue({
+      ...cannedKb,
+      constraints: { production_preferences: { format: 'horizontal', resolution: '1920x1080' } },
+    });
+    listMemory.mockResolvedValue([]);
+
+    const ctx = await assembleContext('tenant-1');
+
+    expect(ctx.target_duration_seconds).toBeUndefined();
+  });
 });

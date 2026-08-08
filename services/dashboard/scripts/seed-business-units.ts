@@ -20,7 +20,7 @@ interface BusinessUnitDna {
   content_pillars: string[];
   brand_voice: string;
   visual_identity: { style: string; palette: string };
-  production_preferences: { format: 'vertical' | 'horizontal'; resolution: string; duration: string };
+  production_preferences: { format: 'vertical' | 'horizontal'; resolution: string; duration: string; duration_seconds: number };
   publishing_strategy: { platforms: string[]; cadence: string };
   success_metrics: string[];
   guardrails: string[];
@@ -37,7 +37,7 @@ const BUSINESS_UNITS: Record<string, BusinessUnitDna> = {
     content_pillars: ['science', 'history', 'how-things-work', 'myths-debunked'],
     brand_voice: 'Neutral, educational, measured. Prefer plain language and balanced framing.',
     visual_identity: { style: 'clean, minimal, muted tones', palette: 'soft blue / white / gray' },
-    production_preferences: { format: 'horizontal', resolution: '1920x1080', duration: '8-12 min' },
+    production_preferences: { format: 'horizontal', resolution: '1920x1080', duration: '8-12 min', duration_seconds: 600 },
     publishing_strategy: { platforms: ['youtube'], cadence: 'weekly' },
     success_metrics: ['watch_time', 'retention', 'subscriber_growth'],
     guardrails: ['no hype', 'no clickbait', 'no unverified claims'],
@@ -52,7 +52,7 @@ const BUSINESS_UNITS: Record<string, BusinessUnitDna> = {
     content_pillars: ['match-recap', 'transfer-news', 'player-stories', 'momentum'],
     brand_voice: 'Fast, energetic, hype. Short punchy sentences, strong verbs, momentum.',
     visual_identity: { style: 'bold, high-contrast, dynamic', palette: 'black / neon green / white' },
-    production_preferences: { format: 'vertical', resolution: '1080x1920', duration: '1-3 min' },
+    production_preferences: { format: 'vertical', resolution: '1080x1920', duration: '1-3 min', duration_seconds: 120 },
     publishing_strategy: { platforms: ['youtube', 'tiktok'], cadence: 'daily' },
     success_metrics: ['views', 'shares', 'ctr'],
     guardrails: ['no slow intros', 'no long pauses', 'no dry analysis'],

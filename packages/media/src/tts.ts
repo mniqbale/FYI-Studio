@@ -6,6 +6,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { join } from 'node:path';
 import { execMediaDir } from './data-plane.js';
+import { probeDuration } from './probe.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -24,11 +25,9 @@ export async function synthesizeSpeech(execution_id: string, text: string): Prom
   // espeak-ng writes directly to a WAV file with `-w`.
   await execFileAsync('espeak-ng', ['-w', outPath, text], { maxBuffer: 64 * 1024 * 1024 });
 
-  const { statSync } = await import('node:fs');
-  const size = statSync(outPath).size;
-  // Rough duration estimate: ~16ms of audio per byte at 8kHz mono 16-bit (espeak default ~8kHz).
-  const bytesPerSecond = 8000 * 2; // 8kHz * 16bit
-  const duration_seconds = size > 0 ? Math.max(1, Math.round(size / bytesPerSecond)) : 1;
+  // Report ACTUAL duration via ffprobe (same method as the video engine) so
+  // voice.duration and video.duration agree on the same audio file.
+  const duration_seconds = Math.round(await probeDuration(outPath, 1));
 
   return { audio_path: outPath, duration_seconds, voice_id: 'espeak-ng' };
 }
