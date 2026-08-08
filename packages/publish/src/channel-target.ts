@@ -88,6 +88,7 @@ export async function buildPublishIntent(
   const planner = (artifacts.planner as Record<string, unknown> | undefined) ?? {};
   const brief = (planner.content_brief as Record<string, unknown> | undefined) ?? {};
   const video = (artifacts.video as Record<string, unknown> | undefined) ?? {};
+  const script = (artifacts.script as Record<string, unknown> | undefined) ?? {};
 
   return {
     channel_id: tenantId,
@@ -96,5 +97,11 @@ export async function buildPublishIntent(
     platform: target.platform,
     social_account_id: target.social_account_id,
     intent: 'publish-ready',
+    // Content package metadata (Phase 2.7) — carried so the Publishing layer
+    // can render platform-specific presentation without re-deriving content.
+    title: typeof script.title === 'string' ? script.title : undefined,
+    hook: typeof script.hook === 'string' ? script.hook : undefined,
+    caption: typeof script.caption === 'string' ? script.caption : undefined,
+    description: typeof script.description === 'string' ? script.description : undefined,
   };
 }

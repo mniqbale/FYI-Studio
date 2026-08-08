@@ -114,12 +114,20 @@ describe('resolveVideoPath', () => {
 });
 
 describe('buildUploadMetadata', () => {
-  it('uses script.title and research.summary', () => {
+  it('uses script.title and script.description (Channel-aware, not research.summary)', () => {
+    const m = buildUploadMetadata({
+      script: { title: 'My Video', description: 'A Channel-aware description' },
+      research: { summary: 'A generic summary' },
+    });
+    expect(m.title).toBe('My Video');
+    expect(m.description).toBe('A Channel-aware description');
+  });
+
+  it('falls back to research.summary only when script.description is absent', () => {
     const m = buildUploadMetadata({
       script: { title: 'My Video' },
       research: { summary: 'A summary' },
     });
-    expect(m.title).toBe('My Video');
     expect(m.description).toBe('A summary');
   });
 

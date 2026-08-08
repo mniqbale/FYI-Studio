@@ -14,6 +14,43 @@ const CAPABILITY = 'text-synthesis:script:real';
 const aiClient = new AiClient();
 
 /**
+ * Try to extract a JSON object from a model response that may be wrapped in
+ * prose (e.g. "Here is the JSON: {...}"). Returns the parsed object, or null
+ * when no valid JSON object can be found. Used as a robust fallback when the
+ * model does not return pure JSON.
+ */
+function extractJsonObject(text: string): Record<string, unknown> | null {
+  // Find the first '{' and try to match a balanced JSON object from there.
+  const start = text.indexOf('{');
+  if (start === -1) return null;
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === '\\') escaped = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') inString = true;
+    else if (ch === '{') depth++;
+    else if (ch === '}') {
+      depth--;
+      if (depth === 0) {
+        try {
+          return JSON.parse(text.slice(start, i + 1)) as Record<string, unknown>;
+        } catch {
+          return null;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+/**
  * Build a compact script system prompt injecting tenant context
  * (brand voice, style guide, constraints, forbidden terms, verified facts, memory)
  * plus the Content Brief that governs this piece of content.
@@ -70,25 +107,52 @@ async function buildOutput(envelope: TaskEnvelope): Promise<Record<string, unkno
 
   const system = buildScriptSystemPrompt(ctx, briefText);
 
-  const result = await aiClient.complete({
+  // Ask the model for a strict JSON object. If it returns prose instead of
+  // valid JSON (a known reliability gap on some models), retry with a firmer
+  // instruction rather than degrading to garbage narration.
+  const userPrompt = `Research brief:\n${researchBrief}\n\nReturn ONLY a valid JSON object with keys: title (string, a compelling, non-generic title aligned with the Channel DNA and Content Brief), hook (string, the opening hook), script (string, the full script), scenes (array of strings), narration (string), caption (string, a short platform-ready caption derived from the Channel DNA, Content Brief, and research — punchy and shareable, NOT generic), description (string, a fuller platform-ready description derived from the Channel DNA, Content Brief, and research — informative and on-brand, NOT generic). Do not include any text outside the JSON object.`;
+
+  let result = await aiClient.complete({
     provider,
     model,
     messages: [
       { role: 'system', content: system },
-      {
-        role: 'user',
-        content: `Research brief:\n${researchBrief}\n\nReturn JSON with keys: title (string, a compelling, non-generic title aligned with the Channel DNA and Content Brief), hook (string, the opening hook), script (string, the full script), scenes (array of strings), narration (string). Only valid JSON.`,
-      },
+      { role: 'user', content: userPrompt },
     ],
     temperature: envelope.policy?.temperature,
     max_tokens: envelope.policy?.max_tokens ?? 4096,
   });
 
-  let parsed: Record<string, unknown>;
-  try {
-    parsed = JSON.parse(result.text.replace(/```json|```/g, '').trim()) as Record<string, unknown>;
-  } catch {
-    parsed = { script: result.text, scenes: [], hook: '', narration: result.text };
+  let parsed = parseScriptJson(result.text);
+  if (!parsed) {
+    // Retry once with an explicit correction — the model may have drifted into
+    // prose. This keeps the worker robust without a separate worker/capability.
+    const retry = await aiClient.complete({
+      provider,
+      model,
+      messages: [
+        { role: 'system', content: system },
+        { role: 'user', content: userPrompt },
+        {
+          role: 'assistant',
+          content: result.text,
+        },
+        {
+          role: 'user',
+          content:
+            'That was not valid JSON. Respond again with ONLY a valid JSON object containing the keys: title, hook, script, scenes, narration, caption, description. No prose, no markdown fences.',
+        },
+      ],
+      temperature: envelope.policy?.temperature,
+      max_tokens: envelope.policy?.max_tokens ?? 4096,
+    });
+    result = retry;
+    parsed = parseScriptJson(retry.text);
+  }
+
+  if (!parsed) {
+    // Last resort: degrade to raw text (keeps the pipeline alive) but flag it.
+    parsed = { script: result.text, scenes: [], hook: '', narration: result.text, _degraded: true };
   }
 
   return {
@@ -97,12 +161,39 @@ async function buildOutput(envelope: TaskEnvelope): Promise<Record<string, unkno
     scenes: parsed.scenes ?? [],
     hook: parsed.hook ?? '',
     narration: parsed.narration ?? '',
+    caption: typeof parsed.caption === 'string' ? parsed.caption : '',
+    description: typeof parsed.description === 'string' ? parsed.description : '',
     // Source-of-truth target duration (seconds) resolved from Channel DNA.
     target_duration_seconds: ctx.target_duration_seconds,
     // Carry the Content Brief forward so downstream workers consume the same artifact.
     content_brief: brief ?? undefined,
     _usage: { tokens_in: result.tokens_in, tokens_out: result.tokens_out },
   };
+}
+
+/**
+ * Parse a model response as a script JSON object. Returns the parsed object
+ * when it is a valid JSON object with a non-empty `script`/`narration`, or null
+ * when the response is prose / invalid JSON. Tolerates markdown fences and
+ * JSON wrapped in a little surrounding prose.
+ */
+function parseScriptJson(text: string): Record<string, unknown> | null {
+  const candidates: string[] = [text.replace(/```json|```/g, '').trim()];
+  const embedded = extractJsonObject(text);
+  if (embedded) candidates.push(JSON.stringify(embedded));
+  for (const candidate of candidates) {
+    try {
+      const obj = JSON.parse(candidate) as Record<string, unknown>;
+      if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+        const hasContent = typeof obj.script === 'string' && obj.script.length > 0;
+        const hasNarration = typeof obj.narration === 'string' && obj.narration.length > 0;
+        if (hasContent || hasNarration) return obj;
+      }
+    } catch {
+      // try next candidate
+    }
+  }
+  return null;
 }
 
 async function processTask(job: Job<TaskEnvelope>): Promise<WorkerResponse> {
@@ -125,7 +216,7 @@ async function processTask(job: Job<TaskEnvelope>): Promise<WorkerResponse> {
       worker_id: WORKER_ID,
       worker_version: WORKER_VERSION,
       status: WorkerStatus.SUCCESS,
-      output: { title: output.title, script: output.script, scenes: output.scenes, hook: output.hook, narration: output.narration, target_duration_seconds: output.target_duration_seconds },
+      output: { title: output.title, script: output.script, scenes: output.scenes, hook: output.hook, narration: output.narration, caption: output.caption, description: output.description, target_duration_seconds: output.target_duration_seconds },
       new_references: {},
       usage: {
         tokens_in: usage.tokens_in,

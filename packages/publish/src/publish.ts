@@ -42,9 +42,14 @@ export function buildUploadMetadata(
   artifacts: Record<string, unknown>,
 ): { title: string; description: string } {
   const script = (artifacts.script as Record<string, unknown> | undefined) ?? {};
-  const title = typeof script.title === 'string' ? script.title : 'FYI Studio Video';
-  const summary = (artifacts.research as Record<string, unknown> | undefined)?.summary;
-  const description = typeof summary === 'string' ? summary : '';
+  const title = typeof script.title === 'string' && script.title ? script.title : 'FYI Studio Video';
+  // Phase 2.7: use the Script worker's Channel-aware description (NOT the
+  // generic research.summary). Fall back to research.summary only if the
+  // Script description is absent.
+  const research = (artifacts.research as Record<string, unknown> | undefined) ?? {};
+  const description =
+    (typeof script.description === 'string' && script.description ? script.description : undefined) ??
+    (typeof research.summary === 'string' ? research.summary : '');
   return { title, description };
 }
 
