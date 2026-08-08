@@ -40,6 +40,15 @@ export interface AssembledContext {
   constraints: Record<string, unknown>;
   verified_facts: string[];
   memory: Record<string, unknown>[];
+  // Channel DNA (CHANNEL_CONSTITUTION §4) — resolved from constraints.
+  identity?: Record<string, unknown>;
+  audience?: string;
+  content_pillars?: string[];
+  visual_identity?: Record<string, unknown>;
+  production_preferences?: Record<string, unknown>;
+  publishing_strategy?: Record<string, unknown>;
+  success_metrics?: string[];
+  guardrails?: string[];
 }
 
 /**
@@ -62,6 +71,14 @@ export async function assembleContext(
         }))
       : [];
 
+  // Resolve full Channel DNA from the flexible constraints column (raw object).
+  const c = (kb?.constraints as unknown as Record<string, unknown>) ?? {};
+  const str = (v: unknown): string | undefined => (typeof v === 'string' ? v : undefined);
+  const strArr = (v: unknown): string[] | undefined =>
+    Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : undefined;
+  const obj = (v: unknown): Record<string, unknown> | undefined =>
+    v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : undefined;
+
   return {
     tenant_id,
     brand_voice: opts.includeBrand ? (kb?.brand_voice ?? undefined) : undefined,
@@ -70,10 +87,17 @@ export async function assembleContext(
     forbidden_terms: opts.includeForbiddenTerms
       ? ((kb?.forbidden_terms as unknown as string[]) ?? [])
       : [],
-    constraints: opts.includeConstraints
-      ? ((kb?.constraints as unknown as Record<string, unknown>) ?? {})
-      : {},
+    constraints: opts.includeConstraints ? c : {},
     verified_facts: opts.includeFacts ? ((kb?.verified_facts as unknown as string[]) ?? []) : [],
     memory,
+    // Channel DNA (CHANNEL_CONSTITUTION §4).
+    identity: obj(c.identity),
+    audience: str(c.audience),
+    content_pillars: strArr(c.content_pillars),
+    visual_identity: obj(c.visual_identity),
+    production_preferences: obj(c.production_preferences),
+    publishing_strategy: obj(c.publishing_strategy),
+    success_metrics: strArr(c.success_metrics),
+    guardrails: strArr(c.guardrails),
   };
 }

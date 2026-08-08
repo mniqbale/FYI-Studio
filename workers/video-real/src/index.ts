@@ -15,6 +15,7 @@ import { type TaskEnvelope, type WorkerResponse, WorkerStatus } from '@fyi/contr
 import { createRedisConnection, createTaskLogger } from '@fyi/utils';
 import { seedRegistries, ModelGate, loadModelPolicy } from '@fyi/platform';
 import { getVideoEngine, runMediaEngine } from '@fyi/media';
+import { assembleContext } from '@fyi/knowledge';
 
 const QUEUE_NAME = 'video-real-queue';
 const COMPLETION_QUEUE = 'completion-queue';
@@ -63,12 +64,23 @@ async function processTask(job: Job<TaskEnvelope>): Promise<WorkerResponse> {
   // 2. Select the engine adapter + build its typed MULTI-ASSET input.
   const engine = getVideoEngine(resolved.model?.provider, resolved.model?.model);
 
+  // Resolve Channel DNA production_preferences (AC-6) — Business Unit drives
+  // the output format. Payload resolution wins; fall back to channel preference.
+  const ctx = await assembleContext(envelope.tenant_id);
+  const prodPref = ctx.production_preferences as Record<string, unknown> | undefined;
+  const channelResolution = typeof prodPref?.resolution === 'string' ? prodPref.resolution : undefined;
+  const resolution = (envelope.payload?.resolution as string | undefined) ?? channelResolution;
+  taskLog.info(
+    { channel: envelope.tenant_id, production_preferences: prodPref ?? null, resolution },
+    'Video worker resolved production preference from Business Unit',
+  );
+
   // 3. Delegate the whole lifecycle to the shared runner (ADR-0012).
   const outcome = await runMediaEngine(engine, { execution_id: envelope.execution_id, job_id: envelope.job_id, tenant_id: envelope.tenant_id }, {
     narration_wav,
     subtitles_srt,
     title: envelope.payload?.title as string | undefined,
-    resolution: envelope.payload?.resolution as string | undefined,
+    resolution,
   });
 
   // 4. Surface engine-specific metadata as output (NOT standardized by MediaEngine).

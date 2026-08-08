@@ -41,6 +41,14 @@ function buildScriptSystemPrompt(ctx: AssembledContext, briefText: string): stri
     const mem = ctx.memory.map((m: Record<string, unknown>) => `${String(m.kind)}: ${String(m.content)}`).join(' | ');
     lines.push(`Context from past output: ${mem}`);
   }
+  // Channel DNA (CHANNEL_CONSTITUTION §4) — makes script Business-Unit-aware.
+  if (ctx.identity) lines.push(`Channel identity: ${JSON.stringify(ctx.identity)}`);
+  if (ctx.audience) lines.push(`Write for this channel audience: ${ctx.audience}`);
+  if (ctx.content_pillars?.length) lines.push(`Channel content pillars: ${ctx.content_pillars.join(', ')}`);
+  if (ctx.visual_identity) lines.push(`Channel visual identity: ${JSON.stringify(ctx.visual_identity)}`);
+  if (ctx.production_preferences) lines.push(`Channel production preferences: ${JSON.stringify(ctx.production_preferences)}`);
+  if (ctx.success_metrics?.length) lines.push(`Channel success metrics: ${ctx.success_metrics.join(', ')}`);
+  if (ctx.guardrails?.length) lines.push(`Channel guardrails (do not violate): ${ctx.guardrails.join(', ')}`);
   return lines.join('\n');
 }
 

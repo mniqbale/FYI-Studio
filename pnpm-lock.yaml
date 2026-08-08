@@ -601,6 +601,9 @@ importers:
       '@fyi/contracts':
         specifier: workspace:1.1.0
         version: link:../../packages/contracts
+      '@fyi/knowledge':
+        specifier: workspace:1.0.0
+        version: link:../../packages/knowledge
       '@fyi/media':
         specifier: workspace:1.0.0
         version: link:../../packages/media

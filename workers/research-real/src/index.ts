@@ -41,6 +41,13 @@ function buildResearchSystemPrompt(ctx: AssembledContext, briefText: string): st
     const mem = ctx.memory.map((m: Record<string, unknown>) => `${String(m.kind)}: ${String(m.content)}`).join(' | ');
     lines.push(`Context from past output: ${mem}`);
   }
+  // Channel DNA (CHANNEL_CONSTITUTION §4) — makes research Business-Unit-aware.
+  if (ctx.identity) lines.push(`Channel identity: ${JSON.stringify(ctx.identity)}`);
+  if (ctx.audience) lines.push(`Channel audience: ${ctx.audience}`);
+  if (ctx.content_pillars?.length) lines.push(`Channel content pillars: ${ctx.content_pillars.join(', ')}`);
+  if (ctx.visual_identity) lines.push(`Channel visual identity: ${JSON.stringify(ctx.visual_identity)}`);
+  if (ctx.success_metrics?.length) lines.push(`Channel success metrics: ${ctx.success_metrics.join(', ')}`);
+  if (ctx.guardrails?.length) lines.push(`Channel guardrails (do not violate): ${ctx.guardrails.join(', ')}`);
   return lines.join('\n');
 }
 
