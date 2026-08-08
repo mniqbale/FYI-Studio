@@ -165,6 +165,9 @@ defaults:
   text-synthesis:script:  # Script Worker (mock)
     provider: mock
     model: mock-script-model
+  voice:tts:             # Voice Worker — natural voice via Replicate Kokoro-82M
+    provider: replicate
+    model: kokoro-82m
 
 # Maps a worker capability (e.g. research:real) to the model capabilities it requires.
 # ModelGate v2 uses this to find connected + capable models when the default provider

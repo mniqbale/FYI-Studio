@@ -14,7 +14,7 @@ import { resolve } from 'node:path';
 import { type TaskEnvelope, type WorkerResponse, WorkerStatus } from '@fyi/contracts';
 import { createRedisConnection, createTaskLogger } from '@fyi/utils';
 import { seedRegistries, ModelGate, loadModelPolicy } from '@fyi/platform';
-import { getVideoEngine, runMediaEngine } from '@fyi/media';
+import { getVideoEngine, getThumbnailEngine, runMediaEngine } from '@fyi/media';
 import { assembleContext } from '@fyi/knowledge';
 
 const QUEUE_NAME = 'video-real-queue';
@@ -96,6 +96,23 @@ async function processTask(job: Job<TaskEnvelope>): Promise<WorkerResponse> {
 
   taskLog.info({ worker_id: WORKER_ID, engine: engine.provider, model: engine.model, video: meta.video_path }, 'Video engine composed MP4');
 
+  // 5. Produce the thumbnail via the thumbnail MediaEngine (Phase 2.10).
+  //    Channel visual_identity + title/hook -> thumbnail. Uses the SAME
+  //    MediaEngine abstraction (ADR-0012); no separate thumbnail worker.
+  const thumbEngine = getThumbnailEngine('local', 'ffmpeg');
+  const thumbOutcome = await runMediaEngine(thumbEngine, { execution_id: envelope.execution_id, job_id: envelope.job_id, tenant_id: envelope.tenant_id }, {
+    title: (envelope.payload?.title as string | undefined) ?? '',
+    hook: (envelope.payload?.hook as string | undefined) ?? '',
+    visual_identity: (ctx.visual_identity as { style?: string; palette?: string } | undefined) ?? {},
+    resolution,
+  });
+  const thumbMeta = (thumbOutcome.metadata ?? {}) as import('@fyi/media').ThumbnailEngineMeta;
+  if (thumbOutcome.error) {
+    taskLog.warn({ error_message: thumbOutcome.error.message }, 'Thumbnail compose failed (non-fatal)');
+  } else {
+    taskLog.info({ worker_id: WORKER_ID, thumbnail: thumbMeta.thumbnail_path }, 'Thumbnail engine composed PNG');
+  }
+
   const response: WorkerResponse = {
     contract_version: '1.1',
     job_id: envelope.job_id,
@@ -110,11 +127,15 @@ async function processTask(job: Job<TaskEnvelope>): Promise<WorkerResponse> {
       format: meta.format,
       provider: engine.provider,
       model: engine.model,
+      thumbnail_path: thumbOutcome.error ? undefined : thumbMeta.thumbnail_path,
     },
-    new_references: outcome.refs,
+    new_references: {
+      ...outcome.refs,
+      ...(thumbOutcome.error ? {} : thumbOutcome.refs),
+    },
     usage: {
       seconds: meta.duration_seconds as number,
-      cost_estimate: outcome.cost_estimate ?? 0,
+      cost_estimate: (outcome.cost_estimate ?? 0) + (thumbOutcome.cost_estimate ?? 0),
     },
     performance: outcome.telemetry,
   };

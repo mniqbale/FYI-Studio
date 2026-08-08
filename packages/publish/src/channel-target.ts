@@ -94,6 +94,7 @@ export async function buildPublishIntent(
     channel_id: tenantId,
     content_brief_id: typeof brief.brief_id === 'string' ? brief.brief_id : undefined,
     video_artifact: typeof video.video_path === 'string' ? video.video_path : undefined,
+    thumbnail_artifact: typeof video.thumbnail_path === 'string' ? video.thumbnail_path : undefined,
     platform: target.platform,
     social_account_id: target.social_account_id,
     intent: 'publish-ready',
