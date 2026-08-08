@@ -129,15 +129,22 @@ kurang vocabulary (tanpa mengubahnya).
 
 | Langkah | Status |
 |---------|--------|
-| 1. Definisi Business Unit (AC-1) | ⏳ Belum |
-| 2. Perluas assembleContext (AC-3,4,5) | ⏳ Belum |
-| 3. Research worker DNA penuh (AC-4) | ⏳ Belum |
-| 4. Script worker DNA penuh (AC-5) | ⏳ Belum |
-| 5. Video worker production_preferences (AC-6) | ⏳ Belum |
-| 6. Seed + bukti end-to-end | ⏳ Belum |
+| 1. Definisi Business Unit (AC-1) | ✅ Selesai |
+| 2. Perluas assembleContext (AC-3,4,5) | ✅ Selesai |
+| 3. Research worker DNA penuh (AC-4) | ✅ Selesai |
+| 4. Script worker DNA penuh (AC-5) | ✅ Selesai |
+| 5. Video worker production_preferences (AC-6) | ✅ Selesai |
+| 6. Seed + bukti end-to-end | ✅ Selesai |
 
-**Konstitusi: tidak ada perubahan. ADR: tidak ada perubahan. Kode worker:
-belum ada perubahan.**
+**Semua 6 AC terverifikasi live (commit `577fc3f`).** Konstitusi: tidak ada
+perubahan. ADR: tidak ada perubahan. Worker baru: tidak ada.
+
+### Observasi Konstitusi (dicatat, TIDAK diubah — per instruksi Founder)
+- **Tidak ada vocabulary yang terbukti kurang.** 9 dimensi DNA Channel cukup
+  untuk menggerakkan Research, Script, dan Video. Business Unit terbukti
+  mengubah perilaku pipeline tanpa perlu menambah konstitusi.
+- **Economics tetap ditunda** — tidak muncul sebagai kebutuhan selama
+  implementasi ini.
 
 ---
 
